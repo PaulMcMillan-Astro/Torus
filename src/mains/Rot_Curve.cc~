@@ -1,0 +1,39 @@
+*                                                                              *
+* C++ code written by Paul McMillan, 2008                                      *
+* Oxford University, Department of Physics, Theoretical Physics.               *
+* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
+* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+*                                                                              *
+*       Produce tori with actions MCMC taken from simple df                    *
+*                                                                              *
+*******************************************************************************/
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+using std::cout;
+
+#include "falPot.h"
+
+
+int main(int argc,char *argv[])
+{
+  if(argc<5) {
+    cerr << "Gives vc(R) for a set of values R from Rmin to Rmax separated by dR\n"
+	 << "Input: potential Rmin Rmax dR\n";
+  }
+  Potential *Phi;
+  my_open(from,argv[1]);
+  Phi = new GalaxyPotential(from);
+  from.close();
+
+  double Rmin = atof(argv[2]),
+    Rmax = atof(argv[3]),
+    dR = atof(argv[4]);
+  
+  for(double R=Rmin;R<=Rmax;R+=dR) {
+    cout << sqrt(Phi
+
+  }
+
+}
