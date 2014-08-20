@@ -1,0 +1,69 @@
+################################################################################
+#
+#  README file for simple version of the Torus code 
+#
+# If there are issues, contact Paul McMillan <p.mcmillan1@physics.ox.ac.uk>
+#
+################################################################################
+
+Everything _should_ compile with simply the command "make" or "make mains". This
+will compile:
+
+1) libWD.a (found in WDlib/obj/), comprising general library code from Walter
+Dehnen.
+
+2) libOther.a (found in obj/), comprising my general library code. It include
+PJMCoords which converts between various coordinate sytems (Galactocentric and
+Heliocentric). 
+
+3) libPot.a (in obj/), comprising code that works out various potentials (and
+derivatives etc). The most important is probably falPot, which is used to work
+out potentials for exponential discs and spheroids with broken power law density
+profiles. falPot_Documentation.pdf gives some details on how to use it (though
+the compilation part is wrong). I'd avoid looking too deeply into the source
+code if I were you as it's a very confusing piece of code to get your head
+around.
+
+4) libTorus.a (in obj/), comprising the various bits of underlying Torus code
+(that work out the parameters of a Torus model, and do all the work converting
+between coordinate systems). The key class is Torus (as you might expect), which
+collects everything together. Also TorusList, which deals with the storage, in a
+way that is stable but inelegant. It's all a bit unwieldy at the moment, but the
+example code should demonstrate some of the main uses.
+
+5) Example executables.
+
+The inputs required for any piece of example code can be found by running it
+with no arguments. The various executables are:
+
+testfalPot: does simple things with falPot as examples.
+
+AUTOTORUS: Finds a torus given input potential and Actions
+
+AUTOTORI: Finds a many tori given input potential and list of Actions.
+
+GiveListProps: Gives desired properties (e.g. actions, frequencies) of all tori
+in a TorusList.
+
+READLIST: Gives all info about a single torus on a TorusList.
+
+Choose_any_df: Picks actions randomly from a given df using a Metropolis
+algorithm. Output is a list of actions, df values, and number of steps that the
+MCMC chain stayed at that action (N_MCMC).
+
+Create_DF_tori: Takes an output from Choose_any_df, and gives out a TorusList
+with those actions, of a required size.
+
+Sample_list_limits: Samples randomly from the tori in a TorusList output from
+Create_DF_tori.
+
+Orbit_basic: Takes input positions and velocities (in the same
+coordinates as the output from Sample_list_limits). Integrates their
+orbits in given potential, giving output at up to 5 times given by
+user.
+
+Coord_converter: Converts input points into different coordiate
+systems (Galactocentric or Heliocentric). 
+
+The shell script Simple_Survey.csh runs a simple example set of programmes.
+
