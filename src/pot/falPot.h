@@ -1,4 +1,10 @@
 // -*- C++ -*-                                                                 |
+/**
+\file falPot.h
+\brief Header for Walter Dehnen's GalaxyPotential code
+
+*/
+
 //-----------------------------------------------------------------------------+
 //                                                                             |
 // falPot.h                                                                    |
@@ -13,7 +19,7 @@
 //-----------------------------------------------------------------------------+
 /*
 
-Put into the Torus code (with a minimum of fuss) by Paul McMillan, Oxford
+Put into the Torus code (with a minimum of fuss) by Paul McMillan, Oxford 2010
 email: p.mcmillan1@physics.ox.ac.uk
 
 */

@@ -1,4 +1,9 @@
 // -*- C++ -*-                                                                 |
+/**
+\file falPot.cc
+\brief Walter Dehnen's GalaxyPotential code
+*/
+
 //-----------------------------------------------------------------------------+
 //                                                                             |
 // GalPot.cc                                                                   |

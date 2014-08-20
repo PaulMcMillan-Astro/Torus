@@ -1,4 +1,7 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file LogPot.cc
+\brief Logarithmic potential
+									     
 *                                                                              *
 * LogPot.cc                                                                    *
 *                                                                              *
@@ -14,17 +17,14 @@
 #include "LogPot.h"
 #include <cmath>
 
-//extern "C" {
-//    void   exit();
-//}
 
-void  LogPot::error(const char* msgs) const
+void  LogPotential::error(const char* msgs) const
 {
-    cerr << " Error in class LogPot: " << msgs << '\n';
+    cerr << " Error in class LogPotential: " << msgs << '\n';
     exit(1);
 }
 
-double LogPot::operator() (const double R, const double z) const
+double LogPotential::operator() (const double R, const double z) const
 {
     if(rc2==0. && R==0. && z==0.) error(" (R,z)=0 at zero core radius"); 
     if(Rei) {
@@ -34,7 +34,7 @@ double LogPot::operator() (const double R, const double z) const
     return v0sqhalf * log(R*R+z*z*q2i+rc2) + plusconst;
 }
 
-double LogPot::operator() (const double R, const double z, double& dPdR,
+double LogPotential::operator() (const double R, const double z, double& dPdR,
 			   double& dPdz) const
 {
     if(rc2==0. && R==0. && z==0.) error(" (R,z)=0 at zero core radius"); 
@@ -54,7 +54,7 @@ double LogPot::operator() (const double R, const double z, double& dPdR,
     return v0sqhalf * log(mq);
 }
 
-double LogPot::operator() (const double R, double& dPdR, double& d2PdRR) const
+double LogPotential::operator() (const double R, double& dPdR, double& d2PdRR) const
 {
     if(rc2==0. && R==0.) error(" (R,z)=0 at zero core radius"); 
     register double Rq= R*R,
@@ -75,7 +75,7 @@ double LogPot::operator() (const double R, double& dPdR, double& d2PdRR) const
     return v0sqhalf * log(mq);
 }
 
-double LogPot::operator() (const double R, const double z,
+double LogPotential::operator() (const double R, const double z,
 			   double& dPdR, double& dPdz,
 			   double& d2PdRR, double& d2Pdzz, double& d2PdRz) const
 {
@@ -110,7 +110,7 @@ double LogPot::operator() (const double R, const double z,
 }
 
 
-double LogPot::LfromRc(const double R, double* dR) const
+double LogPotential::LfromRc(const double R, double* dR) const
 {
   double dPR,dPz,P;
   P = (*this)(R,0.,dPR,dPz);
@@ -119,7 +119,7 @@ double LogPot::LfromRc(const double R, double* dR) const
 
 
 
-double LogPot::RfromLc(const double L_in, double* dR) const
+double LogPotential::RfromLc(const double L_in, double* dR) const
 {
   bool more=false;
   double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL,L=fabs(L_in);
@@ -145,7 +145,7 @@ double LogPot::RfromLc(const double L_in, double* dR) const
 }
 
 
-Frequencies LogPot::KapNuOm(const double R) const {
+Frequencies LogPotential::KapNuOm(const double R) const {
 
   //if(Rei) cerr << "DANGER: epicycle frequencies will be wrong\n";
   Frequencies epi;
@@ -160,7 +160,7 @@ Frequencies LogPot::KapNuOm(const double R) const {
 
 
 
-ostream& operator<< (ostream& to, const LogPot& P)
+ostream& operator<< (ostream& to, const LogPotential& P)
 {
                  to << "logarithmic Potential Phi = ";
     if(P.v0!=1.) to << P.v0 << "^2";
