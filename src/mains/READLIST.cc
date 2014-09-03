@@ -1,9 +1,11 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file READLIST.cc
+\brief Gives full description of a torus on a list of tori
+
 *                                                                              *
 * READLIST.cc                                                                  *
 *                                                                              *
-* C++ code written by Walter Dehnen, 1994/95,                                  *
-*                     Paul McMillan, 2007                                      *
+* C++ code written by Paul McMillan, 2007-                                     *
 * Oxford University, Department of Physics, Theoretical Physics.               *
 * address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
 * e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
@@ -35,8 +37,6 @@ int main(int argc,char *argv[])
   }
 //---------------------------------------------------------------------------
 
-  //TorusList Tlist(argv[1],0);
-  
   std::string Tlist = string(argv[1]);
   std::vector<std::string> tori;
   if(Ebf_GetToriNames(Tlist,tori)) {
@@ -49,7 +49,7 @@ int main(int argc,char *argv[])
       //temp = atoi(argv[i]);
       if(!(T->read_ebf(Tlist,string(argv[i])))) {
 	cerr << "Torus "+string(argv[i])+"is not in the list.\n";
-	  } else { 
+      } else { 
 	//Tlist.ExTorus(temp, *T);
 	T->show(cout);
       }    

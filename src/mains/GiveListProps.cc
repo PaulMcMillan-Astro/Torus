@@ -1,4 +1,7 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file GiveListProps.cc
+\brief Gives the properties of a TorusList file (e.g. actions of all tori)
+
 *                                                                              *
 * GiveListProps.cc                                                             *
 *                                                                              *

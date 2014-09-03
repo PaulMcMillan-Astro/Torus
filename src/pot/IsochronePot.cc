@@ -1,8 +1,4 @@
-/***************************************************************************//**
-
-\file IsochronePot.cc 
-\brief Isochrone potential (N.B. just potential, not angle-action coordinates)
-
+/*******************************************************************************
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2006-07                                   *

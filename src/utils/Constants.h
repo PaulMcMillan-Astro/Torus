@@ -1,6 +1,8 @@
-/*******************************************************************************
-*                                                                              *
-*  Constants.h                                                                 *
+/***************************************************************************//**
+\file  Constants.h 
+\brief Contains namespace GalactoConstants. 
+Gives various parameters of the Galaxy and observing systems.
+
 *                                                                              *
 *  C++ code written by Walter Dehnen, 1995/96.                                 *
 *  Oxford University, Department of Physics, Theoretical Physics.              *
@@ -21,6 +23,10 @@ here in truth.
 
 #include "Units.h"
 
+/**
+\brief Contains default parameters of the Galaxy (e.g. R_0, v_0) and for conversions between coordinate systems
+
+ */
 
 namespace GalactoConstants {
 
@@ -44,12 +50,12 @@ namespace GalactoConstants {
 
   const double 	
     Rsun_in_kpc 	= 8.5   ,
-    zsun_in_kpc 	= 0.0, //( 0.014, temporary!!
+    zsun_in_kpc 	= 0.014,
     vcsun_in_kms	= -244.5 , // McMillan 2011: convenient
-    usun_in_kms 	= 11.1 ,
+    usun_in_kms 	= 11.1 ,   // Schonrich Binney Dehnen
     vsun_in_kms 	= 12.24,
     wsun_in_kms 	= 7.25 ,
-    Zsun		= 0.0, //temporary!!
+    Zsun		= 0.014, //temporary!!
     Rsun	 	= Rsun_in_kpc  * Units::kpc,
     zsun 		= zsun_in_kpc  * Units::kpc,
     vcsun		= vcsun_in_kms * Units::kms,

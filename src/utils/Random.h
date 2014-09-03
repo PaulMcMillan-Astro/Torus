@@ -1,23 +1,26 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Random.h
+\brief Contains base class RandomNumberGenerator and classes Random3 Sobol
+  RandomDeviate Uniform	Gaussian Exponential ExpDisk.
+Basically all you need to generate random numbers.
+
 *                                                                              *
 *  Random.h                                                                    *
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994/95,                                  *
 * Oxford University, Department of Physics, Theoretical Physics.               *
 * address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  dehnen@thphys.ox.ac.uk                                              *
 *                                                                              *
-********************************************************************************
+*******************************************************************************/
+/*                                                                             *
+* class RandomNumberGenerator   base class for random number generators        *
+* class Random3                 pseudo-random number generator                 *
+* class Sobol                   quasi-random number generator                  *
 *                                                                              *
-* class RandomNumberGenerator	base class for random number generators	       *
-* class Random3		        pseudo-random number generator (Press et al.)  *
-* class Sobol			quasi-random number generator (Press et al.)   *
-*                                                                              *
-* class RandomDeviate		base class for a random distribution	       *
-* class Uniform			P(x) = 1/|b-a| for x in (a,b)
-* class Gaussian		P(x) = Exp[-x^2/(2 sigma^2)]; x in [-oo,oo]    *
-* class Exponential		P(x) = Exp[-x]; x in [0,oo) 		       *
-* class ExpDisk			P(x) = x Exp[-x]; x in [0,oo)                  *
+* class RandomDeviate           base class for a random distribution           *
+* class Uniform                 P(x) = 1/|b-a| for x in (a,b)
+* class Gaussian                P(x) = Exp[-x^2/(2 sigma^2)]; x in [-oo,oo]    *
+* class Exponential             P(x) = Exp[-x]; x in [0,oo)                    *
 *                                                                              *
 *******************************************************************************/
 
@@ -26,8 +29,7 @@
 
 #include <algorithm>
 ////////////////////////////////////////////////////////////////////////////////
-// here is a base class for random number generators
-
+/** \brief    base class for random number generators	       */
 class RandomNumberGenerator {
 public:
     virtual double RandomDouble()        = 0;
@@ -37,9 +39,9 @@ public:
     //virtual ~RandomNumberGenerator();
 }; 
 
-////////////////////////////////////////////////////////////////////////////////
-// here is a base class for random distributions
 
+////////////////////////////////////////////////////////////////////////////////
+/** \brief base class for random distributions */
 class RandomDeviate {
 public:
     virtual double operator() () = 0;
@@ -50,6 +52,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // here are two implementation of random number generators
 
+/** \brief pseudo-random number generator   */
 class Random3 : public RandomNumberGenerator {
 // pseudo-random number generator
 private:
@@ -61,6 +64,8 @@ public:
     virtual double RandomDouble();
 };
 
+
+/** \brief quasi-random number generator   */
 class Sobol : public RandomNumberGenerator {
 // quasi-random number generator
 private:
@@ -80,6 +85,10 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // here are four implimentation of random distributions
 
+/**
+   \brief Random number x with P(x) = 1/|b-a| for x in (a,b). 
+   Default a=0,b=1. Requires an input pointer to RandomNumberGenerator.
+ */
 class Uniform : public RandomDeviate {
 // gives x uniformly in [a,b]
 private:
@@ -95,6 +104,11 @@ public:
     double value(const double x) const { return (a<=x && x<=b)? 1. : 0.; }
 };
 
+/**
+\brief  Random number x with P(x) = Exp[-x^2/(2 sigma^2)]; x in [-oo,oo]. 
+Default sigma=1.  Requires two input pointers to RandomNumberGenerator. 
+
+*/
 class Gaussian : public RandomDeviate {
 // gives x in [-oo,oo] with probability proportional to exp[-x^2/(2 sigma^2)]
 private:
@@ -110,6 +124,11 @@ public:
     double value(const double) const;
 };
 
+
+/**
+   \brief	Random number x with P(x) = Exp[-x/a]; x in [0,oo) 
+   Default a=1. Requires an input pointer to RandomNumberGenerator.
+*/
 class Exponential : public RandomDeviate {
 // gives x in [0,oo] with probability proportional to Exp[-x/alpha]
 private:

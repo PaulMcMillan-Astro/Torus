@@ -1,6 +1,7 @@
 /***************************************************************************//**
 \file LogPot.h
-\brief Header for logarithmic potential
+\brief Contains class LogPotential. 
+Logarithmic potential.
 									     
 *                                                                              *
 * LogPot.h                                                                     *

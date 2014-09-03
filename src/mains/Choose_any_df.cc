@@ -1,6 +1,6 @@
 /***************************************************************************//**
 \file Choose_any_df.cc
-\brief Chooses points from a df (see DF.h) using a Metropolis algorithm. Output actions & corresponding weight (from MCMC).
+\brief Chooses points from a df (see DF.h) using a Metropolis algorithm. Output actions, df value & corresponding weight (from MCMC).
 
 *                                                                              *
 * Choose_any_df.cc                                                             *
@@ -166,8 +166,8 @@ int main(int argc,char *argv[])
   double    odf,newdf;
   string logname = string(argv[3]) + ".CdJ_log";
 
-  if(string(argv[1]) == "LogPot_220") {
-    Phi = new LogPot(220.*Units::kms,0.8,0.,0.);
+  if(string(argv[1]) == "LogPotential_220") {
+    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
@@ -193,7 +193,7 @@ int main(int argc,char *argv[])
      <<  argv[1] << " " <<  argv[2] << " " << ntor  <<" "
      << 7*int(cpu) << " " << 123*int(cpu) << "\n"
      << "with potfile contents:\n";
-  if(string(argv[1]) == "LogPot_220") {
+  if(string(argv[1]) == "LogPotential_220") {
     to <<argv[1]<< "\n";
   } else { 
     from.open(argv[1]);

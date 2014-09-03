@@ -1,4 +1,7 @@
-
+/**
+\file PJMebf.h
+\brief Functions used for ebf format files 
+*/
 
 #include <vector>
 #include <string>

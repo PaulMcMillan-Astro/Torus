@@ -1,7 +1,9 @@
 // -*- C++ -*-                                                                 |
 /**
 \file falPot.h
-\brief Header for Walter Dehnen's GalaxyPotential code
+\brief Contains class GalaxyPotential and related classes PotResidual Disks
+Spheroids Multipole.
+Walter Dehnen's GalaxyPotential code
 
 */
 

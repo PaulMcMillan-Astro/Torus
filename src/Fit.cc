@@ -10,7 +10,7 @@
 *                                                                              *
 *------------------------------------------------------------------------------*
 *                                                                              *
-* 1 fit the Sn, and/or parameters for the ToyMap and/or CanMap                 *
+* 1 fit the Sn, and/or parameters for the ToyMap and/or PoiTra                 *
 *                                                                              *
 * 2 compute the dS/dJ and frequencies                                          *
 *                                                                              *
@@ -75,7 +75,7 @@ static int LevMarCof(        // return:        error flag (see below)
     const int      mfit,     // Input:         number of parameters to be fit
     GenFncFit&     GF,       // Input:         generating function
     ToyMap&        TM,       // Input:         toy-potential map
-    CanMap&        CM,       // Input:         canonical map
+    PoiTra&        PT,       // Input:         canonical map
     double&        Hav,      // Output:        average H
     double&        chirms,   // Output:        rms deviation from average H
     double&        dchisq,   // Output:        | dchi^2 / da |
@@ -143,10 +143,10 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
     dHavda = new double[mfit];
     Hav    = 0.;
     Hsqav  = 0.;
-    //cerr << TM.parameters() << '\n' << CM.parameters() << '\n';
+    //cerr << TM.parameters() << '\n' << PT.parameters() << '\n';
     for(k=0; k<4; k++) {
         dqpdalfa[k] = new double[TM.NumberofParameters()];
-        dQPdbeta[k] = new double[CM.NumberofParameters()];
+        dQPdbeta[k] = new double[PT.NumberofParameters()];
     }
     for(k=0; k<mfit; k++) {
         dHavda[k] = 0.;
@@ -175,12 +175,12 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 	    }
             QP = jt >> TM;
 	    //cerr <<"\n"<< QP << "\n"; 
-	    QP = QP >> CM;
+	    QP = QP >> PT;
 	    //cerr << QP << "\n"; 
  	    if(fit[1]) TM.Derivatives(dqpdj, dqpdalfa);
 		else   TM.Derivatives(dqpdj);
-            //if(fit[2]) CM.Derivatives(dQPdqp, dQPdbeta); // NB fix needed
-	    CM.Derivatives(dQPdqp);
+            //if(fit[2]) PT.Derivatives(dQPdqp, dQPdbeta); // NB fix needed
+	    PT.Derivatives(dQPdqp);
 	    H = Heff(QP, dHdQP, Phi);
 	    if(fit[0] || fit[1])
 	      for(j=0; j<4; j++)
@@ -188,7 +188,7 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 		  dHdqp[j] += dHdQP[k] * dQPdqp[k][j];
 	    m = 0;
 	    if(fit[2])
-		for(j=0; j<CM.NumberofParameters(); j++,m++)
+		for(j=0; j<PT.NumberofParameters(); j++,m++)
 		    for(k=0, dHda[m]=0.; k<4; k++)
   			dHda[m] += dHdQP[k] * dQPdbeta[k][j];
 	    if(fit[1])
@@ -227,11 +227,11 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 	    }	    
             QP = jt >> TM;
 	    //cerr << QP << " "; 
-	    QP = QP >> CM;
+	    QP = QP >> PT;
 	    //cerr << QP << "\n";
 	    if(fit[1]) {         
 	      TM.Derivatives(dqpdj, dqpdalfa);
-	      CM.Derivatives(dQPdqp); 
+	      PT.Derivatives(dQPdqp); 
 	    }
 	    
 	    H = Heff(QP, dHdQP, Phi);
@@ -241,7 +241,7 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 	                dHdqp[j] += dHdQP[k] * dQPdqp[k][j];
 	    m = 0;
 	    if(fit[2])
-		for(j=0; j<CM.NumberofParameters(); j++,m++)
+		for(j=0; j<PT.NumberofParameters(); j++,m++)
 		    for(k=0, dHda[m]=0.; k<4; k++)
   			dHda[m] += dHdQP[k] * dQPdbeta[k][j];
 	    if(fit[1])
@@ -295,7 +295,7 @@ static int ChirmsOnly(         // return:        error flag (see below)
     Potential*       Phi,      // Input:         pointer to Potential
     const GenFncFit& GF,       // Input:         Generating function
     const ToyMap&    TM,       // Input:         toy-potential map
-    const CanMap&    CM,       // Input:         canonical map
+    const PoiTra&    PT,       // Input:         canonical map
     double&          Hav,      // Output:        average H
     double&          chirms)   // Output:        rms deviation from average H
 /*==============================================================================
@@ -314,7 +314,7 @@ on the meaning of the return value:
         for(i2=0; i2<GF.N_th2(); i2++) {
 	    jt    = GF.Map(J(0),J(1),i1,i2);
             if(jt[0] < 0. || jt[1] < 0.) return -2;
-            QP    = jt >> TM >> CM;
+            QP    = jt >> TM >> PT;
 	    H     = 0.5 * (QP(2)*QP(2)+QP(3)*QP(3))
 	            + Phi->eff(double(QP(0)),double(QP(1)));
             Hav  += H;
@@ -339,7 +339,7 @@ int SbyLevMar(               // return:        error flag (see below)
     const double    tol1,    // Input:         stop if   dH_rms      < tol1 ...
     const double    tol2,    // Input:         AND  if   |dchi^2/dp| < tol2
     GenPar&         Sn,      // Input/Output:  parameters of generating function
-    CanMap&         CM,      // Input/Output:  canonical map with parameters
+    PoiTra&         PT,      // Input/Output:  canonical map with parameters
     ToyMap&         TM,      // Input/Output:  toy-potential map with parameters
     double&         lambda,  // Input/Output:  lambda of the iterations
     double&         mean_H,  // Output:        mean H
@@ -363,7 +363,7 @@ int SbyLevMar(               // return:        error flag (see below)
     Phi->set_Lz(J(2));
     // special case: no fit, only <H> and <(H-<H>)^2> wanted
     if(option >= 7 || max_iter==0) {
-	if (ChirmsOnly(J,Phi,GF,TM,CM,mean_H,delta_H)) return -2;
+	if (ChirmsOnly(J,Phi,GF,TM,PT,mean_H,delta_H)) return -2;
 	return 0;
     }
 // normal case: fit some parameter(s)
@@ -378,7 +378,7 @@ int SbyLevMar(               // return:        error flag (see below)
 		
     vec4 	    tp(TM.parameters()), tpy(tp),
                     tpmin(TM.lower_bounds(Rc,vc)),tpmax(TM.upper_bounds(Rc,vc));
-    // if(CM.NumberofParameters()>0) {
+    // if(PT.NumberofParameters()>0) {
 //       tpmin[0] = 0.666*tp[0];
 //       tpmax[0] = 1.5*tp[0];
 //       //tpmin[3] =0.; tpmax[3] =0.;
@@ -390,7 +390,7 @@ int SbyLevMar(               // return:        error flag (see below)
 // initialisation
     negact = 0;
     if(option >= 4)   fit[2] = 0;
-        else        { fit[2] = 1; mfit += CM.NumberofParameters(); }
+        else        { fit[2] = 1; mfit += PT.NumberofParameters(); }
     if(option%4 >= 2) fit[1] = 0;
         else        { fit[1] = 1; mfit += TM.NumberofParameters(); }
     if(option%2 >= 1) fit[0] = 0;
@@ -406,24 +406,24 @@ int SbyLevMar(               // return:        error flag (see below)
 //
 // evaluate initial chi^2 and its derivatives
 // if negative actions occur, try to salvage, then set Sn=0 and try again
-    if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,CM,mean_H,delta_H,dchisq,B,AA))==-2){
+    if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,PT,mean_H,delta_H,dchisq,B,AA))==-2){
       if(err) cerr<<"SbyLevMar: init: NEGATIVE ACTIONS -> set S_n=0.99*S_n\n";
       GF.set_parameters((Sn *= 0.99));
-      if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,CM,mean_H,delta_H,dchisq,B,AA))
+      if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,PT,mean_H,delta_H,dchisq,B,AA))
 	 ==-2)	{
 	if(err) cerr<<"SbyLevMar: init: NEGATIVE ACTIONS -> set S_n=0.5*S_n\n";
 	GF.set_parameters((Sn *= 0.5));
-	if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,CM,mean_H,delta_H,dchisq,B,AA))
+	if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,PT,mean_H,delta_H,dchisq,B,AA))
 	   ==-2)	{
 	  if(err) 
 	    cerr<<"SbyLevMar: init: still NEGATIVE ACT. -> set S_n=0.2*S_n\n";
 	  GF.set_parameters((Sn *= 0.2));
-	  if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,CM,mean_H,delta_H,dchisq,B,AA))
+	  if((F=LevMarCof(fit,J,Phi,mfit,GF,TM,PT,mean_H,delta_H,dchisq,B,AA))
 	     ==-2) {
 	    if(err)  
 	      cerr<<"SbyLevMar: init: still NEGATIVE ACT. -> set S_n=0.\n"; 
 	    GF.set_parameters((Sn = 0.));
-	    F=LevMarCof(fit,J,Phi,mfit,GF,TM,CM,mean_H,delta_H,dchisq,B,AA);
+	    F=LevMarCof(fit,J,Phi,mfit,GF,TM,PT,mean_H,delta_H,dchisq,B,AA);
 	  }
 	}
       }
@@ -463,11 +463,11 @@ int SbyLevMar(               // return:        error flag (see below)
 // 3. change parameters => trial parameters, check for bounds
 	m = 0;                     // Note m incremented for all 3 fit[ ]
         // if(fit[2]) {
-//    	    for(j=0; j<CM.NumberofParameters(); j++,m++) {
+//    	    for(j=0; j<PT.NumberofParameters(); j++,m++) {
 //       		cpy[j] = cp(j)+dA[m];
 // 		minmax(cpy[j],cpmin(j),cpmax(j));
 // 	    }
-//             CM.set_parameters(cpy);
+//             PT.set_parameters(cpy);
 // 	}
         if(fit[1]) {
 	    for(j=0; j<TM.NumberofParameters(); j++,m++) {
@@ -484,7 +484,7 @@ int SbyLevMar(               // return:        error flag (see below)
 	}
         if(m!=mfit) cerr<<"wrong MFIT in SbyLevMar()\n";
 // 4. compute chi^2, A, b for trial parameters.
-	F = LevMarCof(fit,J,Phi,mfit,GF,TM,CM,H_av,chirms,dchtry,dA,AAtry);
+	F = LevMarCof(fit,J,Phi,mfit,GF,TM,PT,H_av,chirms,dchtry,dA,AAtry);
 	rHav = H_av/H_av0;
 // 5. accept or reject trial parameters
 	if(F) {
@@ -510,7 +510,7 @@ int SbyLevMar(               // return:        error flag (see below)
 		<<' '<<delta_H<<' '<< dchisq//<<"  a="<< cpy 
 		<<"; b="<<tpy<<'\n';
 	  lambda *= 0.5;
-	  //if(fit[2]) cp = CM.parameters();
+	  //if(fit[2]) cp = PT.parameters();
 	  if(fit[1]) tp = TM.parameters();
 	  if(fit[0]) Sn = GF.parameters();
 	  for(m=0; m<mfit; m++) {
@@ -526,7 +526,7 @@ int SbyLevMar(               // return:        error flag (see below)
 	    lambda *= 4.;
         }
     }
-    //if(fit[2]) CM.set_parameters(cp);
+    //if(fit[2]) PT.set_parameters(cp);
     if(fit[1]) TM.set_parameters(tp); 
     Deletion(mfit,AA,AAtry,dA,B);
     return iterations;
@@ -593,7 +593,7 @@ inline void z0RemoveStrip(int*g, double**M, double*T1, double*T3, int*Kl,
 }
 
 static int z0AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
-		    const GenFnc& GF, const CanMap& CM, const ToyMap& TM,
+		    const GenFnc& GF, const PoiTra& PT, const ToyMap& TM,
                     double& dtm, double**M, double*T1, double*T3, 
 		    int*Kl, int*g,
 		    int& I, int& K, int& Tdim, const int Nr, const int Mdim, 
@@ -611,9 +611,9 @@ static int z0AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
     register double dt,dt1,dt2,dt3,time=0.,t1=Jt3(3),t3=Jt3(5),t3new,Lperp,u,
 		    dT=Pi/double(Nr);
     if(jt3(0)<0.) jt3[0]=tiny; 
-    QP3 = jt3 >> TM >> CM;
+    QP3 = jt3 >> TM >> PT;
     //cerr << jt3(5) << ' ' << QP3(2);
-    jt3    = QP3 << CM << TM;
+    jt3    = QP3 << PT << TM;
     //cerr << ' ' << jt3(5) << '\n';
     if(toruserrno) {
 	if(err) cerr<<"error in map, toruserrno="<<toruserrno<<'\n';
@@ -627,7 +627,7 @@ static int z0AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
       for(dt=0.; dt<dT; ) {
 	    R.stepRK_by(dtime);
 	    time += dtime;
-	    jt3    = R.QP3D() << CM << TM;
+	    jt3    = R.QP3D() << PT << TM;
 	    //cerr << jt3(5) << ' ' << (R.QP3D())(2) << '\n';
 	    if(INTOL<=integ++ || toruserrno) {
 		if(err && toruserrno) 
@@ -669,7 +669,7 @@ int z0dSbyInteg(               // return:     error flag (see below)
     Potential* Phi,          // Input:      pointer to Potential
     const int Nr,            // Input:      # of grid cells in Pi
     const GenPar& Sn,        // Input:      parameters of generating function
-    const CanMap& CM,        // Input:      canonical map with parameters
+    const PoiTra& PT,        // Input:      canonical map with parameters
     const ToyMap& TM,        // Input:      toy-potential map with parameters
     const double  dO,        // Input:      delta Omega
     Frequencies   &Om,	     // In/Output:  Omega_r, Omega_l
@@ -680,7 +680,7 @@ int z0dSbyInteg(               // return:     error flag (see below)
 //==============================================================================
 // meaning of return:  0       -> everything went ok 
 //                    -1       -> N too small, e.g., due to:
-//                                - H>0 occured too often in backward IsoMap
+//                                - H>0 occured too often in backward ToyIsochrone
 //                                - orbit integrations stopped (too long)
 //                    -4       -> negative Omega => reduce Etol
 //                    -5       -> Matrix M^tM not pos. def. => something wrong
@@ -721,7 +721,7 @@ int z0dSbyInteg(               // return:     error flag (see below)
         Jt3[4] = 0.;
 	Jt3[5] = Pi*(i1+.6)/double(Nr);
 	//cerr << "Jt3[5]= "<< Jt3(5)<< "\n";
-        F=z0AddStrip(Jt3,Phi,Sn,GF,CM,TM,dtm,M,T1,T3,Kl,g,I,K,Tdim,Nr,Mdim,Nm,
+        F=z0AddStrip(Jt3,Phi,Sn,GF,PT,TM,dtm,M,T1,T3,Kl,g,I,K,Tdim,Nr,Mdim,Nm,
 		   integ,INTOL,err);
         if(integ > INTOL) {
 	  if(err) cerr<<" too many time steps"; 
@@ -917,7 +917,7 @@ inline void RemoveStrip(int**g, double**M, double*T1, double*T2, double*T3, int*
 }
 
 static int AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
-		    const GenFnc& GF, const CanMap& CM, const ToyMap& TM,
+		    const GenFnc& GF, const PoiTra& PT, const ToyMap& TM,
                     double& dtm, double**M, double*T1, double*T2, double*T3, 
 		    int*Kl, int**g,
 		    int& I, int& K, int& Tdim, const int Nr, const int Mdim, 
@@ -936,7 +936,7 @@ static int AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
     double dt,dt1,dt2,dt3,time=0.,t1=Jt3(3),t2=Jt3(4),t3=Jt3(5),t3new,Lperp,u,
            dT=Pi/double(Nr);
     if(jt3(0)<0.) jt3[0]=tiny; if(jt3(1)<0.) jt3[1]=tiny;
-    QP3 = jt3 >> TM >> CM;
+    QP3 = jt3 >> TM >> PT;
     //cerr << QP3 << " " << jt3 << "\n";
     //cerr << jt3 << "\n";
     if(toruserrno) {
@@ -956,7 +956,7 @@ static int AddStrip(const PSPT& Jt3, Potential* Phi, const GenPar& Sn,
 	R.stepRK_by(dtime);
 	//cerr << R.QP3D(2)  << "    ";
 	    time += dtime;
-	    jt3    = R.QP3D() << CM << TM;
+	    jt3    = R.QP3D() << PT << TM;
 	    //cerr << jt3 << "\n";
 	    //if(!(integ%100)) cerr << integ <<" "<<  R.QP3D() << " " << dtime<< "\n";
 	    if(INTOL<=integ++ || toruserrno) {
@@ -1003,7 +1003,7 @@ int dSbyInteg(               // return:     error flag (see below)
     Potential* Phi,          // Input:      pointer to Potential
     const int Nr,            // Input:      # of grid cells in Pi
     const GenPar& Sn,        // Input:      parameters of generating function
-    const CanMap& CM,        // Input:      canonical map with parameters
+    const PoiTra& PT,        // Input:      canonical map with parameters
     const ToyMap& TM,        // Input:      toy-potential map with parameters
     const double  dO,        // Input:      delta Omega
     Frequencies   &Om,	     // In/Output:  Omega_r, Omega_l
@@ -1014,7 +1014,7 @@ int dSbyInteg(               // return:     error flag (see below)
 //==============================================================================
 // meaning of return:  0       -> everything went ok 
 //                    -1       -> N too small, e.g., due to:
-//                                - H>0 occured too often in backward IsoMap
+//                                - H>0 occured too often in backward ToyIsochrone
 //                                - orbit integrations stopped (too long)
 //                    -4       -> negative Omega => reduce Etol
 //                    -5       -> Matrix M^tM not pos. def. => something wrong
@@ -1022,7 +1022,7 @@ int dSbyInteg(               // return:     error flag (see below)
 //==============================================================================
 {
   if(!J(1)) {
-    int F = z0dSbyInteg(J,Phi,Nr,Sn,CM,TM,dO,Om,chi,Ap,IperCell,err);
+    int F = z0dSbyInteg(J,Phi,Nr,Sn,PT,TM,dO,Om,chi,Ap,IperCell,err);
     return F;
   }
              bool   constraint=false; //History 
@@ -1065,7 +1065,7 @@ int dSbyInteg(               // return:     error flag (see below)
         Jt3[3] = Pi*(i1+.6)/double(Nr);
         Jt3[4] = Pi*(i2+.6)/double(Nr);
 	Jt3[5] = Pi*((Nr-1-i2)+.6)/double(Nr); // no, it doesn't really matter
-        F=AddStrip(Jt3,Phi,Sn,GF,CM,TM,dtm,M,T1,T2,T3,Kl,g,I,K,Tdim,Nr,Mdim,Nm,
+        F=AddStrip(Jt3,Phi,Sn,GF,PT,TM,dtm,M,T1,T2,T3,Kl,g,I,K,Tdim,Nr,Mdim,Nm,
 		   integ,INTOL,err);
         if(integ > INTOL) {
 	  if(err) cerr<<" too many time steps "<< integ << ' ' << i1 << i2 <<'\n'; 
@@ -1228,7 +1228,7 @@ int Omega(                   // return:    error flag, see below
     Potential     *Phi,      // Input:     pointer to Potential
     const Actions &J,        // Input:     actions
     const GenPar  &Sn,       // Input:     parameters of generating function
-    const CanMap  &CM,       // Input:     canonical map with parameters
+    const PoiTra  &PT,       // Input:     canonical map with parameters
     const ToyMap  &TM,       // Input:     toy-potential map with parameters
     const double  t1,        // Input:     start toy angle
     const double  t2,        // Input:     start toy angle
@@ -1252,7 +1252,7 @@ int Omega(                   // return:    error flag, see below
     toruserrno = 0;
     QP = PSPD(J(0),J(1),t1,t2) >> GF >> TM;
     if(toruserrno) return -2;
-    QP = QP >> CM;
+    QP = QP >> PT;
     if(toruserrno) return -2;
     Phi->set_Lz(J(2));
     Record X(QP,Phi);
@@ -1262,7 +1262,7 @@ int Omega(                   // return:    error flag, see below
         X.stepRK_by(dt);
 	t+=dt;
 // compute toy angles, shift to get increasing order and add to sums
-	jt = X.QP() << CM << TM;
+	jt = X.QP() << PT << TM;
 	if(toruserrno) return -2;
 	if(std::isnan(jt(2)) || std::isinf(jt(2)) || fabs(jt(2))>INT_MAX)
 	  jt[2] = th1+0.0001;        // in case of major failure
@@ -1295,45 +1295,6 @@ int Omega(                   // return:    error flag, see below
     return 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// routine OmegaPhi() ******************************************************* //
-////////////////////////////////////////////////////////////////////////////////
-double OmegaPhi(            // return:      estimate of the azimuthal frequency
-    const Actions &J,       // Input:       Actions of Torus to be fit
-    const GenPar  &Sn,      // Input:       parameters of generating function
-    const CanMap  &CM,      // Input:       canonical map with parameters
-    const ToyMap  &TM,      // Input:       toy-potential map with parameters
-    const AngPar  &AP,      // Input:       dSn/dJr & dSn/dJl
-    const int     nth,      // Input:       number of grid points in theta
-    double*       meanR  )  // Output:      optional mean value of R
-{
-    AngMap AM(AP);
-    GenFnc GF(Sn);
-    register int    i1,i2,n;
-    register PSPD   QP,JT(J(0),J(1),0.,0.);
-    register double O=0., f1, f2, det, dth=Pi/double(nth);
-    toruserrno = 0;
-    if(meanR) *meanR=0.;
-    for(n=i1=0; i1<nth; i1++) {
-      //f1    = (i1==0 || i1==nth)? 0.5 : 1.;
-	JT[2] = i1 * dth;
-        for(i2=0; i2<nth; i2++) {
-	  //f2    = (i2==0 || i2==nth)? 0.5 : 1.;
-	    JT[3] = i2 * dth;
-	    QP = JT >> AM >> GF >> TM >> CM;
-	    if(QP(0)<0. || toruserrno)
-		toruserrno = 0;
-	    else {
-	      O += 1. / (QP(0)*QP(0));
-	      //O += f1 * f2 / (QP(0)*QP(0));
-	      if(meanR) *meanR += QP(0);
-	      n++;
-	    }
-	}
-    }
-    if(meanR) *meanR /= double(n);
-    return O*J(2)/double(n);
-}
 ////////////////////////////////////////////////////////////////////////////////
 // routine FullFit() ******************************************************** //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1377,7 +1338,7 @@ int AllFit(	            // return:	error flag (see below)
     const int	  Ni,	    // input:	max. number of iterations
     const int     OD,	    // input:	overdetermination of eqs. for angle fit
     const int     Nrs,      // input:	min. number of cells for fit of dS/dJ
-    CanMap	  &CM,      // in/output:	canonical map with parameters
+    PoiTra	  &PT,      // in/output:	canonical map with parameters
     ToyMap	  &TM,      // in/output:	toy-pot. map with parameters
     GenPar	  &SN,      // in/output:	parameters of gen. function
     AngPar	  &AP,      // output:	dSn/dJr & dSn/dJl
@@ -1428,7 +1389,7 @@ int AllFit(	            // return:	error flag (see below)
 // pre-fit  (no fit yet of the Sn)
 //
   if(err) cerr<<" 0. Fit of ToyPar & CanPar\n"; // NOTE 0 below: temporary
-  F = SbyLevMar(J,Phi,5,n1,n2,Ni0,BIG,0.,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+  F = SbyLevMar(J,Phi,5,n1,n2,Ni0,BIG,0.,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   // Function (above) which does the Levenberg-Marquad iteration
   // return value is #iterations or negative number for error
   if(F<0) { 
@@ -1444,9 +1405,9 @@ int AllFit(	            // return:	error flag (see below)
   if(Om(0) && (Om(1) || !(J(1)))) {
     tlH = hypot(Om(0),Om(1)) * Jabs * tl9;
     tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;// switch out ,4,s with ,6,s
-    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   } else  //    otherwise don't constrain dH
-    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,BIG,tl1,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   if(F<0) { 
     if(err) {cerr<<" 1. Fit: max. "<<Ni1<<" iterations.\n";
       cerr<<" SbyLevMar() returned "<<F<<'\n';}
@@ -1458,9 +1419,9 @@ int AllFit(	            // return:	error flag (see below)
 //    Estimate Omega and hence |dJ|/|J| from Orbit Integration
 //  We use a least squares fit for omega R and l; omega phi = mean (Lz/R^2)
   if(type==1) { // if no Angle Fit
-    F = Omega(Phi,J,SN,CM,TM,Pi,0.,64.*Pi,Om,dO,dOp);
-    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,CM,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,CM,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
+    F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
+    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
+    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
       Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
       dO = Om(1);  
@@ -1485,7 +1446,7 @@ int AllFit(	            // return:	error flag (see below)
     if(err) cerr<<" Fit of dS/dJi.\n";
     while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
     if(!J(1)) nrs = OD*(SN.NumberofTerms());
-    F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);      
+    F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);      
     if(F) {
       if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
       fail = true;
@@ -1497,7 +1458,7 @@ int AllFit(	            // return:	error flag (see below)
       if(J(1) == 0.) SN.Jz0();
       while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
       if(!J(1)) nrs = OD*(SN.NumberofTerms());
-      F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+      F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
       if(F) {
 	if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	fail=true;
@@ -1531,7 +1492,7 @@ int AllFit(	            // return:	error flag (see below)
   if(l>l0) { l/=256; if(l<l0) l=l0; }
   tlH = dH*tl9/d(0);
   tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;
-  F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+  F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   if(F<0) { 
     if(err) {cerr<<" dJ="<<d(0)<<" --> 2. Fit: tailor set of Sn, max. "
 		 <<Ni2<<" iterations.\n";
@@ -1569,7 +1530,7 @@ int AllFit(	            // return:	error flag (see below)
       n1=fmax(Nth, 6*(SN.NumberofN1()/4+1));
       n2=fmax(Nth, 6*(SN.NumberofN2()/4+1));
       tlH = dH*tl9/d(0);
-      F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+      F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
       if(F<0) { 
 	if(err) {cerr<<" dJ="<<d(0)<<" --> again tailor set of SN, max. "
 		     <<Ni2<<" iterations.\n";
@@ -1581,9 +1542,8 @@ int AllFit(	            // return:	error flag (see below)
     if((d[0]=dH*fac)<tol || i == (Nta-2)-1) {
       tryang = true;
       if(type==1) { // if no Angle Fit
-	F = Omega(Phi,J,SN,CM,TM,Pi,0.,64.*Pi,Om,dO,dOp);
-	if(F & F!=-1) F = Omega(Phi,J,SN,CM,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-	if(F & F!=-1) F = Omega(Phi,J,SN,CM,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
+	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
+	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
 	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
 	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
 	  dO = Om(1);  
@@ -1604,7 +1564,7 @@ int AllFit(	            // return:	error flag (see below)
 	nrs = Nrs;
 	while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
 	if(!J(1)) nrs = OD*(SN.NumberofTerms());
-	F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+	F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
 	if(F) {
 	  if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	}
@@ -1615,7 +1575,7 @@ int AllFit(	            // return:	error flag (see below)
 	  if(J(1) == 0.) SN.Jz0();
 	  while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
 	  if(!J(1)) nrs = OD*(SN.NumberofTerms());
-	  F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+	  F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
 	  if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	  if(F) {
 	    return -4;
@@ -1645,7 +1605,7 @@ int LowJzFit(	            // return:	error flag (see below)
     const int	  Ni,	    // input:	max. number of iterations
     const int     OD,	    // input:	overdetermination of eqs. for angle fit
     const int     Nrs,      // input:	min. number of cells for fit of dS/dJ
-    CanMap	  &CM,      // in/output:	canonical map with parameters
+    PoiTra	  &PT,      // in/output:	canonical map with parameters
     ToyMap	  &TM,      // in/output:	toy-pot. map with parameters
     GenPar	  &SN,      // in/output:	parameters of gen. function
     AngPar	  &AP,      // output:	dSn/dJr & dSn/dJl
@@ -1661,20 +1621,20 @@ int LowJzFit(	            // return:	error flag (see below)
 {
   if(J(1) == 0.) {
     if(Ni>800)
-      return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,CM,TM,SN,AP,
+      return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,PT,TM,SN,AP,
 		    Om,Hav,d,type,false,Ni-3,ipc,eH,Nth,err); 
     else 
-      return AllFit(J,Phi,tol,Max,800,OD,Nrs,CM,TM,SN,AP,
+      return AllFit(J,Phi,tol,Max,800,OD,Nrs,PT,TM,SN,AP,
 		    Om,Hav,d,type,false,100,ipc,eH,Nth,err); // Let it run on
   }
   int F;
   double tolJz0 = tol*J(1)/J(0); // Alter tolerance for planar fit
   Actions Jz0=J; Jz0[1] = 0.;
-  F = AllFit(Jz0,Phi,tolJz0,Max,Ni,OD,Nrs,CM,TM,SN,AP,
+  F = AllFit(Jz0,Phi,tolJz0,Max,Ni,OD,Nrs,PT,TM,SN,AP,
   	     Om,Hav,d,type,false,25,ipc,eH,Nth,err);// Orbit in plane, precise
   int nadd = 4 + SN.NumberofTerms()/10;
   SN.addn1eq0(nadd);  // add terms with n1=0
-  return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,CM,TM,SN,AP,
+  return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,PT,TM,SN,AP,
 		Om,Hav,d,type,false,Nta,ipc,eH,Nth,err); 
 
 }
@@ -1689,7 +1649,7 @@ int PTFit(	            // return:	error flag (see below)
     const int	  Ni,	    // input:	max. number of iterations
     const int     OD,	    // input:	overdetermination of eqs. for angle fit
     const int     Nrs,      // input:	min. number of cells for fit of dS/dJ
-    CanMap	  &CM,      // in/output:	canonical map with parameters
+    PoiTra	  &PT,      // in/output:	canonical map with parameters
     ToyMap	  &TM,      // in/output:	toy-pot. map with parameters
     GenPar	  &SN,      // in/output:	parameters of gen. function
     AngPar	  &AP,      // output:	dSn/dJr & dSn/dJl
@@ -1738,12 +1698,12 @@ int PTFit(	            // return:	error flag (see below)
   SN.JR0();
 
   // check that the Point transform is set up correctly
-  if(!(CM.NumberofParameters())) {
+  if(!(PT.NumberofParameters())) {
     if(err) cerr << "Point transform not set up before PTFit\n";
     return -1;
   } else {
-    double tmptab[CM.NumberofParameters()];
-    CM.parameters(tmptab);
+    double tmptab[PT.NumberofParameters()];
+    PT.parameters(tmptab);
     if(tmptab[0] != J(1) || tmptab[1] != WDabs(J(2))) {
       if(err) cerr << "Point transform set up wrong before Fit\n";
       return -1;
@@ -1764,7 +1724,7 @@ int PTFit(	            // return:	error flag (see below)
 // pre-fit  (no fit yet of the Sn)
 //
   //if(err) cerr<<" 0. Fit of ToyPar & CanPar\n"; // NOTE 0 below: temporary
-  F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni0,BIG,0.,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+  F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni0,BIG,0.,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   // Function (above) which does the Levenberg-Marquad iteration
   // return value is #iterations or negative number for error
   if(F<0) { 
@@ -1781,12 +1741,12 @@ int PTFit(	            // return:	error flag (see below)
     tlH = hypot(Om(0),Om(1)) * Jabs * tl9;
     tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;// switch out ,4,s with ,6,s
     if(sf==0)
-      F = SbyLevMar(J,Phi,6,n1,n2,Ni1,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
-    F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni1,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+      F = SbyLevMar(J,Phi,6,n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   } else { //    otherwise don't constrain dH
     if(sf==0)
-      F = SbyLevMar(J,Phi,6,n1,n2,Ni1,BIG,tl1,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
-    F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni1,BIG,tl1,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+      F = SbyLevMar(J,Phi,6,n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,5+sf,n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   }
   if(F<0) { 
     if(err) {cerr<<" 1. Fit: max. "<<Ni1<<" iterations.\n";
@@ -1801,9 +1761,9 @@ int PTFit(	            // return:	error flag (see below)
 //    Estimate Omega and hence |dJ|/|J| from Orbit Integration
 //  We use a least squares fit for omega R and l; omega phi = mean (Lz/R^2)
   if(type==1) { // if no Angle Fit
-    F = Omega(Phi,J,SN,CM,TM,Pi,0.,64.*Pi,Om,dO,dOp);
-    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,CM,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,CM,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
+    F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
+    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
+    if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
       Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
       dO = Om(1);  
@@ -1827,7 +1787,7 @@ int PTFit(	            // return:	error flag (see below)
     if(err) cerr<<" Fit of dS/dJi.\n";
     while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
     if(!J(1)) nrs = OD*(SN.NumberofTerms());
-    F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);      
+    F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);      
     if(F) {
       if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
       fail = true;
@@ -1839,7 +1799,7 @@ int PTFit(	            // return:	error flag (see below)
       if(J(1) == 0.) SN.Jz0();
       while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
       if(!J(1)) nrs = OD*(SN.NumberofTerms());
-      F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+      F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
       if(F) {
 	if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	fail=true;
@@ -1872,7 +1832,7 @@ int PTFit(	            // return:	error flag (see below)
   if(l>l0) { l/=256; if(l<l0) l=l0; }
   tlH = dH*tl9/d(0);
   tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;
-  F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+  F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   if(F<0) { 
     if(err) {cerr<<" dJ="<<d(0)<<" --> 2. Fit: tailor set of Sn, max. "
 		 <<Ni2<<" iterations.\n";
@@ -1911,7 +1871,7 @@ int PTFit(	            // return:	error flag (see below)
       n1=fmax(Nth, 6*(SN.NumberofN1()/4+1));
       n2=fmax(Nth, 6*(SN.NumberofN2()/4+1));
       tlH = dH*tl9/d(0);
-      F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,CM,TM,l=l0,Hav,dH,ngA,eH,err);
+      F=SbyLevMar(J,Phi,4+sf,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
       if(F<0) { 
 	if(err) {cerr<<" dJ="<<d(0)<<" --> again tailor set of SN, max. "
 		     <<Ni2<<" iterations.\n";
@@ -1922,9 +1882,8 @@ int PTFit(	            // return:	error flag (see below)
     }
     if((d[0]=dH*fac)<tol || i == (2*Nta-2)-1) {
       if(type==1) { // if no Angle Fit
-	F = Omega(Phi,J,SN,CM,TM,Pi,0.,64.*Pi,Om,dO,dOp);
-	if(F & F!=-1) F = Omega(Phi,J,SN,CM,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-	if(F & F!=-1) F = Omega(Phi,J,SN,CM,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
+	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
+	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
 	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
 	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
 	  dO = Om(1);  
@@ -1945,7 +1904,7 @@ int PTFit(	            // return:	error flag (see below)
 	nrs = Nrs;
 	while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
 	if(!J(1)) nrs = OD*(SN.NumberofTerms());
-	F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+	F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
 	if(F) {
 	  if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	}
@@ -1956,7 +1915,7 @@ int PTFit(	            // return:	error flag (see below)
 	  if(J(1) == 0.) SN.Jz0();
 	  while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
 	  if(!J(1)) nrs = OD*(SN.NumberofTerms());
-	  F = dSbyInteg(J,Phi,nrs,SN,CM,TM,dO,Om,d,AP,ipc,err);
+	  F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
 	  if(F) {
 	    if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
 	    return -4;

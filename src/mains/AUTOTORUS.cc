@@ -17,15 +17,12 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include "Fit.h"
-#include "ebf.hpp"
 #include "Torus.h"
-#include "noPT.h"
-#include "Isochrone.h"
+
 #include "falPot.h"
 #include "LogPot.h"
-#include "Numerics.h"
-#include "MiyamotoNagai.h"
+#include "MiyamotoNagaiPot.h"
+
 #include "PJM_cline.h"
 
 using std::cerr;
@@ -52,15 +49,15 @@ int main(int argc,char *argv[])
 //---------------------------------------------------------------------------
 //===========================================================================
 // 1. Get target potential
-  if(string(argv[1]) == "LogPotYST") {
-    Phi = new LogPot(220.*Units::kms,0.8,0.,0.);
+  if(string(argv[1]) == "LogPotentialYST") {
+    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
     from.close();
   }
-  //Phi = new MiyamotoNagai(1.*Units::G_i,1.,.45);
-  //Phi = new LogPot(244.5*Units::kms,0.7,0.,0.);
+  //Phi = new MiyamotoNagaiPotential(1.*Units::G_i,1.,.45);
+  //Phi = new LogPotential(244.5*Units::kms,0.7,0.,0.);
   
 // input actions
   J[0] = atof(argv[2]); J[1] = atof(argv[3]); J[2] = atof(argv[4]);

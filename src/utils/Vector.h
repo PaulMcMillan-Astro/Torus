@@ -1,4 +1,8 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Vector.h
+\brief Contains templated class Vector.
+Useful when working with vectors of known size.
+
 *                                                                              *
 * Vector.h                                                                     *
 *                                                                              *

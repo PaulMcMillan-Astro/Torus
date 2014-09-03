@@ -1,6 +1,7 @@
 /***************************************************************************//**
 \file DF.h
-\brief File containing classes that give distribution functions of standard forms
+\brief Contains base classes DF and quickDF_lowmem and derived classes quasi_iso_DF_JJB quasi_iso_DF_YST  multidisk_DF multidisk_quickDF.
+ These give distribution functions of standard forms
 
 *                                                                              *
 * DF.h                                                                         *
@@ -28,34 +29,79 @@
 //*****************************************************************************
 // Base classes
 
-/** \brief Base for classes that describe basic DF
-
+/** 
+\brief Base for classes that describe a distribution function f(J)
  */
 class DF {
 public:
-  virtual double df(Potential*,Actions) =0;        // give df  
+  /** \brief Gives value of df in given Potential at given Actions       */
+  virtual double df(Potential*,Actions) =0;  
+
+  /** \brief Take df parameters from an input (file)stream               */
   virtual int    setup(istream&)              =0;
+
+  /** \brief Take df parameters (including type of DF) from an input 
+      (file)stream                                                       */
   virtual int    setup_full(istream&)         =0;
+
+  /** \brief Puts parameters of the df in array passed as input pointer  */
   virtual void   Parameters(double*)          =0;
+
+  /** \brief Number of Parameters. Duh.                                  */
   virtual int    NumberofParameters()         =0;
 };
 
-// Base for classes that can quickly find the df for a single J, potential 
-// repeatedly for multiple parameter sets.
+/** 
+\brief Base for classes that can quickly find the df for a single J,
+    potential repeatedly for multiple parameter sets.
+
+    A common problem requires changing the parameters of f(J) multiple
+    times while considering the same large numbers of the same Actions
+    and Potential.
+
+    quickDF_lowmem is the base class for classes created to speed up
+    this process without using too much memory.
+
+    The speed-up is typically achieved by storing values needed to
+    calculate the df (e.g. Frequencies) and paying attention to which
+    parts of previous calculations can be reused. The low memory use comes
+    from using floats not doubles.
+*/
+
 class quickDF_lowmem {
  public:
+  /** \brief Value of the df given last set of paramters given */
   virtual double df()                                              =0;
+  /** \brief Change parameters and return df */
   virtual double df(double*,bool*,int)                             =0;
+  /** \brief set up the object given Potential, Actions & parameters of df */
   virtual int    setup(Potential*,Actions,double*,bool*,int) =0;
+  /** \brief Number of Parameters */
   virtual int    NumberofParameters()                              =0;
 };
 
 //*****************************************************************************
 // quasi-isothermal disk, BM11 paramters
+
+
+/** 
+\brief Class for a quasi-isothermal distribution function. 
+Parameters as used in Binney & McMillan 2011.
+ 
+
+*/
 class quasi_iso_DF_JJB : public DF {
 public:
-  double R0, sig2R, sig2z, Rd, q;
+  double R0, 
+    sig2R, sig2z, Rd, q;
+  /** \brief set up DF from input stream. Input values R0 sig_r sig_z (in km/s) 
+      Rd q */
   int setup(istream&);
+/** \brief set up DF from parameters. Input values R0 sig_r sig_z 
+    (in code units) Rd q */
+  void setup(double,double,double,double,double);
+  /** \brief set up DF from input stream. Stream must start J 1 then 
+      Input values R0 sig_r sig_z (in km/s) Rd q */
   int setup_full(istream&);
   quasi_iso_DF_JJB(double,double,double,double,double);
   quasi_iso_DF_JJB() {;}
@@ -67,7 +113,10 @@ public:
 };
 
 //*****************************************************************************
-// quasi-isothermal disk, Ting et al 2013 decription of parameters
+/**
+\brief Class for a quasi-isothermal distribution function. 
+Parameters as used in Ting et al 2013 
+*/
 class quasi_iso_DF_YST : public DF {
 public:
   double p_sigR, p_sigz, Rd, h_sig;
@@ -85,8 +134,11 @@ public:
 
 
 
-//*****************************************************************************
-// Multiple quasi-isothermal disk, BM11 parameters
+
+/** 
+\brief Class for a sum of multiple quasi-isothermal distribution function. 
+Parameters as used in Binney & McMillan 2011.
+*/
 class multidisk_DF : public DF {
   double *params; //R0, sig2Ra, sig2za, Rda, Rsa, L0a, frac_a, etc;
   int ndiscs;
@@ -102,6 +154,11 @@ public:
 };
 
 
+/** 
+\brief Class for the quick evaluation (at a fixed J, potential) of dfs
+that are the sum of multiple quasi-isothermal distribution
+functions. Parameters as used in Binney & McMillan 2011.
+*/
 class multidisk_quickDF : public quickDF_lowmem {
   double* params; //ndiscs, R0, sigRa0, sigza0, Rda, Rsa, L0a, fraca, etc 
   bool *change_params;

@@ -1,4 +1,9 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Fit.h
+\brief Contains all the routines that do the Torus fitting.
+
+									     */
+/*
 *                                                                              *
 * Fit.h                                                                        *
 *                                                                              *
@@ -11,8 +16,7 @@
 ********************************************************************************
 *                                                                              *
 * routines and their purpose                                                   *
-*                                                                              *
-* SbyLevMar()   fits parameters of canonical transformation and/or of toy map  *
+* SbyLevMar()   Fits parameters of canonical transformation and/or of toy map  *
 *               and/or the coefficients S_n of the generating function.        *
 *                                                                              *
 * Omega()       given output of SbyLevMar(), computes frequencies              *
@@ -41,9 +45,12 @@
 #ifndef _TorusFit_
 #define _TorusFit_ 1
 
-#include "Maps.h"
+#include "GeneratingFunction.h"
 #include "Potential.h"
-
+/**
+   \brief Fits parameters of canonical transformation and/or of toy map  
+   and/or the coefficients S_n of the generating function. 
+ */
 int SbyLevMar(          // return:	error flag (see below)
     const Actions&,     // input:	Actions of Torus to be fit
     Potential*,         // input:	pointer to Potential
@@ -54,7 +61,7 @@ int SbyLevMar(          // return:	error flag (see below)
     const double,       // input:	stop if   dH_rms     < tol1 ...
     const double,       // input:	AND  if   |dch^2/dp| < tol2
     GenPar&,            // in/output:	parameters of generating function
-    CanMap&,            // in/output:	canonical map with parameters
+    PoiTra&,            // in/output:	canonical map with parameters
     ToyMap&,            // in/output:	toy-potential map with parameters
     double&,            // in/output:	lambda for the iterations
     double&,            // output:	mean H
@@ -73,14 +80,20 @@ int SbyLevMar(          // return:	error flag (see below)
 //  meaning of option: 	0        	fit everthing
 //                     	add 1    	don't fit GenPar
 //                     	add 2    	don't fit ToyMap parameters
-//                     	add 4    	don't fit CanMap parameters
+//                     	add 4    	don't fit PoiTra parameters
+
 
 //------------------------------------------------------------------------------
+
+/** 
+    \brief Given output of SbyLevMar(), computes frequencies by orbit 
+    integration 
+*/ 
 int Omega(          	// return:	error flag (see below)
     Potential*,         // input:	pointer to Potential
     const Actions&,     // input:	J
     const GenPar&,      // input:	parameters of generating function
-    const CanMap&,      // input:	canonical map with parameters
+    const PoiTra&,      // input:	canonical map with parameters
     const ToyMap&,      // input:	toy-potential map with parameters
     const double,       // input:	start toy angle th_r
     const double,       // input:	start toy angle th_l
@@ -91,13 +104,46 @@ int Omega(          	// return:	error flag (see below)
 //  meaning of return:   0		everything seemed to be ok
 //                      -1              too many time steps (never gets there)
 //		        -2		error in backward maps
+
 //------------------------------------------------------------------------------
+
+/**  \brief given both output of SbyLevMar and an estimate of Omega with 
+     given uncertainty, computes dS/dJ and frequencies subject to   
+     the constraint of the given Omega and its uncertainty          
+*/
+int dSbyInteg(          // return:	error flag (see below)
+    const Actions&,     // input:	Actions of Torus to be fit
+    Potential*,         // input:	pointer to Potential
+    const int,          // input:	# of grid cells in Pi
+    const GenPar&,      // input:	parameters of generating function
+    const PoiTra&,      // input:	canonical map with parameters
+    const ToyMap&,      // input:	toy-potential map with parameters
+    const double,       // input:	estimate of delta Omega
+    Frequencies&,	// in/output:	estimate of / fitted (Omega_r, Omega_l)
+    Errors&,	        // output:	0:empty, 1,2,3: chi_rms for fit dSn/dJi
+    AngPar&,            // output:	dSn/dJr & dSn/dJl & dSn/dJphi
+    const int   =200,   // input:	max. tolerated steps on average per cell
+    const int   =0);    // input:	error output ?
+//  meaning of return:   0		everything seemed to be ok
+//                      -1		N too small
+//                      -2		some error occured in the backward map,
+//			 		most probably H>0 in ToyMap::Backward()
+//                      -3		error in orbit integration (too long)
+//		       	-4		neg. Omega => reduce Energy tolerance
+//		       	-5		M^tM not pos.def. => something wrong
+ 
+
+//------------------------------------------------------------------------------
+
+/** \brief dSbyInteg for the special case of Jz=0 (where the problem
+    is lower dimensional)
+*/
 int z0dSbyInteg(          // return:	error flag (see below)
     const Actions&,     // input:	Actions of Torus to be fit
     Potential*,         // input:	pointer to Potential
     const int,          // input:	# of grid cells in Pi
     const GenPar&,      // input:	parameters of generating function
-    const CanMap&,      // input:	canonical map with parameters
+    const PoiTra&,      // input:	canonical map with parameters
     const ToyMap&,      // input:	toy-potential map with parameters
     const double,       // input:	estimate of delta Omega
     Frequencies&,	// in/output:	estimate of / fitted (Omega_r, Omega_l)
@@ -113,39 +159,14 @@ int z0dSbyInteg(          // return:	error flag (see below)
 //		       	-4		neg. Omega => reduce Energy tolerance
 //		       	-5		M^tM not pos.def. => something wrong
 
-//------------------------------------------------------------------------------
-int dSbyInteg(          // return:	error flag (see below)
-    const Actions&,     // input:	Actions of Torus to be fit
-    Potential*,         // input:	pointer to Potential
-    const int,          // input:	# of grid cells in Pi
-    const GenPar&,      // input:	parameters of generating function
-    const CanMap&,      // input:	canonical map with parameters
-    const ToyMap&,      // input:	toy-potential map with parameters
-    const double,       // input:	estimate of delta Omega
-    Frequencies&,	// output:	0:empty, 1,2,3: chi_rms for fit dSn/dJi
-    Errors&,	// in/output:	estimate of / fitted (Omega_r, Omega_l)
-    AngPar&,            // output:	dSn/dJr & dSn/dJl & dSn/dJphi
-    const int   =200,   // input:	max. tolerated steps on average per cell
-    const int   =0);    // input:	error output ?
-//  meaning of return:   0		everything seemed to be ok
-//                      -1		N too small
-//                      -2		some error occured in the backward map,
-//			 		most probably H>0 in ToyMap::Backward()
-//                      -3		error in orbit integration (too long)
-//		       	-4		neg. Omega => reduce Energy tolerance
-//		       	-5		M^tM not pos.def. => something wrong
- 
+
+
 
 //------------------------------------------------------------------------------
-double OmegaPhi(	// return:	estimate of the azimuthal frequency
-    const Actions&,     // input:	Actions of Torus to be fit
-    const GenPar&,      // input:	parameters of generating function
-    const CanMap&,      // input:	canonical map with parameters
-    const ToyMap&,      // input:	toy-potential map with parameters
-    const AngPar&,      // input:	dSn/dJr & dSn/dJl & dSn/dJphi
-    const int=48,	// input:	number of grid points in theta
-    double* =0);         // output:      optional mean value of R
-//------------------------------------------------------------------------------
+
+/**
+\brief Fit the working components of a Torus in the general case. Does everything.
+ */
 
 int AllFit(		// return:	error flag (see below)
     const Actions&,     // input:	Actions of Torus to be fit
@@ -155,7 +176,7 @@ int AllFit(		// return:	error flag (see below)
     const int,		// input:	max. number of iterations
     const int,		// input:	overdetermination of eqs. for angle fit
     const int,    	// input:	min. number of cells for fit of dS/dJ
-    CanMap&,            // in/output:	canonical map with parameters
+    PoiTra&,            // in/output:	canonical map with parameters
     ToyMap&,            // in/output:	toy-potential map with parameters
     GenPar&,            // in/output:	parameters of generating function
     AngPar&,            // output:	dSn/dJr & dSn/dJl
@@ -178,6 +199,17 @@ int AllFit(		// return:	error flag (see below)
 //			-4 		Fit aborted: serious problems occured
 
 //------------------------------------------------------------------------------
+
+/**
+\brief Fit the working components of a torus in the special case of low Jz
+
+Basically this differs from the normal fit in that first the (J_R, 0,
+J_phi) orbit is fit to high accuracy. Then these Sn are used as a
+starting point for fitting the full orbit. The first attempt to fit
+the full orbit uses only these terms and ones with n_z=0 (i.e. no
+cross-terms), then these are added.
+ */
+
 int LowJzFit(		// return:	error flag (see below)
     const Actions&,     // input:	Actions of Torus to be fit
     Potential*,	   	// input:	pointer to Potential
@@ -186,7 +218,7 @@ int LowJzFit(		// return:	error flag (see below)
     const int,		// input:	max. number of iterations
     const int,		// input:	overdetermination of eqs. for angle fit
     const int,    	// input:	min. number of cells for fit of dS/dJ
-    CanMap&,            // in/output:	canonical map with parameters
+    PoiTra&,            // in/output:	canonical map with parameters
     ToyMap&,            // in/output:	toy-potential map with parameters
     GenPar&,            // in/output:	parameters of generating function
     AngPar&,            // output:	dSn/dJr & dSn/dJl
@@ -207,6 +239,14 @@ int LowJzFit(		// return:	error flag (see below)
 //			-3		Fit failed the goal by more than that
 //			-4 		Fit aborted: serious problems occured
 
+
+/**
+\brief Fit the working components of a torus in the case where a point
+transform is required (i.e. because the orbit is nearly a shell
+orbit).
+
+ */
+
 int PTFit(		// return:	error flag (see below)
     const Actions&,     // input:	Actions of Torus to be fit
     Potential*,	   	// input:	pointer to Potential
@@ -215,7 +255,7 @@ int PTFit(		// return:	error flag (see below)
     const int,		// input:	max. number of iterations
     const int,		// input:	overdetermination of eqs. for angle fit
     const int,    	// input:	min. number of cells for fit of dS/dJ
-    CanMap&,            // in/output:	canonical map with parameters
+    PoiTra&,            // in/output:	canonical map with parameters
     ToyMap&,            // in/output:	toy-potential map with parameters
     GenPar&,            // in/output:	parameters of generating function
     AngPar&,            // output:	dSn/dJr & dSn/dJl

@@ -1,4 +1,9 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Matrix.h
+\brief Contains templated class Matrix.
+Useful for working with matrices if size is known in advance. 
+Various operations (e.g. Gaussian inversion) made convenient.
+
 *                                                                              *
 * Matrix.h                                                                     *
 *                                                                              *

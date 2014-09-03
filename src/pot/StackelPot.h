@@ -1,6 +1,7 @@
 /***************************************************************************//**
 \file StackelPot.h  
-\brief Header for axisymmetric Stackel potential
+\brief Contains class StackelPotential. 
+An axisymmetric Stackel potential.
 
 *                                                                              *
 *  StackelPot.h                                                                *

@@ -1,4 +1,8 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Numerics.templates
+\brief Lots of useful templated functions. Rootfinding, polynomial 
+interpolation, splines...
+ 
 *                                                                              *
 * Numerics.templates                                                           *
 *                                                                              *

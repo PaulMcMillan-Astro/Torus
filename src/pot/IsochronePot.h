@@ -1,6 +1,7 @@
 /***************************************************************************//**
 \file IsochronePot.h
-\brief Header for isochrone potential (N.B. just potential, not angle-action coordinates)
+\brief Contains class IsochronePotential
+Isochrone potential (N.B. just potential, not angle-action coordinates)
 									   
 *                                                                              *
 *  IsochronePot.h                                                              *

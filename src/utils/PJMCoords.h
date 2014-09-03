@@ -1,128 +1,133 @@
-/*******************************************************************************
-*                                                                              *
-*  Coordinates.h                                                               *
-*                                                                              *
-*  C++ code written by Paul McMillan 2010,                                     *
-*                      Walter Dehnen, 1995-96,                                 *
-*  Oxford University, Department of Physics, Theoretical Physics.              *
-*  address: 1 Keble Road, Oxford OX1 34P, United Kingdom                       *
-*  e-mail:  p.mcmillan1@physics.ox.ac.uk                                       *
-*                                                                              *
+/***************************************************************************//**
+\file PJMCoords.h
+\brief Contains class OmniCoords.
+Code that converts between various different Heliocentric & Galctocentric 
+coordinate systems.
+
+                                                                              
+  PJMCoords.h (adapted from Coordinates.h                                     
+                                                                              
+  C++ code written by Paul McMillan 2010,                                     
+                      Walter Dehnen, 1995-96,                                 
+  Oxford University, Department of Physics, Theoretical Physics.              
+  address: 1 Keble Road, Oxford OX1 34P, United Kingdom                       
+  e-mail:  p.mcmillan1@physics.ox.ac.uk                                       
+                                                                              
 ********************************************************************************
-*                                                                              *
-*  GENERAL REMARKS                                                             *
-*                                                                              *
-*  There are six coordinate systems which can be used, three galactocentric,   *
-*  and three heliocentric. Usually, modellers use a galactocentric coordinate  *
-*  system, whereas the observer's natural coordinate systems are heliocentric  *
-*  and polar, the latter since position on the sky and distance are completely *
-*  different observables. The so called equatorial coordinates (distance,      *
-*  right ascension, declination and their time derivatives) are orientad at    *
-*  the earth's polar axis. However, because of the earth's precession, that    *
-*  axis is not at a fixed angle with respect to very distant objects.          *
-*  Therefore, one often uses so-called galactic coordinates which are also     *
-*  heliocentric but orientated with respect to the galactic centre and the     *
-*  galactic poles, respectively. This coordinate system is changing as well    *
-*  with the time scale being the sun's orbital time (2x10^8 yr) much longer    *
-*  than the earth's precession time (10^4yr).	                               *
-*                                                                              *
+                                                                              
+  GENERAL REMARKS                                                             
+                                                                              
+  There are six coordinate systems which can be used, three galactocentric,   
+  and three heliocentric. Usually, modellers use a galactocentric coordinate  
+  system, whereas the observer's natural coordinate systems are heliocentric  
+  and polar, the latter since position on the sky and distance are completely 
+  different observables. The so called equatorial coordinates (distance,      
+  right ascension, declination and their time derivatives) are orientad at    
+  the earth's polar axis. However, because of the earth's precession, that    
+  axis is not at a fixed angle with respect to very distant objects.          
+  Therefore, one often uses so-called galactic coordinates which are also     
+  heliocentric but orientated with respect to the galactic centre and the     
+  galactic poles, respectively. This coordinate system is changing as well    
+  with the time scale being the sun's orbital time (2x10^8 yr) much longer    
+  than the earth's precession time (10^4yr).	                               
+                                                                              
 ********************************************************************************
-*                                                                              *
-*  PRECISE DEFINITION OF THE COORDINATE SYSTEMS                                *
-*                                                                              *
-*  GCA Galactocentric CArtesian                                                *
-*      position = (X,Y,Z),  velocity = (vX,vY,vZ)                              *
-*      units: as defined in Units.h (kpc, kpc/Myr)			       *
-*         These are inertial right-handed coordinates with e_X pointing in the *
-*      present direction of the sun and e_Z towards the north galactic pole.   *
-*                                                                              *
-*  GCY Galactocentric CYlindrical:                                             *
-*      position = (R,Z,phi),  velocity = (vR,vZ,vphi)                          *
-*      units: as defined in Units.h (kpc, radian, kpc/Myr)		       *
-*         The cylindrical galactocentric coordinates are easily defined in     *
-*      terms of the galactrocentric cartesian coordinates introduced above:    *
-*		X = R cos(phi), Y = R sin(phi), Z = z			       *
-*       	vR = dR/dt, vz = dz/dt, vphi = R dphi/dt.		       *
-*                                                                              *
-*                                                                              *
-*  LSR Local Standard of Rest                                                  *
-*      position = (x,y,z), velocity = (u,v,w)                                  *
-*      units: as defined in Units.h (kpc, kpc/Myr)		   	       *
-*         The local standard of rest (LSR) represents an inertial (non-rota-   *
-*      ting) coordinate system with origin of position on the sun, e_x poin-   *
-*      ting towards the Galactic centre (GC), e_y in direction of Galactic     *
-*      rotation (GR), and e_z towards NGP, i.e.			     	       *
-*		(x,y,z) = (R0-X, -Y, Z-Zsun)                                   *
-*      where R0 is the distance sun-GC, and Zsun is the solar height above the *
-*      plane. The LSR's origin of velocity is on that of a (hypothetic) star   *
-*      on a circular orbit at the solar position, i.e.	     		       *
-*		(u,v,w) = (-v_X, v_circ-v_Y, v_Z)			       *
-*      where v_circ is the circular rotation velocity at R=R0, for the Milky   *
-*      Way it is negative (it's adopted value and those for R0, Zsun are taken *
-*      from the file Constants.h). The velocity (u,v,w) of a star w.r.t. LSR   *
-*      are often called its `peculiar motion'.                                 *
-*      In the literature the direction of the x or u vector is not unique,     *
-*      some authors use GC others GAC direction. Here, GC direction is used,   *
-*      in order to end up with a right-handed coordinate system.               *
-*                                                                              *
-*  HCA HelioCentric Cartesian                                                  *
-*      position = (x,y,z), velocity = (vx,vy,vz)                               *
-*      units: as defined in Units.h (kpc, kpc/Myr)                             *
-*         This coordinate system differs from the above (LSR) only in the      *
-*      origin of the velocity, which is the solar motion.                      *
-*      A direct consequence is that transformations to the Polar coordinates   *
-*      does not involve the peculiar motion of the sun.                        *
-*                                                                              *
-*  HGP Heliocentric Galactic Polar:                                            *
-*      position = (r,l,b), velocity = (vr,ml*,mb)			       *
-*      units: as defined in Units.h (kpc,radian,kpc/Myr,radian/Myr)            *
-*	  These usually called `galactic coordinates' are often used for       *
-*      observations of galactic objects. They can be defined in terms of the   *
-*      HCA as follows                                                          *
-*		x   = r * cos(b) * cos(l)   e_x points to GC 		       *
-*		y   = r * cos(b) * sin(l)                                      *
-*		z   = r * sin(b)                                               *
-*               vr  = dr/dt                                                    *
-*               ml* = dl/dt * cos(b)                                           *
-*               mb  = db/dt                                                    *
-*      l and b are usually called galactic longitude and galactic latitude,    *
-*      respectively. Note that the peculiar motion of the sun contributes to   *
-*      the radial velocity and proper motion of an object at rest in the       *
-*      local standard of rest                                                  *
-*                                                                              *
-*  HEQ Heliocentric Equatorial Polar:                                          *
-*      position = (r,a,d), velocity = (vr,ma*,md)                              *
-*      units: as defined in Units.h (kpc,radian,kpc/Myr,radian/Myr)            *
-*      NOTE:  ma* = cos(d) * da/dt = cos(d) * ma                               *
-*         The equatorial coordinates (distance, right ascension, declination)  *
-*      are those to be used in the telescopes. They are fixed to the earth     *
-*      polar axis, which changes rapidly enough to make these coordinates less *
-*      useful than the other. Hence, most observers give galactic coordinates. *
-*      The precise definition depends on epoch, by default J2000 is used, but  *
-*      B1950 is also possible, the epoch may be given as an argument.          *
-*                                                                              *
-*  --------------                                                              *
-*  @) GC, GAC, GR, GAR, and NGP denote Galactic centre, Galactic anticentre,   *
-*  Galactic rotation, Galactic antirotation, and north Galactic pole,          *
-*  respectively.                                                               *
-*                                                                              *
+                                                                              
+  PRECISE DEFINITION OF THE COORDINATE SYSTEMS                                
+                                                                              
+  GCA Galactocentric CArtesian                                                
+      position = (X,Y,Z),  velocity = (vX,vY,vZ)                              
+      units: as defined in Units.h (kpc, kpc/Myr)			       
+         These are inertial right-handed coordinates with e_X pointing in the 
+      present direction of the sun and e_Z towards the north galactic pole.   
+                                                                              
+  GCY Galactocentric CYlindrical:                                             
+      position = (R,Z,phi),  velocity = (vR,vZ,vphi)                          
+      units: as defined in Units.h (kpc, radian, kpc/Myr)		       
+         The cylindrical galactocentric coordinates are easily defined in     
+      terms of the galactrocentric cartesian coordinates introduced above:    
+		X = R cos(phi), Y = R sin(phi), Z = z			       
+       	vR = dR/dt, vz = dz/dt, vphi = R dphi/dt.		       
+                                                                              
+                                                                              
+  LSR Local Standard of Rest                                                  
+      position = (x,y,z), velocity = (u,v,w)                                  
+      units: as defined in Units.h (kpc, kpc/Myr)		   	       
+         The local standard of rest (LSR) represents an inertial (non-rota-   
+      ting) coordinate system with origin of position on the sun, e_x poin-   
+      ting towards the Galactic centre (GC), e_y in direction of Galactic     
+      rotation (GR), and e_z towards NGP, i.e.			     	       
+		(x,y,z) = (R0-X, -Y, Z-Zsun)                                   
+      where R0 is the distance sun-GC, and Zsun is the solar height above the 
+      plane. The LSR's origin of velocity is on that of a (hypothetic) star   
+      on a circular orbit at the solar position, i.e.	     		       
+		(u,v,w) = (-v_X, v_circ-v_Y, v_Z)			       
+      where v_circ is the circular rotation velocity at R=R0, for the Milky   
+      Way it is negative (it's adopted value and those for R0, Zsun are taken 
+      from the file Constants.h). The velocity (u,v,w) of a star w.r.t. LSR   
+      are often called its `peculiar motion'.                                 
+      In the literature the direction of the x or u vector is not unique,     
+      some authors use GC others GAC direction. Here, GC direction is used,   
+      in order to end up with a right-handed coordinate system.               
+                                                                              
+  HCA HelioCentric Cartesian                                                  
+      position = (x,y,z), velocity = (vx,vy,vz)                               
+      units: as defined in Units.h (kpc, kpc/Myr)                             
+         This coordinate system differs from the above (LSR) only in the      
+      origin of the velocity, which is the solar motion.                      
+      A direct consequence is that transformations to the Polar coordinates   
+      does not involve the peculiar motion of the sun.                        
+                                                                              
+  HGP Heliocentric Galactic Polar:                                            
+      position = (r,l,b), velocity = (vr,ml,mb)			       
+      units: as defined in Units.h (kpc,radian,kpc/Myr,radian/Myr)            
+	  These usually called `galactic coordinates' are often used for       
+      observations of galactic objects. They can be defined in terms of the   
+      HCA as follows                                                          
+		x   = r * cos(b) * cos(l)   e_x points to GC 		       
+		y   = r * cos(b) * sin(l)                                      
+		z   = r * sin(b)                                               
+               vr  = dr/dt                                                    
+               ml* = dl/dt * cos(b)                                           
+               mb  = db/dt                                                    
+      l and b are usually called galactic longitude and galactic latitude,    
+      respectively. Note that the peculiar motion of the sun contributes to   
+      the radial velocity and proper motion of an object at rest in the       
+      local standard of rest                                                  
+                                                                              
+  HEQ Heliocentric Equatorial Polar:                                          
+      position = (r,a,d), velocity = (vr,ma*,md)                              
+      units: as defined in Units.h (kpc,radian,kpc/Myr,radian/Myr)            
+      NOTE:  ma* = cos(d) * da/dt = cos(d) * ma                               
+         The equatorial coordinates (distance, right ascension, declination)  
+      are those to be used in the telescopes. They are fixed to the earth     
+      polar axis, which changes rapidly enough to make these coordinates less 
+      useful than the other. Hence, most observers give galactic coordinates. 
+      The precise definition depends on epoch, by default J2000 is used, but  
+      B1950 is also possible, the epoch may be given as an argument.          
+                                                                              
+  --------------                                                              
+  @) GC, GAC, GR, GAR, and NGP denote Galactic centre, Galactic anticentre,   
+  Galactic rotation, Galactic antirotation, and north Galactic pole,          
+  respectively.                                                               
+                                                                              
 ********************************************************************************
-*                                                                              *
-*  Summary of Coordinate Systems:                                              *
-*                                                                              *
-*   centre   |                coordinate system                                *
-*   x   v    | cartesian |  cylindrical | spherical polar                      *
-*  ----------+--------------------------------------------                     *
-*  GC   GC @)|	 GCA	      GCY	        -                              *
-*  sun  LSR  |   LSR           -                -                              *
-*  sun  sun  |   HCA           -             HGP, HEQ                          *
-*                                                                              *
-*  The Transformations between systems with different centres is always done   *
-*  in the cartesian frames.                                                    *
-*                                                                              *
-*  --------------                                                              *
-*  @) GC denotes the galactic centre                                           *
-*                                                                              *
+                                                                              
+  Summary of Coordinate Systems:                                              
+                                                                              
+   centre   |                coordinate system                                
+   x   v    | cartesian |  cylindrical | spherical polar                      
+  ----------+--------------------------------------------                     
+  GC   GC @)|	 GCA	      GCY	        -                              
+  sun  LSR  |   LSR           -                -                              
+  sun  sun  |   HCA           -             HGP, HEQ                          
+                                                                              
+  The Transformations between systems with different centres is always done   
+  in the cartesian frames.                                                    
+                                                                              
+  --------------                                                              
+  @) GC denotes the galactic centre                                           
+                                                                              
 ********************************************************************************
 *                                                                              *
 *  Parameter dependences of the basic transformations between the coordinate   *

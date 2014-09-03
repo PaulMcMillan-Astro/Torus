@@ -1,6 +1,7 @@
 /***************************************************************************//**
 \file MiyamotoNagaiPot.h
-\brief Header for Miyamoto-Nagai potential
+\brief Contains class MiyamotoNagaiPotential
+Which is a Miyamoto-Nagai potential. The clue is in the name.
 									     
 *                                                                              *
 *  MiyamotoNagaiPot.h                                                             *

@@ -1,3 +1,16 @@
+/***************************************************************************//**
+\file Create_df_tori.cc
+\brief Generates tori given a potential and output from Choose_any_df
+
+*                                                                              *
+* Create_DF_tori.cc                                                            *
+*                                                                              *
+* C++ code written by Paul McMillan, 2011-                                     *
+* Oxford University, Department of Physics, Theoretical Physics.               *
+* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
+* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+*                                                                              *
+*******************************************************************************/
 
 
 #include <iostream>
@@ -38,8 +51,8 @@ int main(int argc,char *argv[])
 
 
 
-  if(string(argv[1]) == "LogPot_220") {
-    Phi = new LogPot(220.*Units::kms,0.8,0.,0.);
+  if(string(argv[1]) == "LogPotential_220") {
+    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);

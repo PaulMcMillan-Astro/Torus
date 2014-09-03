@@ -1,9 +1,6 @@
 /***************************************************************************//**
-\file MiyamotoNagaiPot.cc
-\brief Miyamoto-Nagai potential
-
 *                                                                              *
-* MiyamotoNagaiPot.cc                                                             *
+* MiyamotoNagaiPot.cc                                                          *
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2006-07                                   *

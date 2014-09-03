@@ -1,3 +1,9 @@
+/**
+\file   PJMNum.h
+\brief  More useful mathsy functions.
+
+ */
+
 // Creating my own set of Numerical recipe style things. Something I probably
 // should have done a long time ago
 //

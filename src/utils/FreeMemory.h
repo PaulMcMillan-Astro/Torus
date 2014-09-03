@@ -1,4 +1,8 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file FreeMemory.h 
+\brief Templates AllocxD and FreexD (where 1<x<=4)
+Allocates and deallocates x dimensional arrays.
+
 *                                                                              *
 * FreeMemory.h                                                                 *
 *                                                                              *

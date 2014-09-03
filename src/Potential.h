@@ -1,4 +1,7 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Potential.h
+\brief Contains class Potential. Code for the base for all user defined potentials (including those supplied by the original writer (i.e. me. Hello.)
+
 *                                                                              *
 *  Potential.h                                                                 *
 *                                                                              *
@@ -21,7 +24,7 @@
    gives the base for user defined potentials; i.e. the user defines a class
    derived from Potential, which provides the operator() with 2 and 4 arguments
    (the latter for derivatives). An example is the logarithmic potential as 
-   implemented in class LogPot.
+   implemented in class LogPotential.
 */
 
 class Potential {

@@ -12,9 +12,9 @@
 
 #include <iomanip>
 #include "Torus.h"
-#include "noPT.h"
-#include "PTCh_tr.h"
-#include "Isochrone.h"
+#include "Point_None.h"
+#include "Point_ClosedOrbitCheby.h"
+#include "Toy_Isochrone.h"
 //#include "Compress.h"
 #include "ebf.hpp"
 #include "Numerics.h"
@@ -32,14 +32,14 @@ typedef Matrix<double,4,4> DB44;
 static double RforSOS;
 static PSPD   Jtroot;
 
-void Torus::SetMaps(const double* cp,
+void Torus::SetMaps(const double* pp,
 	            const vec4 &tp,
 	            const GenPar &sn,
 	            const AngPar &ap)
 {
-  delete CM;
-  CM = new PoiCh_tr(cp);
-  if(!TM) TM = new IsoMap;
+  delete PT;
+  PT = new PoiClosedOrbit(pp);
+  if(!TM) TM = new ToyIsochrone;
   TM->set_parameters(tp);
   GF.set_parameters(sn);
   AM.set_parameters(ap);
@@ -48,50 +48,50 @@ void Torus::SetMaps(const vec4 &tp,
 	            const GenPar &sn,
 	            const AngPar &ap)
 {
-  delete CM;
-  CM = new NoTra; 
-  if(!TM) TM = new IsoMap;
+  delete PT;
+  PT = new PoiNone; 
+  if(!TM) TM = new ToyIsochrone;
   TM->set_parameters(tp);
   GF.set_parameters(sn);
   AM.set_parameters(ap);
 }
 
 
-void Torus::SetCP(Potential * Phi, const Actions JPT)
+void Torus::SetPP(Potential * Phi, const Actions JPT)
 { 
-  delete CM;
-  CM = new PoiCh_tr(Phi,JPT);
+  delete PT;
+  PT = new PoiClosedOrbit(Phi,JPT);
 }
 
-void Torus::SetCP(double * param) 
+void Torus::SetPP(double * param) 
 {
-  delete CM;
-  CM = new PoiCh_tr(param);
+  delete PT;
+  PT = new PoiClosedOrbit(param);
 }
 
-void Torus::SetCP(Actions J, Cheby cb1, Cheby cb2, Cheby cb3, 
+void Torus::SetPP(Actions J, Cheby cb1, Cheby cb2, Cheby cb3, 
 		  double thmax, double freq) 
 {
-  delete CM;
-  CM = new PoiCh_tr(J,cb1,cb2,cb3,thmax,freq);
+  delete PT;
+  PT = new PoiClosedOrbit(J,cb1,cb2,cb3,thmax,freq);
 }
 
-void Torus::SetCP()
+void Torus::SetPP()
 { 
-  delete CM;  
-  CM = new NoTra;
+  delete PT;  
+  PT = new PoiNone;
 }
 
 void Torus::SetTP(const vec4& tp)
 { 
-    if(!TM) TM = new IsoMap;
+    if(!TM) TM = new ToyIsochrone;
     TM->set_parameters(tp);
 }
 
 
 void Torus::DelMaps()
 {
-    delete CM;
+    delete PT;
     delete TM;
 }
 
@@ -105,7 +105,7 @@ void Torus::show(ostream& out) const
       out << (  hypot(Om(0),Om(1)) * (J(0) + J(1)) * dc(0) ) <<'\n';
     out <<" Frequencies            = "<<Om<<'\n'
 	<<" dJ, chi_rms            = "<<dc<<'\n'
-      //<<" parameters of CanMap   = "<<CP()<<'\n'
+      //<<" parameters of PoiTra   = "<<PP()<<'\n'
 	<<" parameters of ToyMap   = "<<TP()<<'\n'
 	<<" number of Sn, log|Sn|  : ";
 	SN().write_log(out);
@@ -117,19 +117,19 @@ void Torus::show(ostream& out) const
 	AM.dSdJ3().write_log(out);	
 }
 
-bool Torus::write_ebf(const string filename, const string torusname) const
+bool Torus::write_ebf(const string filename, const string torusname) 
 {
   if(ebf::ContainsKey(filename,"/"+torusname)) { return false; }
 
-  int NCMp = CM->NumberofParameters();
-  double *CMp;
-  if(NCMp) {
-    CMp = new double[NCMp];
-    CM->parameters(CMp);
+  int NPTp = PT->NumberofParameters();
+  double *PTp;
+  if(NPTp) {
+    PTp = new double[NPTp];
+    PT->parameters(PTp);
   } else {
-    CMp = new double[2]; // just to give myself something to delete
+    PTp = new double[2]; // just to give myself something to delete
   }
-  //vec6 CMp = CM->parameters();  
+  //vec6 PTp = PT->parameters();  
   vec4 TMp = TM->parameters();
   int nSn = GF.NumberofParameters();
   int n1_tmp[nSn], n2_tmp[nSn];
@@ -155,9 +155,9 @@ bool Torus::write_ebf(const string filename, const string torusname) const
 	     dc.NumberofTerms());
   
   // Where there is the possibility of alternatives, subdirectories
-  if(NCMp)
+  if(NPTp)
     ebf::Write(filename,"/"+torusname+"/pointtransform/shellorbit",
-	       &CMp[0],"a","",NCMp);
+	       &PTp[0],"a","",NPTp);
   ebf::Write(filename,"/"+torusname+"/toymap/isochrone",
 	     &TMp[0],"a","",TMp.NumberofTerms());
   ebf::Write(filename,"/"+torusname+"/generatingfunction/N1",
@@ -169,11 +169,11 @@ bool Torus::write_ebf(const string filename, const string torusname) const
   ebf::Write(filename,"/"+torusname+"/anglemap/dSndJ1",&dSn1[0],"a","",nSn);
   ebf::Write(filename,"/"+torusname+"/anglemap/dSndJ2",&dSn2[0],"a","",nSn);
   ebf::Write(filename,"/"+torusname+"/anglemap/dSndJ3",&dSn3[0],"a","",nSn);
-  delete[] CMp;
+  delete[] PTp;
   return true;
 }
 
-bool Torus::read_ebf(const string filename, const string torusname) const {
+bool Torus::read_ebf(const string filename, const string torusname) {
   ebf::EbfDataInfo dinfo;
   double *PP;
   vec4 TMp; 
@@ -261,8 +261,8 @@ void Torus::LevCof(const PSPD     &Jt,
              double dQPdqp[4][4], dqdt[2][2], dqpdj[4][2], djdt[2][2];
 	     DB22   dq;
 	     register double dR, dz, aq=a*a,bq=b*b;
-    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt) >> (*CM);
-    CM->Derivatives(dQPdqp);
+    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt) >> (*PT);
+    PT->Derivatives(dQPdqp);
     TM->Derivatives(dqpdj);
     for(i=0; i<2; i++)
       for(j=0; j<2; j++) {
@@ -310,8 +310,8 @@ void Torus::LevCof(const PSPD         &Jt,
     register double dR, dz, dvR, dvz, aq=a*a, bq=b*b, vscale2=vscale*vscale;
 
 
-    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt,dpdt)>> (*CM);
-    CM->Derivatives(dQPdqp);
+    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt,dpdt)>> (*PT);
+    PT->Derivatives(dQPdqp);
     TM->Derivatives(dqpdj);
     for(i=0; i<2; i++)
       for(j=0; j<2; j++) {
@@ -369,8 +369,8 @@ void Torus::LevCof(const PSPD         &Jt,
     register Vector<double,4> scq;
     for(int i=0;i!=4;i++) scq[i] = sc[i]*sc[i];
 
-    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt,dpdt)>> (*CM);
-    CM->Derivatives(dQPdqp);
+    QP = TM->ForwardWithDerivs(GF.ForwardWithDerivs(Jt,djdt),dqdt,dpdt)>> (*PT);
+    PT->Derivatives(dQPdqp);
     TM->Derivatives(dqpdj);
     for(i=0; i<2; i++)
       for(j=0; j<2; j++) {
@@ -501,7 +501,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     if(needA) {   
       QP3D.Take_PSPD(QP);
       QP3D[2] = Q(2); QP3D[5] = v1(2);
-      Jt3D = QP3D << (*CM) << (*TM); // find theta_phi
+      Jt3D = QP3D << (*PT) << (*TM); // find theta_phi
       Jt3D.Take_PSPD(Jt);
       Jt3D[2] = J(2); // just in case.
     
@@ -592,7 +592,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     if(needA) {
       QP3D.Take_PSPD(QP);
       QP3D[2] = Q(2); QP3D[5] = v1(2);
-      Jt3D = QP3D << (*CM) << (*TM);                     // find theta_phi
+      Jt3D = QP3D << (*PT) << (*TM);                     // find theta_phi
       Jt3D.Take_PSPD(Jt); Jt3D[2] = J(2); // just in case
       JT3D       = AM.Backward3DWithDerivs(Jt3D,dTdt);   // always needed
       JT = JT3D.Give_PSPD();
@@ -685,7 +685,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     if(needA) {
       QP3D.Take_PSPD(QP);
       QP3D[2] = Q(2); QP3D[5] = v2(2);
-      Jt3D = QP3D << (*CM) << (*TM);       // find theta_phi
+      Jt3D = QP3D << (*PT) << (*TM);       // find theta_phi
       Jt3D.Take_PSPD(Jt);  Jt3D[2] = J(2); // just in case.
     
       JT3D  = AM.Backward3DWithDerivs(Jt3D,dTdt);
@@ -1139,8 +1139,8 @@ void Torus::SOSroot(const double t2, double& z, double& dz) const
     register double dqdt2;
     Jtroot[3] = t2;
     jt        = GF.ForwardWithDerivs(Jtroot, djdt);
-    QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*CM);
-    CM->Derivatives(dQPdqp);
+    QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
+    PT->Derivatives(dQPdqp);
     TM->Derivatives(dqpdj);
     z  = QP(1);
     dz = 0.;
@@ -1155,7 +1155,7 @@ void Torus::SOSroot(const double t2, double& z, double& dz) const
 void Torus::SOS(ostream& to, const int Nthr) const
 {
     Jtroot = PSPD(J(0),J(1),0.,0.);
-    to << (Jtroot>>GF>>(*TM)>>(*CM)) <<"    "<<Jtroot(3)<<'\n';
+    to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
     const double allowed = -1.e-8;
     double tempz1,tempz2,tempdz;
     for(int ithr=1; ithr<Nthr; ithr++) {
@@ -1163,12 +1163,12 @@ void Torus::SOS(ostream& to, const int Nthr) const
       SOSroot(-Pih,tempz1,tempdz); SOSroot(Pih,tempz2,tempdz);
       if(tempz1*tempz2<0.){
 	Jtroot[3] = rtsafe(this,&Torus::SOSroot, -Pih, -(-Pih), -allowed);
-	to << (Jtroot>>GF>>(*TM)>>(*CM)) <<"    "<<Jtroot(3)<<'\n';
+	to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
       }
     }
     Jtroot[2] = Pi;
     Jtroot[3] = 0.;
-    to << (Jtroot>>GF>>(*TM)>>(*CM)) <<"    "<<Jtroot(3)<<'\n';
+    to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1180,8 +1180,8 @@ void Torus::SOS_z_root(const double t2, double& RmRS, double& dR) const
     register double dqdt2;
     Jtroot[2] = t2;
     jt        = GF.ForwardWithDerivs(Jtroot, djdt);
-    QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*CM);
-    CM->Derivatives(dQPdqp);
+    QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
+    PT->Derivatives(dQPdqp);
     TM->Derivatives(dqpdj);
     RmRS  = QP(0)-RforSOS;
     dR = 0.;
@@ -1204,16 +1204,16 @@ void Torus::SOS_z(ostream& to, const double RSOS, const int Nthz) const
   for(int ithz=0; ithz<Nthz; ithz++) {
     Jtroot[3] = double(ithz) * TPi / double(Nthz);
     // OK first, can I do this the easy way?
-    Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
-    Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
+    Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
+    Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     for(int i=0;i!=ntry && (tmpR1-RSOS)*(tmpR2-RSOS)>0;i++) {
       if(i) { thmin = thmax; tmpR1 = tmpR2; }
       Jtroot[2] = thmax = double(i+1)*TPi/double(ntry);
-      tmpR2 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
+      tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     }
     if((tmpR1-RSOS)*(tmpR2-RSOS)<0) {
       Jtroot[2] = rtsafe(this,&Torus::SOS_z_root, thmin, thmax, -allowed);
-      to <<  (Jtroot>>GF>>(*TM)>>(*CM)) <<"    "<<Jtroot(3)<<'\n';
+      to <<  (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
     }
   }
 }
@@ -1230,16 +1230,16 @@ int Torus::SOS_z(double* outz, double* outvz,
   for(int ithz=0; ithz<Nthz; ithz++) {
     Jtroot[3] = double(ithz) * TPi / double(Nthz);
     // OK first, can I do this the easy way?
-    Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
-    Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
+    Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
+    Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     for(int i=0;i!=ntry && (tmpR1-RSOS)*(tmpR2-RSOS)>0;i++) {
       if(i) { thmin = thmax; tmpR1 = tmpR2; }
       Jtroot[2] = thmax = double(i+1)*TPi/double(ntry);
-      tmpR2 = (Jtroot>>GF>>(*TM)>>(*CM))(0);
+      tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     }
     if((tmpR1-RSOS)*(tmpR2-RSOS)<0) {
       Jtroot[2] = rtsafe(this,&Torus::SOS_z_root, thmin, thmax, -allowed);
-      PSPD outQP=(Jtroot>>GF>>(*TM)>>(*CM));
+      PSPD outQP=(Jtroot>>GF>>(*TM)>>(*PT));
       outz[nout]=outQP[1]; outvz[nout]=outQP[3]; nout++;
     }
   }
@@ -1247,7 +1247,9 @@ int Torus::SOS_z(double* outz, double* outvz,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 void Torus::AutoTorus(Potential * Phi, const Actions Jin, const double R0) {
+
   IsoPar IP = 0.;
   double Rc = Phi->RfromLc(Jin(1)+fabs(Jin(2)));
   IP[1] = (R0)? sqrt(R0) : sqrt(Rc);
@@ -1283,7 +1285,7 @@ void Torus::AutoPTTorus(Potential *Phi, const Actions Jin, const double R0) {
   s1=0.;
   J = Jin;
   SetMaps(IP,SN,AngPar(s1,s1,s1));
-  SetCP(Phi,Jin);
+  SetPP(Phi,Jin);
 }
 
 

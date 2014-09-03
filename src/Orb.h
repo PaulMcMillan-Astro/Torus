@@ -1,6 +1,8 @@
-/*******************************************************************************
-*                                                                              *
-*  Orb.h                                                                       *
+/***************************************************************************//**
+\file  Orb.h 
+\brief Contains classes Record Record3D, function orbit.
+Classes and functions used for integrating orbits in gravitational potentials
+
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2007                                      *

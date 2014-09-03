@@ -1,4 +1,7 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Orbit_basic.cc
+\brief Should delete this before release
+
 *                                                                              *
 * Orbit_basic.cc                                                               *
 *                                                                              *
@@ -50,8 +53,8 @@ int main(int argc,char *argv[])
   string root = string(argv[3]),out1=root+".1.tab",out2=root+".2.tab",
     out3=root+".3.tab",out4=root+".4.tab",out5=root+".5.tab";
   
-  if(string(argv[1]) == "LogPot_220") {
-    Phi = new LogPot(220.*Units::kms,0.8,0.,0.);
+  if(string(argv[1]) == "LogPotential_220") {
+    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);

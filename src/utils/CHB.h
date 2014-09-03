@@ -1,6 +1,9 @@
-/*******************************************************************************
-*                                                                              *
-*  CHB.h                                                                       *
+/***************************************************************************//**
+\file CHB.h
+\brief Contains class Cheby.
+Chebyshev polynomial either defined by input coefficients or fit to input data.
+Outputs value and derivatives at given points.
+
 *                                                                              *
 * C++ code written by Paul McMillan, 2008                                      *
 * Oxford University, Department of Physics, Theoretical Physics.               *
@@ -8,11 +11,13 @@
 * e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
 *                                                                              *
 *******************************************************************************/
-/*
+/**
 
-This is code which defines the class Cheby, which deals with Chebyshev 
-polynomials with up to 50 coefficients. It can take the coefficients from 
-input, or fit them from data (also input).
+\brief Deals with Chebyshev polynomials. Needed for PoiClosedOrbit.
+
+Chebyshev polynomials with up to 50 coefficients can be used. Cheby
+can either take the coefficients from input, or fit them from input
+data (setcoeffs or chebyfit). 
 
 Then it can provide the value of the Cheb. polynomial C(x) at any x, also C' 
 and C''.
@@ -40,7 +45,17 @@ class Cheby {
  
   void      writecoeffs (std::ostream&) const;            // output coeffs 
   void      setcoeffs   (double *, const int);            // input prefit coeffs
-  void      chebyfit    (double*, double*, const int, const int=0);// y,x,np,NC
+
+    //! Fit Chebyshev polynomial with NC coefficients to y(x), defined at np points.
+    /*!
+      if NC undefined on input (i.e.=0), then NChb unchanged.
+      \param y values to fit
+      \param x values at which y is defined
+      \param np number of values of x & y
+      \param NC number of Chebyshev coefficients (default: leave unchanged)
+    */
+  void      chebyfit    (double *y, double *x, const int np, const int NC=0);
+  // y,x,np,NC
   // fit Chebyshev polynomial with NC coefficients to y(x), defined at np points
   // if NC undefined on input (i.e.=0), then NChb unchanged.
 

@@ -1,3 +1,17 @@
+/***************************************************************************//**
+\file Sample_list_limits.cc
+\brief Generates points from a TorusList within given limits. Takes output from Create_DF_tori. Though I should fix it so that it doesn't have to.
+
+*                                                                              *
+* Sample_list_limits.cc                                                        *
+*                                                                              *
+* C++ code written by Walter Dehnen, 1994/95,                                  *
+*                     Paul McMillan, 2007                                      *
+* Oxford University, Department of Physics, Theoretical Physics.               *
+* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
+* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+*                                                                              *
+*******************************************************************************/
 
 #include <iostream>
 #include <iomanip>

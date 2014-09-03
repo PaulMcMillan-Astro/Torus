@@ -1,4 +1,8 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Pi.h
+\brief Contains value of Pi and various related values (e.g. 1/sqrt(2 Pi)).
+You'd be amazed how often this is useful.
+
 *                                                                              *
 * Pi.h                                                                         *
 *                                                                              *

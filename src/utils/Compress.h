@@ -1,4 +1,9 @@
-/*******************************************************************************
+/***************************************************************************//**
+\file Compress.h
+\brief Contains functions put get (and variants thereof).
+Compresses data and allows reading/writing. I don't think it's used any more.
+Delete soon.
+
 *                                                                              *
 * Compress.h                                                                   *
 *                                                                              *
