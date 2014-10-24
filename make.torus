@@ -200,13 +200,9 @@ Coord_converter:	$(EXE)Coord_converter.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 Add_Uncert:	$(EXE)Add_Uncert.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
-Rot_Curve:	$(EXE)Rot_Curve.cc MAIN_LIBS
-		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
 
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
-       Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
-       Rot_Curve
-
+       Sample_list_limits Orbit_basic Coord_converter Add_Uncert
