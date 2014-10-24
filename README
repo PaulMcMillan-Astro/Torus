@@ -2,36 +2,48 @@
 #
 #  README file for simple version of the Torus code 
 #
-# If there are issues, contact Paul McMillan <p.mcmillan1@physics.ox.ac.uk>
+# If there are issues, contact Paul McMillan <paul@astro.lu.se>
 #
 ################################################################################
 
-Everything _should_ compile with simply the command "make" or "make mains". This
-will compile:
+This code requires Sanjib Sharma's ebf format for c++
+(http://sourceforge.net/projects/ebfformat/files/libebf/c-cpp/)
 
-1) libWD.a (found in WDlib/obj/), comprising general library code from Walter
+This should be installed in a neighbouring directory to this one. Unzip the 
+directory there, then run: 
+
+./configure --prefix=\$PWD
+make
+make install
+
+This needs to be done before making the torus code. If you install ebf
+in a different directory, you'll need to change the makefile in this
+directory such that EBFINC and EBFLIB point to the correct directories.
+
+If this has been done, everything _should_ compile with simply the 
+command "make". This will compile: 
+
+1) obj/libWD.a, comprising general library code from Walter
 Dehnen.
 
-2) libOther.a (found in obj/), comprising my general library code. It include
+2) obj/libOther.a, comprising my general library code. It include
 PJMCoords which converts between various coordinate sytems (Galactocentric and
 Heliocentric). 
 
-3) libPot.a (in obj/), comprising code that works out various potentials (and
+3) obj/libPot.a, comprising code that works out various potentials (and
 derivatives etc). The most important is probably falPot, which is used to work
 out potentials for exponential discs and spheroids with broken power law density
 profiles. falPot_Documentation.pdf gives some details on how to use it (though
-the compilation part is wrong). I'd avoid looking too deeply into the source
-code if I were you as it's a very confusing piece of code to get your head
-around.
+the compilation part is wrong).
 
-4) libTorus.a (in obj/), comprising the various bits of underlying Torus code
+4) obj/libTorus.a, comprising the various bits of underlying Torus code
 (that work out the parameters of a Torus model, and do all the work converting
 between coordinate systems). The key class is Torus (as you might expect), which
 collects everything together. Also TorusList, which deals with the storage, in a
 way that is stable but inelegant. It's all a bit unwieldy at the moment, but the
 example code should demonstrate some of the main uses.
 
-5) Example executables.
+5) Example executables (in bin).
 
 The inputs required for any piece of example code can be found by running it
 with no arguments. The various executables are:
