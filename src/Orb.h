@@ -6,9 +6,8 @@ Classes and functions used for integrating orbits in gravitational potentials
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *******************************************************************************/
 
@@ -18,6 +17,8 @@ Classes and functions used for integrating orbits in gravitational potentials
 #include "Types.h"
 #include "Potential.h"
 #include "Numerics.h"
+
+/** \brief Integrates orbits in effective potentials. */
 
 class Record {
 private:
@@ -60,7 +61,12 @@ inline void Record::FourSymp(const double dt)
       register double s1dt=s1*dt;
       LeapFrog(s1dt); LeapFrog(s0*dt); LeapFrog(s1dt); }
 
+
 ////////////////////////////////////////////////////////////////////////////////
+
+
+/** \brief Integrates orbits in gravitational potentials. */
+
 class Record3D {
 private:
     Potential*  Pot;                       // pointer to the potential

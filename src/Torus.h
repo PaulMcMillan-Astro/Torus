@@ -7,9 +7,9 @@
                                                                               
  C++ code written by Walter Dehnen, 1995-97,                                  
                      Paul McMillan, 2007                                      
- Oxford University, Department of Physics, Theoretical Physics.               
- address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        
- e-mail:  p.mcmillan1@physics.ox.ac.uk                                        
+
+ e-mail: paul@astro.lu.se                                                     
+ github: https://github.com/PaulMcMillan-Astro/Torus                          
                                                                               
  class Torus         A Torus is defined by the Actions and its parameters, it 
 	              gives mapping   Angle variables -> cylindrical co-ords.  
@@ -391,16 +391,16 @@ in the given */
 
     int          AutoFit  	   (Actions,              // Actions
 				    Potential*,		  // galactic potential
-				    const double  =0.001, // goal for |dJ|/|J|
-				    const int     =700,   // max. number of Sn
-				    const int     =200,	  // max. iterations
-				    const int     =14,    // max. SN tailorings 
+				    const double  =0.003, // goal for |dJ|/|J|
+				    const int     =600,   // max. number of Sn
+				    const int     =150,	  // max. iterations
+				    const int     =12,    // max. SN tailorings 
 				    const int     =3,	  // overdetermination
-				    const int     =24,	  // min. # of cells
+				    const int     =16,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
-				    const int     =24,    // min. # of theta
+				    const int     =12,    // min. # of theta
 							  //    per dim 
 				    const int     =0);	  // error output?
 // performs a complete fit: Actions are fixed while the torus parameters are

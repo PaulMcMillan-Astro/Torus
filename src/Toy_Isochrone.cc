@@ -4,9 +4,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford, OX1 3NP, United Kingdom                       *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 
@@ -16,12 +15,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // class ToyIsochrone
-
-//
-// these variables are changed by calls to various constant member functions,
-// such as Forward(). They are static here and no members to allow those member
-// functions to be constant.
-//
 
 
 void ToyIsochrone::psifunc(const double p, double& f, double& df) const
@@ -656,17 +649,17 @@ PSPT ToyIsochrone::Backward3D(const PSPT& QP3) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-PSPT ToyIsochrone::Forward3D(const PSPT& Jt3) const
+PSPT ToyIsochrone::Forward3D(const PSPT& JT3) const
 { // For the 3D case
-  PSPD QP2, Jt2 = Jt3.Give_PSPD();
+  PSPD QP2, JT2 = JT3.Give_PSPD();
   PSPT QP3;
   
-  QP2 = Forward(Jt2); 
+  QP2 = Forward(JT2); 
   QP3.Take_PSPD(QP2);  // do the 2D part
 
-  QP3[5] = Jt3(2); // old:Jt3(2)/(QP3(0)*cos(QP3(1))); // Angular velocity/mom
-  if(Jt3(1) == 0.) {
-    QP3[2] = (QP3(5)>0.)? Jt3(5)+wh-wt0r*Jt3(3) : Jt3(5)-wh+wt0r*Jt3(3);
+  QP3[5] = JT3(2); // old:JT3(2)/(QP3(0)*cos(QP3(1))); // Angular velocity/mom
+  if(JT3(1) == 0.) {
+    QP3[2] = (QP3(5)>0.)? JT3(5)+wh-wt0r*JT3(3) : JT3(5)-wh+wt0r*JT3(3);
     if(std::isnan(QP3[2]) || std::isinf(QP3[2]) || fabs(QP3[2])>INT_MAX) 
       QP3[2] = 0.; // just in case  
     while(QP3(2)<0. ) QP3[2] += TPi; 
@@ -674,13 +667,13 @@ PSPT ToyIsochrone::Forward3D(const PSPT& Jt3) const
     return QP3;
   }
 
-  double sinu = (Jt3(2)>0.)? tan(QP3(1))*Lz/sqrt(Jt3(1)*(Jt3(1)+2.*fabs(Lz))) :
-    -tan(QP3(1))*Lz/sqrt(Jt3(1)*(Jt3(1)+2.*fabs(Lz))),
+  double sinu = (JT3(2)>0.)? tan(QP3(1))*Lz/sqrt(JT3(1)*(JT3(1)+2.*fabs(Lz))) :
+    -tan(QP3(1))*Lz/sqrt(JT3(1)*(JT3(1)+2.*fabs(Lz))),
     u = (sinu>1.)? Pih : (sinu<-1.)? -Pih : asin(sinu);
   if(QP3(4)<0.) u= Pi-u; 
-  QP3[2] = Jt3(5)+u;
+  QP3[2] = JT3(5)+u;
 
-  QP3[2] -= (Jt3(2)>0.)? Jt3(4) : -Jt3(4); // Note opposite sign to Backward
+  QP3[2] -= (JT3(2)>0.)? JT3(4) : -JT3(4); // Note opposite sign to Backward
   if(std::isnan(QP3[2]) || std::isinf(QP3[2]) || fabs(QP3[2])>INT_MAX) 
     QP3[2] = 0.; // just in case  
   while(QP3(2)<0. ) QP3[2] += TPi; 

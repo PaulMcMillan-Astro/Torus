@@ -7,9 +7,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994/95,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 
@@ -20,6 +19,7 @@
 #include <sstream>
 #include <string>
 
+#include "PJMebf.h"
 #include "Torus.h"
 #include "falPot.h"
 #include "LogPot.h"

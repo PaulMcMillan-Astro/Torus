@@ -9,9 +9,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1995-96,                                  *
 *                     Paul McMillan, 2007-10                                   *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -25,11 +24,8 @@
 *               given uncertainty, computes dS/dJ and frequencies subject to   *
 *               the constraint of the given Omega and its uncertainty          *
 *                                                                              *
-* OmegaPhi()    given a complete torus mapping, the azimuthal frequency is     *
-*	        estimated as angle average of Lz/R^2.                          *
-*                                                                              *
 * FullFit()     Combines SbyLevMar(), Omega(), and dSbyInteg() in the proper   *
-*	        way given below and uses OmegaPhi() to compute Omega_phi.      *
+*	        way given below                                                *
 *                                                                              *
 *                                                                              *
 ********************************************************************************

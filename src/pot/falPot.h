@@ -3,6 +3,7 @@
 \file falPot.h
 \brief Contains class GalaxyPotential and related classes PotResidual Disks
 Spheroids Multipole.
+
 Walter Dehnen's GalaxyPotential code
 
 */
@@ -115,6 +116,8 @@ const double RMIN=1.e-4*Units::kpc,// DEFAULT min radius of logarithmic radial g
 
 typedef Vector<double,5> DiskPar;  
 typedef Vector<double,6> SphrPar;
+/** \brief used by GalaxyPotential
+*/
 class PotResidual {
 public:
   // density at given (R,z)
@@ -123,6 +126,8 @@ public:
   virtual double Residual (const double, const double, const double)  const=0;
 };
 //////////////////////////////////////////////////////////////////////////////
+/** \brief used by GalaxyPotential
+*/
 class DiskAnsatz : public PotResidual {
 private:
   double               S0, Rd, zd, R0, eps;           // defining  variables  
@@ -170,6 +175,8 @@ inline void DiskAnsatz::DescribePot(ostream& to) const
     to<<'\n';
 }
 //////////////////////////////////////////////////////////////////////////////
+/** \brief used by GalaxyPotential
+*/
 class Disks {
 protected:
   int                   nd;
@@ -259,6 +266,8 @@ inline void   Disks::DescribePot(ostream& to) const
     for(; p<Dup; p++) p->DescribePot(to);
 }
 //////////////////////////////////////////////////////////////////////////////
+/** \brief used by GalaxyPotential
+*/
 class SpheroidDensity : public PotResidual {
 private:
   double rh0, q, gam, bet, r0, rcut;              // defining variables       
@@ -304,6 +313,8 @@ inline void SpheroidDensity::DescribePot(ostream& to) const
 }
 
 //////////////////////////////////////////////////////////////////////////////
+/** \brief used by GalaxyPotential
+*/
 class Spheroids {
   int                      ns;
   SpheroidDensity          *S, *Sup;
@@ -357,6 +368,8 @@ inline void   Spheroids::DescribePot(ostream& to) const
 }
 
 //////////////////////////////////////////////////////////////////////////////
+/** \brief used by GalaxyPotential
+*/
 class Multipole {
 private:
   int         LR,K[2];
@@ -398,7 +411,14 @@ inline double Multipole::vcsquare(const double R) const
 
 
 
+/** \brief Gives the potential due to a combination of exponential
+    discs and broken-power-law spheroids
 
+See falPot_documentation.pdf and the executable testfalPot for details
+of how to use this class. See Dehnen & Binney (1998, MNRAS, 294, 429) for an
+explanation of how it works.
+
+*/
 class GalaxyPotential : public  PotResidual,
 			public  Potential,
 			private Disks,

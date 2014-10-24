@@ -21,14 +21,21 @@ An axisymmetric Stackel potential.
 #include "Potential.h"
 #include "Units.h"
 
+/** \brief Axisymmetric Stackel potential for an oblate spheroid.
+
+Input parameters are rho_0, Rs, q. 
+
+Potential is for a body with density rho = rho_0/(1+m^2)^2, where: 
+
+m^2 = (R^2 + (z/q)^2) / Rs^2
+
+See De Zeeuw 1985 (MNRAS, 216, 273) for details (Section 3.4.2)
+
+ */
+
 class StackelPotential : public Potential {
 private:
   const double rh0, alpha, gamma,Gfac;
-  //    double q, qi, q2i, v0, v0sq, v0sqhalf, rc, rc2;
-  // double Rei, Rei3;
-  // double findG (const double);
-  //double findG (const double, double&);
-  //void   error(const char*) const;
 public:
     StackelPotential(const double=1., const double=1., 
 	       const double=1.);

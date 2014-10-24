@@ -11,6 +11,13 @@ Outputs value and derivatives at given points.
 * e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
 *                                                                              *
 *******************************************************************************/
+
+
+#ifndef _Chebyshev_
+#define _Chebyshev_ 1
+
+#include <iostream>
+
 /**
 
 \brief Deals with Chebyshev polynomials. Needed for PoiClosedOrbit.
@@ -23,11 +30,6 @@ Then it can provide the value of the Cheb. polynomial C(x) at any x, also C'
 and C''.
 
 */
-
-#ifndef _Chebyshev_
-#define _Chebyshev_ 1
-
-#include <iostream>
 
 class Cheby {
   void getchebc();

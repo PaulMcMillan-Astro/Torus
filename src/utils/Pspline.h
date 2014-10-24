@@ -309,7 +309,8 @@ T Psplev(			// return:  y(xi)
 //   search for KLO, KHI is done using 'hunt' (NR) starting from linear 
 //   interpolation.
 {
-    static int lo=0;
+  // N.B. this int used to be static, but that's bad with multithreading
+    int lo=0;
     find_for_Pspline(lo,n,x,xi);
     return Psplint(x+lo,Y+lo,Y1+lo,Y3+lo,xi,dyi,d2yi);
 }
@@ -401,7 +402,8 @@ T Psplev2D(		 // return:  y(x0i,x1i)
 	T*  d1=0,	 // output:  gradient of y   if d1 != 0
 	T** d2=0)	 // output:  d^2y/dxi/dxj    if d2 != 0
 {
-    static int l0=0, l1=0;
+  // N.B. these 2 ints used to be static, but that's bad with multithreading
+    int l0=0, l1=0;
     find_for_Pspline(l0,n[0],x[0],xi[0]);
     find_for_Pspline(l1,n[1],x[1],xi[1]);
     register int k0=l0+1, k1=l1+1;
@@ -521,7 +523,8 @@ T Psplev3D(		   // return:  y(x0i,x1i)
 	T*   d1=0,	   // output:  gradient of y   if d1 != 0
 	T**  d2=0)	   // output:  d^2y/dxi/dxj    if d2 != 0
 {
-    static int l0=0, l1=0, l2=0;
+  // N.B. these 3 ints used to be static, but that's bad with multithreading
+    int l0=0, l1=0, l2=0;
     find_for_Pspline(l0,n[0],x[0],xi[0]);
     find_for_Pspline(l1,n[1],x[1],xi[1]);
     find_for_Pspline(l2,n[2],x[2],xi[2]);

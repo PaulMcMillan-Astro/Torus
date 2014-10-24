@@ -4,7 +4,7 @@
 Which is a Miyamoto-Nagai potential. The clue is in the name.
 									     
 *                                                                              *
-*  MiyamotoNagaiPot.h                                                             *
+*  MiyamotoNagaiPot.h                                                          *
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994/95,                                  *
 *                     Paul McMillan, 2006/07                                   *
@@ -21,6 +21,12 @@ Which is a Miyamoto-Nagai potential. The clue is in the name.
 #include "Potential.h"
 #include "Units.h"
 
+/** \brief A Miyamoto-Nagai potential.
+
+Input values are M, a, b. See Binney & Tremaine (2008), eq 2.69 for
+the potential.
+
+ */
 class MiyamotoNagaiPotential : public Potential {
 public:
   const double A,ABoB,Bq,ABq,GM;

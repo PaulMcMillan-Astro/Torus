@@ -1,4 +1,11 @@
 
+/*
+*
+* C++ code written by Paul McMillan, 2008                                      *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
+*/
+
 #include "Point_ClosedOrbitCheby.h"
 #include "PJMNum.h"
 
@@ -238,8 +245,6 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J) {
   Cheby rr2;
   E += tiny*Escale;
   dE = 0.08*Escale;
-
-  //cerr << "hj";
 
   // For any given Jl, we do not know the corresponding closed orbit, and 
   // don't even know any point on it. Therefore we have to start by guessing

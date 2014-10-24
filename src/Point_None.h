@@ -5,9 +5,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-97,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *******************************************************************************/
 //
@@ -24,6 +23,11 @@
 #include "Maps.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/** \brief Null point transform.
+
+    Input (r,TH,{phi},pr,pTH,{pphi}), Output (R,z,{phi},vR,vz,{v_phi})
+ */
 class PoiNone : public PoiTra {
 
 public:

@@ -7,28 +7,27 @@ isochrone potential, used as the toy mapping.
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
 *                     Paul McMillan, 2007-                                     *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
-* class ToyIsochrone     class for the mapping between action-angle variables and    *
-*                  ordinary phase space coordinates for orbits in the          *
+* class ToyIsochrone    class for the mapping between action-angle variables   *
+*                  and ordinary phase space coordinates for orbits in the      *
 *                  effective Isochrone potential                               *
 *                                                                              *
 *                                    -   GM                        Lz^2        *
 *                  Phi(r,th) = -------------------------- + ------------------ *
 *                              b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)sin(th))^2 *
 *                                                                              *
-*                  The paramters are GM, b, Lz and r0. However, GM and b are  *
+*                  The paramters are GM, b, Lz and r0. However, GM and b are   *
 *                  not allowed to become negative, which may cause problems    *
-*                  for fitting algorithms. Therefore, class ToyIsochrone used the    *
-*                  parameters gamma^2 = GM, and beta^2 = b, such that beta     *
+*                  for fitting algorithms. Therefore, class ToyIsochrone uses  *
+*                  the parameters gamma^2 = GM, and beta^2 = b, such that beta *
 *                  and gamma can be `any' real number, except for zero.        *
 *                                                                              *
 * class IsoPar     is a VecPar with 4 elements for holding the parameters      *
-*                  of a ToyIsochrone.                                                *
+*                  of a ToyIsochrone.                                          *
 *                                                                              *
 *******************************************************************************/
 
@@ -41,7 +40,26 @@ typedef Vector<double,4> IsoPar; // Vector.h
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
+/** \brief Mapping between toy action-angle coordinates and
+    position-momentum coordinates for the generalised effective
+    isochrone potential.
 
+                                                                              
+    class for the mapping between action-angle variables and ordinary
+    phase space coordinates for orbits in the effective Isochrone
+    potential
+                                                                              
+                       -   GM                        Lz^2        
+     Phi(r,th) = -------------------------- + ------------------ 
+                 b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)sin(th))^2 
+                                                                              
+    The parameters are GM, b, Lz and r0. However, GM and b are not
+    allowed to become negative, which may cause problems for fitting
+    algorithms. Therefore, class ToyIsochrone uses the parameters
+    gamma^2 = GM, and beta^2 = b, such that beta and gamma can be
+    `any' real number, except for zero. 
+
+ */
 class ToyIsochrone : public ToyMap {
 private:
     double gamma,beta,Lz,r0;	// parameters

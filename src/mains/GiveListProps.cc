@@ -7,9 +7,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994/95,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 
@@ -99,11 +98,12 @@ int main(int argc,char *argv[])
 	tori.push_back(stuff[i].substr(0,stuff[i].size()-7));
   }
   for(int i=0;i!=tori.size();i++) {//cerr << tori[i] << '\n';
-    if(ebf::ContainsKey(filename,tori[i]+string(argv[3]),dinfo));
-    double output[dinfo.elements];
-    ebf::Read(filename,tori[i]+string(argv[3]),output,dinfo.elements);
-    for(int i=0;i!=dinfo.elements;i++)
-      cerr << output[i] << ' ';
-    cerr << '\n';
+    if(ebf::ContainsKey(filename,tori[i]+string(argv[3]),dinfo)) {
+      double output[dinfo.elements];
+      ebf::Read(filename,tori[i]+string(argv[3]),output,dinfo.elements);
+      for(int i=0;i!=dinfo.elements;i++)
+	cerr << output[i] << ' ';
+      cerr << '\n';
+    }
   }
 }

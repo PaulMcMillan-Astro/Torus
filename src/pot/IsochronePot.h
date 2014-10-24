@@ -24,6 +24,12 @@ Isochrone potential (N.B. just potential, not angle-action coordinates)
 #include "Potential.h"
 #include "Units.h"
 
+/** \brief An Isochrone potential
+
+Input parameters are M and b where Phi = -GM/(b+sqrt(b^2+r^2))
+
+ */
+
 class IsochronePotential : public Potential {
 private:
   const double GM, b;

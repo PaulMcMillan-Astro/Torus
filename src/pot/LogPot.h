@@ -21,6 +21,14 @@ Logarithmic potential.
 #include <cmath>
 #include "Potential.h"
 
+/** \brief A logarithmic potential.
+
+    Input parameters are V0, Q, Rc, Ri where 
+    Phi = 0.5 * V0^2 * log(R^2 +(z/q)^2 + Rc^2 + Ri^3*r*(R^2-z^2)) 
+
+
+
+ */
 class LogPotential : public Potential {
 public:
   double q, qi, q2i, v0, v0sq, v0sqhalf, rc, rc2, plusconst, Rmax;

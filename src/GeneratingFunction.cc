@@ -4,9 +4,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1995-96,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *******************************************************************************/
 
@@ -444,6 +443,8 @@ void GenPar::edgetailor(const double a, const int Max)
     }
   }
 
+
+
 // put in new arrays N1, N2, S.
   short *N1new = new short[newtot];
   short *N2new = new short[newtot];
@@ -479,7 +480,7 @@ void GenPar::edgetailor(const double a, const int Max)
   N2   = N2new;
   S    = Snew;
   sortSn();
-  SanityCheck(); // Uncomment if trying something new
+  //  SanityCheck(); // Uncomment if trying something new
   findNN();
 }
 

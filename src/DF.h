@@ -1,15 +1,15 @@
 /***************************************************************************//**
-\file DF.h
-\brief Contains base classes DF and quickDF_lowmem and derived classes quasi_iso_DF_JJB quasi_iso_DF_YST  multidisk_DF multidisk_quickDF.
- These give distribution functions of standard forms
+\file DF.h \brief Contains base classes DF and quickDF_lowmem and
+derived classes quasi_iso_DF_JJB quasi_iso_DF_YST multidisk_DF
+multidisk_quickDF.  These give distribution functions of standard
+forms
 
 *                                                                              *
 * DF.h                                                                         *
 *                                                                              *
 * C++ code written by Paul McMillan, 2010-                                     *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *       Classes which output the value of a distribution function              *
 *                                                                              *
@@ -86,9 +86,15 @@ class quickDF_lowmem {
 
 /** 
 \brief Class for a quasi-isothermal distribution function. 
-Parameters as used in Binney & McMillan 2011.
- 
 
+Parameters as used in Binney & McMillan 2011. The prefered style (and class) is that used by McMillan & Binney (2013) -- multidisk_DF
+
+Input parameters are given in a file (e.g. df/iso_oldstyle_JJB.df),
+which starts with "J 1", then gives parameters:
+ 
+R0 sig_r(R=R0) sig_z(R=R0) Rd q
+
+with sig_r and sig_z in km/s, R0 & Rd in kpc. 
 */
 class quasi_iso_DF_JJB : public DF {
 public:
@@ -137,7 +143,20 @@ public:
 
 /** 
 \brief Class for a sum of multiple quasi-isothermal distribution function. 
-Parameters as used in Binney & McMillan 2011.
+
+Parameters as used in McMillan & Binney 2013.
+
+Parameters are taken from an input file
+(e.g. df/iso_GaiaSchoolMexico.df or df/TwoDisk_MW.df), which begins
+with the letter M then:
+
+n_discs R0
+
+then for each disc
+ 
+sigma_r sigma_z R_d R_\sigma L_0 frac
+
+
 */
 class multidisk_DF : public DF {
   double *params; //R0, sig2Ra, sig2za, Rda, Rsa, L0a, frac_a, etc;
@@ -204,6 +223,7 @@ inline int quasi_iso_DF_JJB::setup(istream &from) {
   sigr *= Units::kms;
   sigz *= Units::kms;
   setup(r0,sigr,sigz,RD,Q);
+  return 1;
 }
 
 inline int quasi_iso_DF_JJB::setup_full(istream &from) {  
@@ -219,7 +239,7 @@ inline int quasi_iso_DF_JJB::setup_full(istream &from) {
     cerr << "wrong number of disks in quasi_iso_DF_JJB\n";
     return 0;
   }
-  setup(from);
+  return setup(from);
 }
 
 inline void quasi_iso_DF_JJB::Parameters(double* output) {
@@ -263,12 +283,15 @@ inline void quasi_iso_DF_YST::setup(double sr,double sz,
 inline int quasi_iso_DF_YST::setup(istream &from) {
   double sr, sz, hR, hs;
   from >> sr >> sz >> hR;
-  if(from.eof()) 
+  if(from.eof()) {
     cerr << "Not enough parameters in file for quasi_iso_DF_YST\n";
+    return 0;
+  }
   from >> hs;
   sr *= Units::kms*Units::kms;
   sz *= Units::kms*Units::kms;
   setup(sr,sz,hR,hs);
+  return 1;
 }
 
 inline int quasi_iso_DF_YST::setup_full(istream &from) {  
@@ -284,7 +307,7 @@ inline int quasi_iso_DF_YST::setup_full(istream &from) {
     cerr << "wrong number of disks in quasi_iso_DF_YST\n";
     return 0;
   }
-  setup(from);
+  return setup(from);
 }
 
 inline void quasi_iso_DF_YST::Parameters(double* output) {
@@ -428,6 +451,7 @@ inline int multidisk_quickDF::setup(Potential* Phi,
     prefac[i] =  0.5*(1-tanh(j(2)/L0))*epi_tmp(1)*epi_tmp(2)/
       (4.*Pi*Pi*Pi*epi_tmp(0));
   }
+  return 1;
 }
 
 inline double multidisk_quickDF::df(double* p_in, bool* c_p_in, 

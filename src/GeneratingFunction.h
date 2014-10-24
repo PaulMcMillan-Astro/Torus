@@ -5,9 +5,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1995-96,                                  *
 *                     Paul McMillan, 2007-                                     *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 ********************************************************************************
 * non-base classes:                                                            *
@@ -27,7 +26,7 @@
 *                                     |         |       |       |              *
 *                                GenFncFit   AngMap  ToyMap  PoiTra            *
 *                                                       |       |              *
-*                                                    ToyIsochrone  PoiTra            *
+*                                                    ToyIsochrone  PoiTra      *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -313,9 +312,9 @@ public:
     double   dSdJ2             (const int)   const;
     double   dSdJ3             (const int)   const;
     int     NumberofParameters()            const;
-    PSPD    Forward           (const PSPD&) const; // OH bugger
-    PSPD    Backward          (const PSPD&) const; // see above
-    PSPD    BackwardWithDerivs(const PSPD&, double[2][2]) const; // continue
+    PSPD    Forward           (const PSPD&) const; 
+    PSPD    Backward          (const PSPD&) const;
+    PSPD    BackwardWithDerivs(const PSPD&, double[2][2]) const; 
     PSPT    Forward3D         (const PSPT&) const;
     PSPT    Backward3D        (const PSPT&) const;
     PSPT    Backward3DWithDerivs(const PSPT&, double[2][2]) const;

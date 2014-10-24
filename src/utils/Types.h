@@ -30,6 +30,11 @@ typedef Vector<double,3> vec3;
 typedef Vector<double,4> vec4;
 typedef Vector<double,6> vec6;
 
+/** \brief Phase Space Point Doublet -- phase space point in 2D space
+
+PSPD is used for any phase-space point in 2D -
+e.g. (J_r,J_z,theta_r,theta_z) or (R,z,v_R,v_z)
+ */
 class PSPD{
 protected:
     double a[4];
@@ -186,6 +191,11 @@ inline PSPD   operator* (const double x, const PSPD& V)
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/** \brief Phase Space Point Triplet -- phase space point in 3D space
+
+PSPD is used for any phase-space point in 3D -
+e.g. (J_r,J_z,J_phi,theta_r,theta_z,theta_phi) or (R,z,phi,v_R,v_z,v_phi)
+ */
 class PSPT{
 protected:
     double a[6];

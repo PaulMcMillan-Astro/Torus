@@ -6,9 +6,8 @@ Base classes for all the transformations needed to describe a Torus
 *                                                                              *
 * C++ code written by Walter Dehnen, 1995-96,                                  *
 *                     Paul McMillan, 2007-                                     *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -56,6 +55,10 @@ Base classes for all the transformations needed to describe a Torus
 #include <climits>
 
 ////////////////////////////////////////////////////////////////////////////////
+/**
+\brief Base class for any transformation on the route from
+action-angle coordinates to ordinary phase-space coordinates.
+ */
 class PhaseSpaceMap {
 public:
             PhaseSpaceMap          () {}
@@ -71,6 +74,11 @@ inline PSPT operator>> (const PSPT& X, const PhaseSpaceMap& P)
 		{ return P.Forward3D(X); }
 
 ////////////////////////////////////////////////////////////////////////////////
+/**
+\brief Base class for any transformation on the route from
+action-angle coordinates to ordinary phase-space coordinates that can
+work in either direction.
+ */
 class PhaseSpaceMapWithBackward : public PhaseSpaceMap {
 public:
             PhaseSpaceMapWithBackward   () {}
@@ -85,6 +93,11 @@ inline PSPT operator<< (const PSPT& X, const PhaseSpaceMapWithBackward& P)
 		{ return P.Backward3D(X); }
 
 ////////////////////////////////////////////////////////////////////////////////
+/**
+\brief Base class for any conversion between toy action-angle
+coordinates and position-momentum coordinates.
+ */
+
 class ToyMap : public PhaseSpaceMapWithBackward {
 public:
     virtual vec4    parameters       ()                  	 const=0;
@@ -100,6 +113,9 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+/**
+\brief Base class for any point transform.
+ */
 class PoiTra : public PhaseSpaceMapWithBackward {
 public:
   virtual void    parameters       (double *)                  const=0;

@@ -7,9 +7,8 @@ nearly closed orbits in R-z plane.
 
 *                                                                              *
 * C++ code written by Paul McMillan, 2008                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail: paul@astro.lu.se                                                     *
+* github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *******************************************************************************/
 //
@@ -26,34 +25,38 @@ nearly closed orbits in R-z plane.
 #include "Types.h"
 #include "CHB.h"
 
+
 ////////////////////////////////////////////////////////////////////////////////
-//  
-//  Point transform used when fitting orbits with J_r << J_l, which cannot be 
-//  fit otherwise. The transform is defined by:
-//
-// r^T  = x(th)*r
-// th^T = y(r)*z(th)
-// 
-// This is done so that r^T is constant for a J_R = 0 orbit (as required), and 
-// then fixes th^T so that pth^T has the correct dependence on th^T
-//
-//------------------------------------------------------------------------------
-//
-// The class PoiClosedOrbit contains routines which implement this point transform
-// and ones which find it for a given J_l, J_phi and gravitational potential.
-//
-// 1. Finding the transform:
-//    Done by the function set_parameters(Potential*, Actions). This finds the
-// correct closed (J_R=0) orbit in the target potential, and determines the
-// functions x, y, and z (above), storing them as Chebyshev polynomials.
-//
-// 2. Performing the transform:
-//    Done in the usual way, with Forward and Backward. x,y and z (above) found
-// from the Chebyshev polynomials (for th<thmax) or a quadratic for x and z if
-// th>thmax - this ensures that x and z are accurately fit, and don't trend
-// off to extreme values for th>thmax.  Note that we actually store z' = z/th
-//
-////////////////////////////////////////////////////////////////////////////////
+
+/**
+
+\brief Point transform used when fitting orbits with J_r << J_l, which
+cannot be fit otherwise. The transform is defined by:
+
+ r^T  = x(th)*r
+ th^T = y(r)*z(th)
+ 
+ This is done so that r^T is constant for a J_R = 0 orbit (as required), and 
+ then fixes th^T so that pth^T has the correct dependence on th^T
+
+------------------------------------------------------------------------------
+
+ The class PoiClosedOrbit contains routines which implement this point transform
+ and ones which find it for a given J_l, J_phi and gravitational potential.
+
+ 1. Finding the transform:
+    Done by the function set_parameters(Potential*, Actions). This finds the
+ correct closed (J_R=0) orbit in the target potential, and determines the
+ functions x, y, and z (above), storing them as Chebyshev polynomials.
+
+ 2. Performing the transform:
+    Done in the usual way, with Forward and Backward. x,y and z (above) found
+ from the Chebyshev polynomials (for th<thmax) or a quadratic for x and z if
+ th>thmax - this ensures that x and z are accurately fit, and don't trend
+ off to extreme values for th>thmax.  Note that we actually store z' = z/th
+
+
+*///////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 class PoiClosedOrbit : public PoiTra {

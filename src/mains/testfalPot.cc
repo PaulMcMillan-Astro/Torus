@@ -8,9 +8,8 @@
 *                                                                              *
 *  C++ code written by Walter Dehnen, 1995-96,                                 *
 *                      Paul McMillan, 2007-08,                                 *
-*  Oxford University, Department of Physics, Theoretical Physics.              *
-*  address: 1 Keble Road, Oxford OX1 34P, United Kingdom                       *
-*  e-mail:  p.mcmillan1@physics.ox.ac.uk                                       *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 
@@ -51,7 +50,7 @@ int main(int argc,char *argv[])
     P=Phi(R,z,dPdR,dPdz);
     cout<< P <<"\n dPdR = " << dPdR << "\n dPdz = " << dPdz << '\n';
     cout<<"\n Other possible queries are\n rho = Phi.Density(R,z)\n";
-    cout<<" vc2 = vcsquare(R)\n M=Phi.Mass(R)\n ";
+    cout<<" vc2 = Phi.vcsquare(R)\n M=Phi.Mass(R)\n ";
     cout<<" Phi.OortConstants(R,A,B), where A & B";
     cout<<" have their usual meanings in this context\n";
     cout<<" R = Phi.RfromLc(Lz), ";

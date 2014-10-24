@@ -295,8 +295,8 @@ int hunt(const S*xarr, const int n, const S x, const int j)
     int ascnd=(xarr[l]>xarr[0]);
 
     if(!ascnd && xarr[l]==xarr[0] ) return -1;	// x_0 = x_l
-    if( ascnd && x<xarr[0] || !ascnd && x>xarr[0] ) return -1;
-    if( ascnd && x>xarr[l] || !ascnd && x<xarr[l] ) return  n;
+    if( (ascnd && x<xarr[0]) || (!ascnd && x>xarr[0]) ) return -1;
+    if( (ascnd && x>xarr[l]) || (!ascnd && x<xarr[l]) ) return  n;
 
     if(jlo<0 || jlo>l) {                   // input guess not useful,
         jlo = -1;                          //    go to bisection below

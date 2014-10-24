@@ -7,9 +7,8 @@
 *                                                                              *
 *  C++ code written by Paul McMillan 2011-,                                    *
 *                      Walter Dehnen, 1995-96,                                 *
-*  Oxford University, Department of Physics, Theoretical Physics.              *
-*  address: 1 Keble Road, Oxford OX1 34P, United Kingdom                       *
-*  e-mail:  p.mcmillan1@physics.ox.ac.uk                                       *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 //

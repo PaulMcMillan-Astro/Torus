@@ -124,6 +124,7 @@ Cheby&  Cheby::operator= (const Cheby& Ch) {
     for(int i=0;i!=NChb;i++)
       e1[i] = Ch.e1[i];
   }
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

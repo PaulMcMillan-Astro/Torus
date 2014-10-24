@@ -107,6 +107,9 @@ string int_to_string(int number)
    return ss.str();//return a string with the contents of the stream
 }
 
+/** \brief Contains various useful functions.
+
+ */
 namespace PJM {
   template <class T>
     T *matrix(int n){

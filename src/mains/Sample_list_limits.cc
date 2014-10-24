@@ -7,9 +7,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994/95,                                  *
 *                     Paul McMillan, 2007                                      *
-* Oxford University, Department of Physics, Theoretical Physics.               *
-* address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
-* e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
+* e-mail:  paul@astro.lu.se                                                    *
+* github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 *******************************************************************************/
 
@@ -33,11 +32,12 @@ bool in_phi_range(double p, double pmin, double pmax) {
     if(p-TPi*test<pmax) return true;
     else return false;
   }
-  if(p<pmin) {
-    double dp = pmax-p; int test = int(dp/TPi);
-    if(p+TPi*test>pmin) return true;
-    else return false;
-  }
+  
+  // if p<pmin
+  double dp = pmax-p; int test = int(dp/TPi);
+  if(p+TPi*test>pmin) return true;
+  else return false;
+  
 }
 
 
