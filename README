@@ -1,6 +1,6 @@
 ################################################################################
 #
-#  README file for simple version of the Torus code 
+#  README file for the Torus code 
 #
 # If there are issues, contact Paul McMillan <paul@astro.lu.se>
 #
@@ -76,6 +76,12 @@ user.
 
 Coord_converter: Converts input points into different coordiate
 systems (Galactocentric or Heliocentric). 
+
+CompareTorusIntegrated compares orbits found from a torus model to
+theose found by integrating the equations of motion.
+
+CompareTorusIntegrated_SOS compares surfaces of section at z=0 from a
+torus models and from integrated orbits.
 
 The shell script Simple_Survey.csh runs a simple example set of programmes.
 
