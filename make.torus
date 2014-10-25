@@ -172,7 +172,7 @@ $(OBJ)falPot.o: $(falPot_h) $(SRCPOT)falPot.cc \
 GalPot:	$(OBJ)falPot.o $(OBJ)MiyamotoNagaiPot.o $(OBJ)StackelPot.o $(OBJ)IsochronePot.o $(OBJ)LogPot.o
 
 
-MAIN_LIBS:	TorFit GalPot Other
+MAIN_LIBS:	Library TorFit GalPot Other
 
 ################################################################################
 #
@@ -200,9 +200,16 @@ Coord_converter:	$(EXE)Coord_converter.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 Add_Uncert:	$(EXE)Add_Uncert.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+CompareTorusIntegrated:	$(EXE)CompareTorusIntegrated.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+
+CompareTorusIntegrated_SOS:	$(EXE)CompareTorusIntegrated_SOS.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
 
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
-       Sample_list_limits Orbit_basic Coord_converter Add_Uncert
+       Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
+       CompareTorusIntegrated CompareTorusIntegrated_SOS
+
