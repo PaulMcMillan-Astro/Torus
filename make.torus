@@ -205,12 +205,12 @@ CompareTorusIntegrated:	$(EXE)CompareTorusIntegrated.cc MAIN_LIBS
 
 CompareTorusIntegrated_SOS:	$(EXE)CompareTorusIntegrated_SOS.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
-SimpleStreamMaker:	$(EXE)SimpleStreamMaker.cc MAIN_LIBS
+SmoothStreamMaker:	$(EXE)SmoothStreamMaker.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
-       SimpleStreamMaker CompareTorusIntegrated CompareTorusIntegrated_SOS
+       SmoothStreamMaker CompareTorusIntegrated CompareTorusIntegrated_SOS
 

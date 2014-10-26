@@ -83,7 +83,7 @@ theose found by integrating the equations of motion.
 CompareTorusIntegrated_SOS compares surfaces of section at z=0 from a
 torus models and from integrated orbits.
 
-SimpleStreamMaker gives positions and velocities of stars in a stream
+SmoothStreamMaker gives positions and velocities of stars in a stream
 assuming a simple model for stream formation.
 
 The shell script Simple_Survey.csh runs a simple example set of programmes.
