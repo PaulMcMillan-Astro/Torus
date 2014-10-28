@@ -74,6 +74,7 @@ StackelPot_h		= $(SRCPOT)StackelPot.h $(Potential_h)
 MiyamotoNagaiPot_h	= $(SRCPOT)MiyamotoNagaiPot.h $(Potential_h)
 LogPot_h		= $(SRCPOT)LogPot.h $(Potential_h)
 falPot_h		= $(SRCPOT)falPot.h $(Potential_h)
+MultiPot_h		= $(SRCPOT)MultiPot.h $(Potential_h)
 
 #
 # 1.5 header files: pseudo targets
@@ -83,7 +84,8 @@ BASIC_H		= $(Units_h) $(Types_h) $(PJMCoords_h)
 TORFIT_H	= $(BASIC) $(Maps_h) $(Torus_h) $(Fit_h) $(GeneratingFunctions_h) \
 		  $(Toy_Isochrone_h) $(PointTrans_h) $(IntegClasses_h) $(DF_h) $(AUXIL_H)
 GALPOT_H	= $(Potential_h) $(StackelPot_h) $(LogPot_h) $(IsochronePot_h) \
-			$(MiyamotoNagaiPot_h) $(falPot_h) $(AUXIL_H)
+			$(MiyamotoNagaiPot_h) $(falPot_h) $(MultiPot_h) \
+			$(AUXIL_H)
 OTHER_H		= $(AUXIL_H)
 
 ################################################################################
@@ -163,13 +165,15 @@ $(OBJ)MiyamotoNagaiPot.o: $(MiyamotoNagaiPot_h) $(SRCPOT)MiyamotoNagaiPot.cc
 	$(CPP) $(CFLAGS) $(SRCPOT)MiyamotoNagaiPot.cc; $(ARPOT)
 $(OBJ)LogPot.o: $(LogPot_h) $(SRCPOT)LogPot.cc
 	$(CPP) $(CFLAGS) $(SRCPOT)LogPot.cc; $(ARPOT)
+$(OBJ)MultiPot.o: $(MultiPot_h) $(SRCPOT)MultiPot.cc
+	$(CPP) $(CFLAGS) $(SRCPOT)MultiPot.cc; $(ARPOT)
 $(OBJ)IsochronePot.o: $(IsochronePot_h) $(SRCPOT)IsochronePot.cc
 	$(CPP) $(CFLAGS) $(SRCPOT)IsochronePot.cc; $(ARPOT)
 $(OBJ)falPot.o: $(falPot_h) $(SRCPOT)falPot.cc \
 	      $(FreeMemory_h) $(Numerics_h) $(Pspline_h)
 	      $(CPP) $(CFLAGS) $(SRCPOT)falPot.cc;$(ARPOT)
 
-GalPot:	$(OBJ)falPot.o $(OBJ)MiyamotoNagaiPot.o $(OBJ)StackelPot.o $(OBJ)IsochronePot.o $(OBJ)LogPot.o
+GalPot:	$(OBJ)falPot.o $(OBJ)MiyamotoNagaiPot.o $(OBJ)StackelPot.o $(OBJ)IsochronePot.o $(OBJ)LogPot.o $(OBJ)MultiPot.o
 
 
 MAIN_LIBS:	Library TorFit GalPot Other
@@ -179,6 +183,8 @@ MAIN_LIBS:	Library TorFit GalPot Other
 # executables: standard version
 #
 testfalPot:	$(EXE)testfalPot.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
+testMultiPot:	$(EXE)testMultiPot.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
 GiveListProps:	$(EXE)GiveListProps.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
@@ -212,5 +218,6 @@ SmoothStreamMaker:	$(EXE)SmoothStreamMaker.cc MAIN_LIBS
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
-       SmoothStreamMaker CompareTorusIntegrated CompareTorusIntegrated_SOS
+       SmoothStreamMaker CompareTorusIntegrated CompareTorusIntegrated_SOS \
+       testMultiPot 
 

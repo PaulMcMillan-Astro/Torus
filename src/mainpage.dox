@@ -1,9 +1,0 @@
-/**
-\mainpage Documentation for torus code.
-
-This doxygen documention gives explanations of classes etc in the
-Torus code. For a basic idea of what to do look at the executables
-provided with the code. For an overview of how it works read McMillan,
-Dehnen and Binney (also provided with the code).
-
-*/
