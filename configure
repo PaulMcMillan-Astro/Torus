@@ -1,0 +1,22 @@
+#!/bin/csh
+echo
+echo  This is a placeholder configure file until I put a proper one together
+echo
+echo You need to have the C++ version of Sanjib Sharma\'s ebf format installed
+echo     \(http://sourceforge.net/projects/ebfformat/files/libebf/c-cpp/\)
+echo
+echo The makefile assumes that the directory libebf_c_cpp-0.0.3 has been 
+echo placed next to the Torus directory, and that it has been installed in that 
+echo directory too. I.e. EBF has been installed with the commands:
+echo
+echo ./configure --prefix=\$PWD
+echo make
+echo make install
+echo
+echo If you want to install it anywhere else, you can change the bits of the
+echo makefile that refer to EBF to point to where you\'ve installed it.
+echo
+echo If that\'s done, just run make
+echo
+
+#end

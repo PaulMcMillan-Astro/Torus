@@ -17,6 +17,9 @@
 #include "MultiPot.h"
 #include "MiyamotoNagaiPot.h"
 #include "LogPot.h"
+#include "falPot.h"
+#include "StackelPot.h"
+#include "IsochronePot.h"
 #include <cmath>
 
 using std::cout;
