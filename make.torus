@@ -213,11 +213,13 @@ CompareTorusIntegrated_SOS:	$(EXE)CompareTorusIntegrated_SOS.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 SmoothStreamMaker:	$(EXE)SmoothStreamMaker.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+GridAndGrid:	$(EXE)GridAndGrid.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
-       SmoothStreamMaker CompareTorusIntegrated CompareTorusIntegrated_SOS \
-       testMultiPot 
+       SmoothStreamMaker GridAndGrid CompareTorusIntegrated \
+       CompareTorusIntegrated_SOS testMultiPot 
 
