@@ -75,7 +75,8 @@ int main(int argc,char *argv[])
   Potential *Phi = new GalaxyPotential(from);
   from.close();
 
-  // Output file
+  // Output files
+  ebf::WriteString(string(argv[2]),"/log","Torus list","w");
   ofstream to;
   my_open(to,argv[3]);
 
