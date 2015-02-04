@@ -234,9 +234,12 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J) {
     return;
   }
   bool first=true,firstE=true, either_side=false, es_Jl=false, done=false;
-  int Nt=1024,np=0,norb=0,nE=0,nEmax = 5000,imax, NCheb=10;
+  int Nt=1024,np=0,norb=0,nE=0,nEmax = 50000,imax, NCheb=10;
   double time[Nt], tbR[Nt], tbz[Nt], tbr[Nt], tbvr[Nt], tbpth[Nt], tbdrdth[Nt],
     tbir[Nt],tbth[Nt]; // tables from orbit integration
+
+  // Could improve - starting radius should be guessed from Jz+Jphi
+
   double Rstart0 = Phi->RfromLc(Lz), Rstart = Rstart0, dr=0.1*Rstart, Rstop,
     E = Phi->eff(Rstart,0.), dE, tiny=1.e-9, small=1.e-5, odiff,odiffJ,
     delt=0.002*Rstart*Rstart/Lz, dt,ot,pot, tJl, *psi, *psisq, *tbth2, 
