@@ -137,6 +137,14 @@ namespace PJM {
     return m1;
   }
   template <class T>
+    T *****matrix(int n,int m,int l,int k,int j){
+    T *****m1 = new T****[n];
+    for(int i=0; i<n; i++) m1[i] = matrix<T>(m,l,k,j);
+    return m1;
+  }
+
+
+  template <class T>
     void del_matrix(T **m1,int n){
     for(int i=0;i<n;i++) delete[] m1[i];
     delete [] m1;
@@ -150,6 +158,12 @@ namespace PJM {
   template <class T>
     void del_matrix(T ****m1,int n,int m,int l){
     for(int i=0;i<n;i++) del_matrix<T>(m1[i],m,l);
+    delete [] m1;
+  }
+
+  template <class T>
+    void del_matrix(T *****m1,int n,int m,int l, int k){
+    for(int i=0;i<n;i++) del_matrix<T>(m1[i],m,l,k);
     delete [] m1;
   }
 
