@@ -154,7 +154,7 @@ n_discs R0
 
 then for each disc
  
-sigma_r sigma_z R_d R_\sigma L_0 frac
+sigma_r(R_0) sigma_z(R_0) R_d R_\sigma L_0 frac
 
 
 */

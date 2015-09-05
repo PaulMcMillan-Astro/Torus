@@ -911,6 +911,7 @@ double Multipole::RfromLc (const double L, double* dR) const
 
 double Multipole::LfromRc (const double R, double* dL) const
 {
+
     if(!LR || R<=0.) {
         if(!LR) cerr<<" Multipole.LfromRc() was not initialized\n";
         if(dL) *dL=0.;

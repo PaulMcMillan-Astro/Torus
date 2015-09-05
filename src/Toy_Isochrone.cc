@@ -160,7 +160,7 @@ PSPD ToyIsochrone::ForwardWithDerivs(const PSPD& JT, double dQdT[2][2]) const
 {
   derivs_ok = true;
     register double e2,schi,cchi,csth;
-    static   double fac, dw;
+    double fac, dw;
 
 // Extract and scale the actions and angles.
     jr = double(JT(0)) / sMb;
@@ -224,7 +224,7 @@ PSPD ToyIsochrone::ForwardWithDerivs(const PSPD& JT, double dQdT[2][2],
 {
     derivs_ok = true;
     register double e2,schi,cchi,csth,dchidtr,ir,icsth;
-    static   double fac, dw;
+    double fac, dw;
 
 // Extract and scale the actions and angles.
     jr = double(JT(0)) / sMb;
@@ -482,7 +482,7 @@ PSPD ToyIsochrone::Forward(const PSPD& JT) const
 {
     derivs_ok = true;
     register double e2;
-    static   double fac;
+    double fac;
 // Extract and scale the actions and angles.
     jr = double(JT(0)) / sMb;
     jt = double(JT(1)) / sMb;
@@ -540,7 +540,7 @@ PSPD ToyIsochrone::Backward(const PSPD& QP) const
 {
     derivs_ok = true;
     register double e2,csth;
-    static   double fac;
+    double fac;
 // extract and scale co-ordinates
     r   = (QP(0)-r0) / b;
     th  = QP(1);

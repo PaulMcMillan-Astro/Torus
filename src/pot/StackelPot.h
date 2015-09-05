@@ -40,12 +40,11 @@ public:
     StackelPotential(const double=1., const double=1., 
 	       const double=1.);
     double operator() (const double, const double) const;
-    //double operator() (const double, double&, double&) const;
     double operator() (const double, const double, double&, double&) const;
     //double operator() (const double, const double,
     //		       double&, double&, double&, double&, double&) const;
-    double RfromLc(const double, double*) const;
-    double LfromRc(const double, double*) const;
+    //double RfromLc(const double, double*) const;
+    //double LfromRc(const double, double*) const;
     Frequencies KapNuOm(const double) const;
     friend ostream& operator<< (ostream&, const StackelPotential&);
 };

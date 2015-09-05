@@ -5,7 +5,7 @@ Code that converts between various different Heliocentric & Galctocentric
 coordinate systems.
 
                                                                               
-  PJMCoords.h (adapted from Coordinates.h                                     
+  PJMCoords.h (adapted from Coordinates.h)                                     
                                                                               
   C++ code written by Paul McMillan 2010,                                     
                       Walter Dehnen, 1995-96,                                 
@@ -161,9 +161,9 @@ Eventually I decided that I should probably use some proper c++ for this
 #include "Matrix.h"
 
 #ifndef _Galactic_Coordinates_def_
+#define _Galactic_Coordinates_def_ 1
 typedef Vector<double,6> GCA;
 typedef Vector<double,6> GCY;
-typedef Vector<double,6> GCR;
 typedef Vector<double,6> LSR;
 typedef Vector<double,6> HCA;
 typedef Vector<double,6> HGP;

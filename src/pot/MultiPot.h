@@ -33,8 +33,8 @@ public:
   MultiPotential(Potential**, const int);
   double operator() (const double, const double) const;
   double operator() (const double, const double, double&, double&) const;
-  double RfromLc(const double, double* = 0) const;
-  double LfromRc(const double, double* = 0) const;
+  // double RfromLc(const double, double* = 0) const;
+  //double LfromRc(const double, double* = 0) const;
   Frequencies KapNuOm(const double) const;
 };
 
