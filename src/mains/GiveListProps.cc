@@ -65,24 +65,23 @@ int main(int argc,char *argv[])
   int i;
   Actions J;
   Torus T;
-  
+  bool tocout = false;
   ofstream to;
 //---------------------------------------------------------------------------
   if(argc<4){
     cerr << "Input: TorusList_name output_name(- for stdout) "
 	 << "output_type(s), options:\n";
     cerr << " E - energy\n";
-    cerr << " J - actions\n";
-    cerr << " O - Frequencies\n";
+    cerr << " actions - actions\n";
+    cerr << " frequencies - Frequencies\n";
     cerr << " d - dJ/J\n";    
-    cerr << " e - full error output\n";
-    cerr << " I - Toy (Isochrone) map parameters\n";
+    cerr << " errors - full error output\n";
+    cerr << " toymap/isochrone - Toy (Isochrone) map parameters\n";
     cerr << " n - Number of S_n terms\n";
-    cerr << " T - the full Torus output\n";
-    cerr << " p - peri- and apo-centre\n";
-    cerr << " P - Parameters of the Point Transform\n";
-    cerr << " f - Whatever\'s in the df container\n";
-    cerr << " z - z_max\n";    
+    cerr << " Rmin - pericentre\n";
+    cerr << " Rmax - apocentre\n";
+    cerr << " zmax - maximium height above the plane\n";
+    cerr << " P - Parameters of the Point Transform\n";    
     cerr << "\nGiveListProps outputs properties of all tori in a given list\n";
     exit(1);
   }
@@ -91,19 +90,42 @@ int main(int argc,char *argv[])
   std::vector<string> stuff, tori;
   ebf::EbfDataInfo dinfo;
   string filename = string(argv[1]);
+
+  if(string(argv[2])=="-") tocout = true; 
+  else to.open(argv[2]);
+
   Ebf_GetTagNames(filename, stuff);
+
   for(int i=0;i!=stuff.size();i++) { //cerr << stuff[i] << '\n';
     if(stuff[i].size()>7)
       if(stuff[i].substr(stuff[i].size()-7,7)=="actions") 
 	tori.push_back(stuff[i].substr(0,stuff[i].size()-7));
   }
+
   for(int i=0;i!=tori.size();i++) {//cerr << tori[i] << '\n';
-    if(ebf::ContainsKey(filename,tori[i]+string(argv[3]),dinfo)) {
-      double output[dinfo.elements];
-      ebf::Read(filename,tori[i]+string(argv[3]),output,dinfo.elements);
-      for(int i=0;i!=dinfo.elements;i++)
-	cerr << output[i] << ' ';
-      cerr << '\n';
+    for(int j=3;j<argc;j++) {
+      if(string(argv[j]) == "n") {
+	ebf::ContainsKey(filename,tori[i]+"generatingfunction/N1",dinfo);
+	if(tocout) std::cout << dinfo.elements << ' ';
+	else to << dinfo.elements << ' ';
+      } else if(string(argv[j]) == "d") {
+	double dc[4];
+	ebf::Read(filename,tori[i]+"errors",&dc[0],4);
+	if(tocout) std::cout << dc[0] << ' ';
+	else to << dc[0] << ' ';
+      }
+      if(ebf::ContainsKey(filename,tori[i]+string(argv[j]),dinfo)) {
+	double output[dinfo.elements];
+	ebf::Read(filename,tori[i]+string(argv[j]),output,dinfo.elements);
+	for(int i=0;i!=dinfo.elements;i++) {
+	  if(tocout) std::cout << output[i] << ' ';
+	  else to << output[i] << ' ';
+	}
+      }
     }
+    if(tocout) std::cout  << '\n';
+    else to  << '\n';
   }
+
+  if(string(argv[2])!="-") to.close();
 }
