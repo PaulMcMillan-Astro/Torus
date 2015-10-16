@@ -1439,16 +1439,22 @@ int AllFit(	            // return:	error flag (see below)
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
-      Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+      Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+      Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+      //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
       dO = Om(1);  
     } else {
-      if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+      if(!J(1)) Om[1] = 1.5*Om[2]; // Very approx
+		  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
       rs   = NearResonant(Om);
       if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
       else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
     }
-  } else if(!Om(0) || !Om(1) || !Om(2))                 // if no estimates
-    Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));         // and doing angle fit
+  } else if(!Om(0) || !Om(1) || !Om(2)) {                // if no estimates
+    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+    // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));     // and doing angle fit
+  }
   if(err) cerr << "Omega estimate: "<< Om << "\n";
   fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
   d[0] = dH*fac;
@@ -1560,11 +1566,14 @@ int AllFit(	            // return:	error flag (see below)
       if(type==1) { // if no Angle Fit
 	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
 	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
-	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
+	  Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+	  Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+	  //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
 	  dO = Om(1);  
 	} else {
-	  if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+	  if(!J(1)) Om[1] = 1.5*Om[2];
+	  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
 	  rs   = NearResonant(Om);
 	  if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
 	  else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
@@ -1690,8 +1699,11 @@ int ToySetFit(	            // return:	error flag (see below)
 //----------------------------------------------------------------------------  
 //    Estimate Omega and hence |dJ|/|J| from Orbit Integration
 //  We use a least squares fit for omega R and l; omega phi = mean (Lz/R^2)
-  if(!Om(0) || !Om(1) || !Om(2))                 // if no estimates
-    Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));         // and doing angle fit
+  if(!Om(0) || !Om(1) || !Om(2)) {                  // if no estimates
+    //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))); // and doing angle fit
+    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+  }
   if(err) cerr << "Omega estimate: "<< Om << "\n";
   fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
   d[0] = dH*fac;
@@ -1972,7 +1984,9 @@ int PTFit(	            // return:	error flag (see below)
       if(err) cerr << "Point transform set up wrong before Fit\n";
       return -1;
     }
-    Om = Phi->KapNuOm(Phi->RfromLc(J(2))); // Wrong for phi, it'll have to do
+    //Om = Phi->KapNuOm(Phi->RfromLc(J(2))); // Wrong for phi, it'll have to do
+    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+    Om[0] = 1.5*Om[2]; // Very approx
     Om[1] = tmptab[3];
     if(J(0)==0) {
       SN.cut(0.); // point transform enough. Om_phi wrong, but it'll do
@@ -2029,16 +2043,22 @@ int PTFit(	            // return:	error flag (see below)
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
-      Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+      // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+      Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+      Om[0] = Om[1] = 1.5*Om[2]; // Very approx
       dO = Om(1);  
     } else {
-      if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+      if(!J(1)) Om[1] = 1.5*Om[2];//
+      // (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
       rs   = NearResonant(Om);
       if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
       else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
     }
-  } else if(!Om(0) || !Om(1) || !Om(2))                 // if no estimates
-    Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));         // and doing angle fit
+  } else if(!Om(0) || !Om(1) || !Om(2)) {                // if no estimates
+    // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));     // and doing angle fit
+    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+  }
   if(err) cerr << "Omega estimate: "<< Om << "\n";
   fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
   d[0] = dH*fac;
@@ -2149,10 +2169,13 @@ int PTFit(	            // return:	error flag (see below)
 	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
 	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
 	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
-	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+	  //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+	  Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
+	  Om[0] = Om[1] = 1.5*Om[2]; // Very approx
 	  dO = Om(1);  
 	} else {
-	  if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+	  if(!J(1)) Om[1] = 1.5*Om[2];
+	  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
 	  rs   = NearResonant(Om);
 	  if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
 	  else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));

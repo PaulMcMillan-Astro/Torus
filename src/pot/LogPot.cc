@@ -24,10 +24,7 @@ void  LogPotential::error(const char* msgs) const
 double LogPotential::operator() (const double R, const double z) const
 {
     if(rc2==0. && R==0. && z==0.) error(" (R,z)=0 at zero core radius"); 
-    if(Rei) {
-        register double Rq= R*R, zq= z*z;
-        return v0sqhalf * log (Rq+zq*q2i+rc2 -Rei3*(Rq-zq)*sqrt(Rq+zq));
-    }
+   
     return v0sqhalf * log(R*R+z*z*q2i+rc2) + plusconst;
 }
 
@@ -37,17 +34,11 @@ double LogPotential::operator() (const double R, const double z, double& dPdR,
     if(rc2==0. && R==0. && z==0.) error(" (R,z)=0 at zero core radius"); 
     register double Rq= R*R, zq= z*z,
 		    mq= Rq + zq * q2i + rc2;
-    if(Rei) {
-        register double r = sqrt(Rq+zq);
-	mq  -= Rei3 * r * (Rq-zq);
-        dPdR = v0sq / mq;
-        dPdz = dPdR * z * ( q2i + 0.5*Rei3*(3*zq+Rq)/r );
-        dPdR*= R * (1. - 0.5*Rei3*(3*Rq+zq)/r );
-    } else {
-        dPdR = v0sq / mq;
-        dPdz = dPdR * z * q2i;
-        dPdR*= R;
-    }
+    
+    dPdR = v0sq / mq;
+    dPdz = dPdR * z * q2i;
+    dPdR*= R;
+    
     return v0sqhalf * log(mq);
 }
 
@@ -56,19 +47,11 @@ double LogPotential::operator() (const double R, double& dPdR, double& d2PdRR) c
     if(rc2==0. && R==0.) error(" (R,z)=0 at zero core radius"); 
     register double Rq= R*R,
 		    mq= Rq + rc2;
-    if(Rei) {
-        register double R3 = R*R*R, dmqdRbyR;
-	mq      -= Rei3 * R3;
-	dmqdRbyR = 2. - Rei3*3*R;
-        dPdR     = v0sqhalf / mq;
-	d2PdRR   = dPdR * ( dmqdRbyR - Rei3*R*3 
-                         -dmqdRbyR*dmqdRbyR * Rq/mq );
-        dPdR    *= R * dmqdRbyR;
-    } else {
-        dPdR   = v0sq / mq;
-	d2PdRR = dPdR * (1.-2*Rq/mq);
-        dPdR  *= R;
-    }
+    
+    dPdR   = v0sq / mq;
+    d2PdRR = dPdR * (1.-2*Rq/mq);
+    dPdR  *= R;
+    
     return v0sqhalf * log(mq);
 }
 
@@ -80,29 +63,15 @@ double LogPotential::operator() (const double R, const double z,
     register double Rq = R*R,
 		    zq = z*z,
 		    mq = Rq + zq * q2i + rc2;
-    if(Rei) {
-        register double r = sqrt(Rq+zq), r3 = r*r*r, dmqdRbyR, dmqdzbyz;
-	mq      -= Rei3 * r * (Rq-zq);
-	dmqdRbyR = 2.    - Rei3*(3*Rq+zq)/r;
-	dmqdzbyz = 2*q2i + Rei3*(3*zq+Rq)/r;
-
-        dPdR   = v0sqhalf / mq;
-        dPdz   = dPdR * z * dmqdzbyz;
-	d2PdRR = dPdR * ( dmqdRbyR - Rei3*Rq*(3*Rq+5*zq)/r3 
-                         -dmqdRbyR*dmqdRbyR * Rq/mq );
-	d2Pdzz = dPdR * ( dmqdzbyz + Rei3*zq*(3*zq+5*Rq)/r3 
-                         -dmqdzbyz*dmqdzbyz * zq/mq );
-	d2PdRz = dPdR * R*z *( Rei3*(Rq-zq)/r3 - dmqdRbyR*dmqdzbyz/mq );
-        dPdR  *= R * dmqdRbyR;
-    } else {
-        dPdR   = v0sq / mq;
-        dPdz   = dPdR * q2i;
-	d2PdRR = dPdR * (1.-2*Rq/mq);
-        d2Pdzz = dPdz * (1. - 2*zq*q2i/mq);
-        d2PdRz =-2 * dPdz * R * z / mq;
-        dPdR  *= R;
-        dPdz  *= z;
-    }
+    
+    dPdR   = v0sq / mq;
+    dPdz   = dPdR * q2i;
+    d2PdRR = dPdR * (1.-2*Rq/mq);
+    d2Pdzz = dPdz * (1. - 2*zq*q2i/mq);
+    d2PdRz =-2 * dPdz * R * z / mq;
+    dPdR  *= R;
+    dPdz  *= z;
+    
     return v0sqhalf * log(mq);
 }
 
@@ -165,7 +134,7 @@ ostream& operator<< (ostream& to, const LogPotential& P)
 		 to << "/2 ";
     if(P.q==1.)  to << "ln[R^2 + z^2";
 	else     to << "ln[R^2 + (z/" << P.q << ")^2";
-    if(P.Rei!=0) to << " - "<<P.Rei3<<"sqrt[R^2+z^2](R^2-z^2) ";
+    
     if(P.rc!=0.) to << " + " << P.rc << "^2 ";
                  to << ']';
     return to;

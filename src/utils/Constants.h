@@ -5,9 +5,10 @@ Gives various parameters of the Galaxy and observing systems.
 
 *                                                                              *
 *  C++ code written by Walter Dehnen, 1995/96.                                 *
+*                      Paul McMillan, 2007-                                    *
 *  Oxford University, Department of Physics, Theoretical Physics.              *
 *  address: 1 Keble Road, Oxford OX1 3NP, United Kingdom.                      *
-*  e-mail:  dehnen.physics.ox.ac.uk                                            *
+*  e-mail:  paul@astro.lu.se                                                   *
 *                                                                              *
 *******************************************************************************/
 /*
