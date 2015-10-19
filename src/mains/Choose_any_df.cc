@@ -29,7 +29,7 @@ class tunableMCMC {
 public:
   DF *f;
   Potential *Phi;
-  Actions oJ, oJ_pr, sigmas, proposal;  
+  Actions oJ, oJ_pr, sigmas, proposal;
   double stepsize,odf;
   Gaussian *Gau;
   Random3 *R3;
@@ -42,8 +42,8 @@ public:
   ~tunableMCMC() {;}
 };
 
-tunableMCMC::tunableMCMC(DF *F, Potential *phi, Actions J, 
-			 Gaussian *gau, Random3 *r3) : 
+tunableMCMC::tunableMCMC(DF *F, Potential *phi, Actions J,
+			 Gaussian *gau, Random3 *r3) :
   f(F), Phi(phi), oJ(J), Gau(gau), R3(r3)
 {
   oJ_pr    = oJ;
@@ -62,7 +62,7 @@ bool tunableMCMC::step() {
     J[j] = (j<2)? J_pr(j)*J_pr(j) : J_pr(j);
   }
   Phi->set_Lz(fabs(J(2)));
-  df = f->df(Phi,J)*fabs(J_pr(0)*J_pr(1));  
+  df = f->df(Phi,J)*fabs(J_pr(0)*J_pr(1));
   if(df>odf*(*R3)()) {
     odf = df; oJ = J; oJ_pr = J_pr; return true;
   }
@@ -80,11 +80,11 @@ void tunableMCMC::find_sigs(int nstep) {
   for(int i=0;i!=nstep;) {
     if(step()) i++;
     mean += oJ_pr; ntry++;
-    for(int j=0;j!=3;j++) 
+    for(int j=0;j!=3;j++)
       sigmas[j] += oJ_pr[j]*oJ_pr[j];
   }
   mean   /= double(ntry);
-  for(int j=0;j!=3;j++) 
+  for(int j=0;j!=3;j++)
     sigmas[j] = sqrt(sigmas[j]/double(ntry) - mean[j]*mean[j]);
   proposal = sigmas;
 }
@@ -98,7 +98,7 @@ void tunableMCMC::tune(int nstep, int nit) {
       ntry++;
     }
     double frac = double(nstep)/double(ntry);
-    if(3*frac<1) 
+    if(3*frac<1)
       stepsize *= 1-pow(3*frac-1.,2)*0.8;
     else
       stepsize *= 1+pow(3*frac-1.,2)*0.75;
@@ -115,15 +115,15 @@ void tunableMCMC::output(int nout,ofstream &to) {
       i++;
       to << ntry << "\n" << std::flush;
       ntry = 0;
-      if(i != nout) 
+      if(i != nout)
 	to << oJ << ' ' << odf/fabs(oJ_pr(0)*oJ_pr(1)) << ' ' << std::flush;
     }
   }
 }
 
 
-int MCMC(DF *f, Potential* Phi, Actions &oJ_pr, double& odf, 
-	 Gaussian &Gau, Random3 &R3) 
+int MCMC(DF *f, Potential* Phi, Actions &oJ_pr, double& odf,
+	 Gaussian &Gau, Random3 &R3)
 {
   int ntry=0;
   Actions J,J_pr;
@@ -137,7 +137,7 @@ int MCMC(DF *f, Potential* Phi, Actions &oJ_pr, double& odf,
     df = f->df(Phi,J)*fabs(J_pr(0)*J_pr(1));
     ntry++;
   } while (df<odf*R3.RandomDouble());
-  odf = df; oJ_pr = J_pr; oJ_pr[2] = J[2]; 
+  odf = df; oJ_pr = J_pr; oJ_pr[2] = J[2];
   return ntry;
 }
 
@@ -145,7 +145,7 @@ int MCMC(DF *f, Potential* Phi, Actions &oJ_pr, double& odf,
 int main(int argc,char *argv[])
 {
 
-  if(argc<5) { 
+  if(argc<5) {
     cerr << "Produces list of actions, df value and N_MCMC "
 	 << "sampled using MCMC from df\n";
     cerr << "Input parameters: Potfile df_file out_rootname ntor (seed)\n";
@@ -159,14 +159,14 @@ int main(int argc,char *argv[])
   Actions   J,rtJ,ortJ,J_pr;
   Potential *Phi;
   if(argc>5) seed = 127949*atoi(argv[5]);
-  
+
   Random3   R3(7*int(cpu) + seed),R3b(123*int(cpu)+seed);
   Gaussian  Gau(&R3,&R3b);
   double    odf,newdf;
   string logname = string(argv[3]) + ".CdJ_log";
 
   if(string(argv[1]) == "LogPotential_220") {
-    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
+    Phi = new LogPotential(220.*Units::kms,0.8,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
@@ -174,7 +174,7 @@ int main(int argc,char *argv[])
   }
 
   my_open(from,argv[2]);
-  DF *distfunc = set_DF(from);  
+  DF *distfunc = set_DF(from);
   from.close();
 
   ntor = atoi(argv[4]);
@@ -188,13 +188,13 @@ int main(int argc,char *argv[])
      << "Created at: "  << asctime(timeinfo)
      << "By program: " << argv[0] << "\n"
      << "Input parameters: potfile df_file ntor "
-     << "Ran_param (x2)\n" 
+     << "Ran_param (x2)\n"
      <<  argv[1] << " " <<  argv[2] << " " << ntor  <<" "
      << 7*int(cpu) << " " << 123*int(cpu) << "\n"
      << "with potfile contents:\n";
   if(string(argv[1]) == "LogPotential_220") {
     to <<argv[1]<< "\n";
-  } else { 
+  } else {
     from.open(argv[1]);
     while(from && !from.eof()) {
       getline(from,line);
@@ -214,7 +214,7 @@ int main(int argc,char *argv[])
 
   my_open(to,argv[3]);
   J[0] = J[1] = 0.001; // for example
-  J[2] = -1.8; 
+  J[2] = -1.8;
 
   tunableMCMC tMC(distfunc,Phi,J,&Gau,&R3);
 
@@ -224,8 +224,8 @@ int main(int argc,char *argv[])
   if(nburn<10) nburn = 10;
   tMC.find_sigs(ntune);
   tMC.tune(ntune,nit);
-  tMC.burn_in(nburn);  
-  tMC.output(ntor,to);  
+  tMC.burn_in(nburn);
+  tMC.output(ntor,to);
   to.close();
 
 }
