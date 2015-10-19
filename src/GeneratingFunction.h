@@ -153,6 +153,15 @@ public:
     void    dSdJ2(const int i, const double val)  { dS2[i] = val; }
     void    dSdJ3(const int i, const double val)  { dS3[i] = val; }
 
+
+   AngPar  operator-    () const;
+   AngPar  operator+    (const AngPar&) const;
+   AngPar  operator-    (const AngPar&) const;
+   AngPar  operator*    (const double&) const;
+   AngPar  operator/    (const double&) const;
+   
+
+    
     AngPar&  operator=    (const AngPar&);
     AngPar&  operator+=   (const AngPar&);
     AngPar&  operator-=   (const AngPar&);
@@ -229,6 +238,7 @@ public:
     int     n1		      (const int)		  const;
     int     n2		      (const int)		  const;
     PSPD    ForwardWithDerivs (const PSPD&, double[2][2]) const;
+    PSPT    Forward3DWithDerivs (const PSPT&, double[2][2]) const; 
     PSPD    Forward           (const PSPD&)		  const;
     PSPT    Forward3D         (const PSPT&)		  const;
 };

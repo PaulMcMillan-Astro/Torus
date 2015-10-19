@@ -30,38 +30,38 @@ double MultiPotential::operator() (const double R, const double z, double &dPdR,
   return Phi;
 }
 
-double MultiPotential::LfromRc(const double R, double *dR) const {
-  // Not going to try to find dR
-  double dPR,dPz,P;
-  P = (*this)(R,0.,dPR,dPz);
-  return sqrt(R*R*R*dPR);  
-}
+//double MultiPotential::LfromRc(const double R, double *dR) const {
+//  // Not going to try to find dR
+//  double dPR,dPz,P;
+//  P = (*this)(R,0.,dPR,dPz);
+//  return sqrt(R*R*R*dPR);  
+//}
 
 
-double MultiPotential::RfromLc(const double L_in, double* dR) const
-{
-  bool more=false;
-  double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL,L=fabs(L_in);
-  R=exp(lR);
-  P= (*this)(R,0.,dPR,dPz);
-  LcR=sqrt(R*R*R*dPR);
-  if(LcR == L) return R;
-  if(L>LcR) more=true;
-  oldL=LcR;
+// double MultiPotential::RfromLc(const double L_in, double* dR) const
+// {
+//   bool more=false;
+//   double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL,L=fabs(L_in);
+//   R=exp(lR);
+//   P= (*this)(R,0.,dPR,dPz);
+//   LcR=sqrt(R*R*R*dPR);
+//   if(LcR == L) return R;
+//   if(L>LcR) more=true;
+//   oldL=LcR;
   
-  for( ; ; ) {
-    lR += (more)? dlR : -dlR;
-    R=exp(lR);
-    P= (*this)(R,0.,dPR,dPz);
-    LcR=sqrt(R*R*R*dPR);
-    if(LcR == L) return R;
-    if((L< LcR && L>oldL) ||(L>LcR && L<oldL)){
-	R=(more)? exp(lR-0.5*dlR) : exp(lR+0.5*dlR);
-	return R;}
-    oldL=LcR;
-  }
+//   for( ; ; ) {
+//     lR += (more)? dlR : -dlR;
+//     R=exp(lR);
+//     P= (*this)(R,0.,dPR,dPz);
+//     LcR=sqrt(R*R*R*dPR);
+//     if(LcR == L) return R;
+//     if((L< LcR && L>oldL) ||(L>LcR && L<oldL)){
+// 	R=(more)? exp(lR-0.5*dlR) : exp(lR+0.5*dlR);
+// 	return R;}
+//     oldL=LcR;
+//   }
   
-}
+// }
 
 Frequencies MultiPotential::KapNuOm(const double R) const {
   Frequencies KNO = 0., KNOtmp;

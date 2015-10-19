@@ -29,37 +29,6 @@ double MiyamotoNagaiPotential::operator() (const double R, const double z, doubl
 }
 
 
-
-double MiyamotoNagaiPotential::RfromLc(const double L, double* dR) const
-{
-  bool more=false;
-  double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL;
-  R=exp(lR);
-  P= (*this)(R,0.,dPR,dPz);
-  LcR=pow(R*R*R*dPR,0.5);
-  if(LcR == L) return R;
-  if(L>LcR) more=true;
-  oldL=LcR;
-  
-  for( ; ; ){
-    lR += (more)? dlR : -dlR;
-    R=exp(lR);
-    P= (*this)(R,0.,dPR,dPz);
-    LcR=pow(R*R*R*dPR,0.5);
-    if(LcR == L) return R;
-    if((L< LcR && L>oldL) ||(L>LcR && L<oldL)){
-	R=(more)? exp(lR-0.5*dlR) : exp(lR+0.5*dlR);
-	return R;}
-    oldL=LcR;
-  }
-  
-}
-double MiyamotoNagaiPotential::LfromRc(const double R, double* dR) const
-{
-  double dPR,dPz,P;
-  P = (*this)(R,0.,dPR,dPz);
-  return sqrt(R*R*R*dPR);  
-}
 Frequencies MiyamotoNagaiPotential::KapNuOm(const double R) const
 {
   double dPR,dPz,P;

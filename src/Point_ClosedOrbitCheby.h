@@ -73,14 +73,18 @@ class PoiClosedOrbit : public PoiTra {
 // ROUTINES USED TO FIND THE TRANSFORM -----------------------------------------
   // Integrate orbit over Pi in th_z & store output
   void do_orbit       (PSPD, double, Potential*, double*, double*, double*, 
-		       double*, double*, double*, double*, int&, int); 
+		       double*, double*, double*, double*, int&, int, double&); 
+
   // Shift starting radius towards that of closed orbit (or note we're there)
-  void set_Rstart     (double&,double,double&,double&,bool&,bool&,bool&);
+  void set_Rstart     (double&,double,double&,double&,double,bool&,bool&,bool&);
+
   // Shift orbit energy so that closed orbit of that energy has J_l = target
   void set_E          (const double,double&,double&,double&,bool&,bool&,bool&);
+
   // Rewrite tables so I can fit to chebyshev (also find thmax)
   void RewriteTables  (const int, double *, double *, double *, double *, 
 		       double *, double *, double *, double *, int &);
+
   // Routines needed to find y and z
   vec2 chebderivs     (const double, const vec2);
   double stepper      (vec2&, vec2&, const double, const double );

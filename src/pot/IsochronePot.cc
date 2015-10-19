@@ -30,50 +30,29 @@ double IsochronePotential::operator() (const double R, const double z, double& d
 
 }
 
-//double IsochronePotential::operator() (const double R, 
-//                           double& dPdR, double& d2PdRR) const {}
 
-//double IsochronePotential::operator() (const double R, const double z,
-//			   double& dPdR, double& dPdz,
-//			   double& d2PdRR, double& d2Pdzz, double& d2PdRz) const
-//{}
-
-
-double IsochronePotential::RfromLc(const double L, double* dR) const
-{
-  bool more=false;
-  double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL;
-  R=exp(lR);
-  P= (*this)(R,0.,dPR,dPz);
-  LcR=pow(R*R*R*dPR,0.5);
-  if(LcR == L) return R;
-  if(L>LcR) more=true;
-  oldL=LcR;
-  
-  for( ; ; ){
-    lR += (more)? dlR : -dlR;
-    R=exp(lR);
-    P= (*this)(R,0.,dPR,dPz);
-    LcR=pow(R*R*R*dPR,0.5);
-    if(LcR == L) return R;
-    if((L< LcR && L>oldL) ||(L>LcR && L<oldL)){
-	R=(more)? exp(lR-0.5*dlR) : exp(lR+0.5*dlR);
-	return R;}
-    oldL=LcR;
-  }
-  
-}
-double IsochronePotential::LfromRc(const double R, double* dR) const
-{
-  double dPR,dPz,P;
-  P = (*this)(R,0.,dPR,dPz);
-  return sqrt(R*R*R*dPR);  
-}
 Frequencies IsochronePotential::KapNuOm(const double R) const
 {
-  //std::cout << "Lies from KapNuOm   ";
-  Frequencies output= 100000.*R;
-  return output;
+  //epi[0] = sqrt(d2PdRR+3*dPdR/R)
+  //epi[1] = sqrt(d2Pdzz)
+  //epi[2] = sqrt(dPdR/R);
+
+  double rsq = R*R,
+    r = R, ir = 1./r,
+    tmp1 = sqrt(bsq+rsq),
+    denom = 1./(b+tmp1),
+    dPdr = GM*r*denom*denom/tmp1,
+    dPdR = dPdr,
+    d2Pdrr = dPdr* ( ir - 2*r*denom/tmp1 - r/(tmp1*tmp1) ),
+    d2PdRR = d2Pdrr,
+    d2Pdzz = dPdr/r;
+
+  Frequencies epi;
+  epi[0] = sqrt(d2PdRR+3.*dPdR/R);
+  epi[1] = sqrt(d2Pdzz);
+  epi[2] = sqrt(dPdR/R);
+
+  return epi;
 
 }
 

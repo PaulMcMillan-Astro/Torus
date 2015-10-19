@@ -20,6 +20,7 @@ as well as the true potential.
 #define _Pot_def_ 1
 
 #include "Types.h"
+#include <cmath>
 #include <cstdlib>
 
 /**
@@ -59,16 +60,19 @@ public:
 	angular momentum (Lc). Optionally also gives dR/dLc
      */
     virtual double RfromLc   (				// returns Rc,
-			      const double,		// given Lz. possibly
-			      double* =0)const=0;	// returns dRc/dLz.
+		      const double,		// given Lz. possibly
+		      double* =0)const;	// returns dRc/dLz.
 
     /** \brief returns angular momentum of a circular orbit (L) with given
 	 radius (Rc). Optionally also gives dL/dRc
      */
     virtual double LfromRc   (				// returns Lc,
-				const double,		// given R. possibly
-				double* =0)const=0;	// returns dLz/dRc.
-    
+		      const double R,		// given R. possibly
+		      double* dR=0) const {        	// returns dLz/dRc.
+      double dPR,dPz,P;
+      P = (*this)(R,0.,dPR,dPz);
+      return sqrt(R*R*R*dPR);  
+    }
 
     /** \brief Gives epicycle frequencies (kappa, nu, Omega - i.e. radial, 
 	vertical, azimuthal) at a given R.
@@ -99,5 +103,31 @@ public:
    	  dPdR                         -= Lzsq_over_Rsq / R;
     	  return potential + 0.5 * Lzsq_over_Rsq; }
 };
+
+inline double Potential::RfromLc(const double L, double* dR) const
+{
+  bool more=false;
+  double R,lR=0.,dlR=0.001,z,dPR,dPz,P,LcR,oldL;
+  R=exp(lR);
+  P= (*this)(R,0.,dPR,dPz);
+  LcR=pow(R*R*R*dPR,0.5);
+  if(LcR == L) return R;
+  if(L>LcR) more=true;
+  oldL=LcR;
+  
+  for( ; ; ){
+    lR += (more)? dlR : -dlR;
+    R=exp(lR);
+    P= (*this)(R,0.,dPR,dPz);
+    LcR=pow(R*R*R*dPR,0.5);
+    if(LcR == L) return R;
+    if((L< LcR && L>oldL) ||(L>LcR && L<oldL)){
+	R=(more)? exp(lR-0.5*dlR) : exp(lR+0.5*dlR);
+	return R;}
+    oldL=LcR;
+  }
+  
+}
+
 
 #endif

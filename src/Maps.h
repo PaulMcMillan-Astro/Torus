@@ -110,6 +110,11 @@ public:
     virtual PSPD    ForwardWithDerivs(const PSPD&, double[2][2]) const=0;
     virtual PSPD    ForwardWithDerivs(const PSPD&, double[2][2], 
 				      double[2][2])              const=0;
+    //
+    // virtual PSPT    Forward3DWithDerivs(const PSPT&, double[2][2]) const=0;
+    // virtual PSPT    Forward3DWithDerivs(const PSPT&, double[2][2],
+    //				      double[2][2])              const=0;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

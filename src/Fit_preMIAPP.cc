@@ -1344,7 +1344,7 @@ int AllFit(	            // return:	error flag (see below)
     double	  &Hav,     // output:	mean H
     Errors        &d, 	    // output:	actual |dJ|/|J| & chirms of angle fits
     const int     type,     // input:   Type of Fit (Full (0)/Half(1))
-    const int     strategy, // input:   0=toy->all, 1=toy->Sn, 2=sn->all 
+    const bool    safe,     // input:   Safe (vary one thing at a time) fit? 
     const int     Nta,      // input:   Number of tailorings
     const int     ipc,	    // input:   max tol steps on average per cell
     const double  eH,       // input:	estimate of expected mean H
@@ -1362,25 +1362,19 @@ int AllFit(	            // return:	error flag (see below)
     tl1 = 3.e-7,   	  	       // tolerance for dchisq of 1. & 2. fit
     tl8 = 3.e-5,          	       // tolarance for dchisq/(J*O) of --
     tla = 1.e-2;   	  	       // tolerance for chi_rms of angle fit
-  register int    Ni1 = Ni/10,          // max. No of iteration in 1. fit
+  register int    Ni1 = Ni/5,          // max. No of iteration in 1. fit
     Ni2 = (Nta)? (Ni-Ni1)/Nta : Ni-Ni1,// max. No of iteration in 2. fit
     n1 = fmax(Nth, 6*(SN.NumberofN1()/4+1)),
     n2 = fmax(Nth, 6*(SN.NumberofN2()/4+1)),
-    nrs= Nrs, F;
+    nrs= Nrs, F, sf=(safe)? 2 : 0;
   register double tl9=0.95*tol, fac=1., Jabs, tlH, tlC, rs;
-  int    ngA, sf = (strategy==1)? 2 : 0;
+  int    ngA;
   double  tailorparam = (J(0) > J(1) && J(1))? J(0)/J(1) : 
                        (J(1) > J(0) && J(0))? J(1)/J(0) : 1;
   double ta = ta0*tailorparam, tb = tb0*tailorparam, off = off0*tailorparam;
 
   double l,dH,dO,dOp,odJ;
   GenPar oSN;
-
-  if(strategy<0 || strategy>2) {
-    cerr << "ERROR - unknown strategy in AllFit\n";
-    return -1;
-  }
-
   // Prepare for fit.
   if(Ni1<1 || J(0)<=0. || J(1)<0. ) return -1; // bad input 
   Jabs = (J(0) && J(1))? sqrt(J(0)*J(1)) : J(0) + J(1);  // Typical Action
@@ -1392,14 +1386,8 @@ int AllFit(	            // return:	error flag (see below)
 //----------------------------------------------------------------------------
 // pre-fit  (no fit yet of the Sn)
 //
-  if(err && strategy!=2) cerr<<" 0. Fit of ToyPar \n";
-  if(err && strategy==2) cerr<<" 0. Fit of GenFnc \n";
-
-  if(strategy==2)
-     F = SbyLevMar(J,Phi,6,n1,n2,Ni0,BIG,0.,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-   else
-     F = SbyLevMar(J,Phi,5,n1,n2,Ni0,BIG,0.,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-  
+  if(err) cerr<<" 0. Fit of ToyPar \n"; // NOTE 0 below: temporary
+  F = SbyLevMar(J,Phi,5,n1,n2,Ni0,BIG,0.,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   // Function (above) which does the Levenberg-Marquad iteration
   // return value is #iterations or negative number for error
 
@@ -1409,8 +1397,6 @@ int AllFit(	            // return:	error flag (see below)
     return -1; 
   }
 
-
-
 //----------------------------------------------------------------------------
 // first fit
 //
@@ -1419,11 +1405,9 @@ int AllFit(	            // return:	error flag (see below)
   if(Om(0) && (Om(1) || !(J(1)))) {
     tlH = hypot(Om(0),Om(1)) * Jabs * tl9;
     tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;// switch out ,4,s with ,6,s
-    F = SbyLevMar(J,Phi,4+sf,
-		  n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   } else  //    otherwise don't constrain dH
-    F = SbyLevMar(J,Phi,4+sf,
-		  n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
+    F = SbyLevMar(J,Phi,4+sf,n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
   if(F<0) { 
     if(err) {cerr<<" 1. Fit: max. "<<Ni1<<" iterations.\n";
       cerr<<" SbyLevMar() returned "<<F<<'\n';}
@@ -1439,22 +1423,16 @@ int AllFit(	            // return:	error flag (see below)
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
-      Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-      Om[0] = Om[1] = 1.5*Om[2]; // Very approx
-      //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+      Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
       dO = Om(1);  
     } else {
-      if(!J(1)) Om[1] = 1.5*Om[2]; // Very approx
-		  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+      if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
       rs   = NearResonant(Om);
       if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
       else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
     }
-  } else if(!Om(0) || !Om(1) || !Om(2)) {                // if no estimates
-    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
-    // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));     // and doing angle fit
-  }
+  } else if(!Om(0) || !Om(1) || !Om(2))                 // if no estimates
+    Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));         // and doing angle fit
   if(err) cerr << "Omega estimate: "<< Om << "\n";
   fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
   d[0] = dH*fac;
@@ -1566,14 +1544,11 @@ int AllFit(	            // return:	error flag (see below)
       if(type==1) { // if no Angle Fit
 	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
 	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
-	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
-	  Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-	  Om[0] = Om[1] = 1.5*Om[2]; // Very approx
-	  //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
+	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
+	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
 	  dO = Om(1);  
 	} else {
-	  if(!J(1)) Om[1] = 1.5*Om[2];
-	  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+	  if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
 	  rs   = NearResonant(Om);
 	  if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
 	  else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
@@ -1620,256 +1595,6 @@ int AllFit(	            // return:	error flag (see below)
     return 0;
 }
 
-
-
-
-
-int ToySetFit(	            // return:	error flag (see below)
-    const Actions &J,       // input:	Actions of Torus to be fit
-    Potential     *Phi,	    // input:	pointer to Potential
-    const double  tol,	    // input:	goal for |dJ|/|J|
-    const int	  Max,	    // input:	max. number of S_n
-    const int	  Ni,	    // input:	max. number of iterations
-    const int     OD,	    // input:	overdetermination of eqs. for angle fit
-    const int     Nrs,      // input:	min. number of cells for fit of dS/dJ
-    PoiTra	  &PT,      // in/output:	canonical map with parameters
-    ToyMap	  &TM,      // in/output:	toy-pot. map with parameters
-    GenPar	  &SN,      // in/output:	parameters of gen. function
-    AngPar	  &AP,      // output:	dSn/dJr & dSn/dJl
-    Frequencies   &Om,	    // output:	O_r, O_l, O_p
-    double	  &Hav,     // output:	mean H
-    Errors        &d, 	    // output:	actual |dJ|/|J| & chirms of angle fits
-    const int     Nta,      // input:   Number of tailorings
-    const int     ipc,	    // input:   max tol steps on average per cell
-    double const  eH,       // input:	estimate of expected mean H
-    const int     Nth,	    // input:	min. No of theta per dimension
-    const int     err,	    // input:	error output?
-    const bool    sph_pot)  // input:	spherical potential?
-{
-
-  const    int    Ni0 = 10;            // max. No of iteration in 0. fit
-  const    double  ta0 = 5.e-5,        // threshold for deletion of Sn
-    tb0 = 3.e-3;   	               // threshold for creation of Sn
-  const    double BIG = 1.e10,         // tolerance on H if otherwise undefined
-    off0 = 0.002,   	  	       // threshold for setting Sn=0
-    l0  = 1./128., 	  	       // default start value of lambda
-    tl0 = 3.e-7,   	  	       // tolerance for dchisq of 0. fit
-    tl1 = 3.e-7,   	  	       // tolerance for dchisq of 1. & 2. fit
-    tl8 = 3.e-5,          	       // tolarance for dchisq/(J*O) of --
-    tla = 1.e-2;   	  	       // tolerance for chi_rms of angle fit
-  register int    Ni1 = Ni/5,          // max. No of iteration in 1. fit
-    Ni2 = (Nta)? (Ni-Ni1)/Nta : Ni-Ni1,// max. No of iteration in 2. fit
-    n1 = fmax(Nth, 6*(SN.NumberofN1()/4+1)),
-    n2 = fmax(Nth, 6*(SN.NumberofN2()/4+1)),
-    nrs= Nrs, F;
-  register double tl9=0.95*tol, fac=1., Jabs, tlH, tlC, rs;
-  int    ngA;
-  double  tailorparam = (J(0) > J(1) && J(1))? J(0)/J(1) : 
-                       (J(1) > J(0) && J(0))? J(1)/J(0) : 1;
-  double ta = ta0*tailorparam, tb = tb0*tailorparam, off = off0*tailorparam;
-
-  double l,dH,dO,dOp,odJ;
-  GenPar oSN;
-  // Prepare for fit.
-  if(Ni1<1 || J(0)<=0. || J(1)<0. ) return -1; // bad input 
-  Jabs = (J(0) && J(1))? sqrt(J(0)*J(1)) : J(0) + J(1);  // Typical Action
-  
-  Phi->set_Lz(J(2));
-  
-  if(J(1) == 0. || sph_pot) SN.Jz0(); // remove n_l != 0 terms
-
-//----------------------------------------------------------------------------
-// first fit
-//
-//    if estimates for the frequencies given, use them to constrain dH
-  if(err) cerr<<" 1. Fit: max. "<<Ni1<<" iterations.\n";
-  if(Om(0) && (Om(1) || !(J(1)))) {
-    tlH = hypot(Om(0),Om(1)) * Jabs * tl9;
-    tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;// switch out ,4,s with ,6,s
-    F = SbyLevMar(J,Phi,6,n1,n2,Ni1,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-  } else  //    otherwise don't constrain dH
-    F = SbyLevMar(J,Phi,6,n1,n2,Ni1,BIG,tl1,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-  if(F<0) { 
-    if(err) {cerr<<" 1. Fit: max. "<<Ni1<<" iterations.\n";
-     cerr<<" SbyLevMar() returned "<<F<<'\n';}
-    if(F== -3) return -4;
-    return -1; 
-  }
-  
-//----------------------------------------------------------------------------  
-//    Estimate Omega and hence |dJ|/|J| from Orbit Integration
-//  We use a least squares fit for omega R and l; omega phi = mean (Lz/R^2)
-  if(!Om(0) || !Om(1) || !Om(2)) {                  // if no estimates
-    //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))); // and doing angle fit
-    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
-  }
-  if(err) cerr << "Omega estimate: "<< Om << "\n";
-  fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
-  d[0] = dH*fac;
-
-//---------------------------------------------------------------------------- 
-//    If fit satisfactory, determine the dS/dJ for the angle map and Omega
-//    or if we have no idea what omega is, try another way of finding it
-  bool fail = false, tryang=false;
-  if(d(0) <= tol) {// if doing angle fit, and worth try
-    tryang = true;
-    if(err) cerr<<" Fit of dS/dJi.\n";
-    while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
-    if(!J(1) || sph_pot) nrs = OD*(SN.NumberofTerms());
-    F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);      
-    if(F) {
-      if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
-      fail = true;
-    }
-    if(d(1)>tla||d(2)>tla||d(3)>tla) { // chi_rms of dSbyInteg fit
-      if(err) cerr << "try more terms in AngMap";
-      //if(dO!=0.) dO = fmax(dO, 0.5*min(Om(0),Om(1)));
-      SN.tailor(0., -1, Max);
-      if(J(1) == 0. || sph_pot) SN.Jz0();
-      while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
-      if(!J(1) || sph_pot) nrs = OD*(SN.NumberofTerms());
-      F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
-      if(F) {
-	if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
-	fail=true;
-      } else fail=false;
-    }
-    fac    = 1. / ( hypot(Om(0),Om(1))*Jabs );
-    d[0] = dH*fac;
-    if(err) cerr<<" dJ = "<<d(0)<<'\n';
-  }
-
-  if(d(0) <= tol && !fail) return 0; // DONE!
-//---------------------------------------------------------------------------|
-// else we do second fit if |dJ|/|J| above aimed tolerance, tailoring and    |
-// cutting the SN. And repeating if needed (indefinitely).                   |
-//---------------------------------------------------------------------------/
-
-  if(err) cerr<<" dJ="<<d(0)<<" --> 2. Fit: tailor set of Sn, max. "
-	      <<Ni2<<" iterations.\n";
-  double tmp = 1./double(SN.NumberofTerms());
-  ta *= tmp;    tb *= tmp;    off *= tmp;
-  oSN = SN;
-  odJ = d(0);
-  vec4 TP = TM.parameters();
-  if(!tryang) {   // only do this if no angle fit done
-    SN.tailor(ta,tb,Max);
-    SN.cut(off);
-  } else tryang = false;
-  if(J(1) == 0. || sph_pot) SN.Jz0(); 
-  n1=fmax(Nth, 6*(SN.NumberofN1()/4+1));
-  n2=fmax(Nth, 6*(SN.NumberofN2()/4+1));
-  if(l>l0) { l/=256; if(l<l0) l=l0; }
-  tlH = dH*tl9/d(0);
-  tlC = (Om(0)*J(0) + Om(1)*J(1)) * tl8;
-  F=SbyLevMar(J,Phi,6,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-  if(F<0) { 
-    if(err) {cerr<<" dJ="<<d(0)<<" --> 2. Fit: tailor set of Sn, max. "
-		 <<Ni2<<" iterations.\n";
-      cerr<<" SbyLevMar() returned "<<F<<'\n';}
-    if(F== -3) return -4;
-    return -1; 
-  }
-  if((d[0]=dH*fac)>odJ) {
-    if(err) cerr << "Tailored set not an improvement. Reverting\n";
-    SN   = oSN;
-    d[0] = odJ;
-    dH   = d(0)/fac;
-    TM.set_parameters(TP);
-  }
-//-------------- LOOP ----------------------------------------------------------
-  bool done=false;
-  for(int i=0;(i< (Nta-2) && !done);i++) {
-    //    if still not converged: enlarge the set of SN and fit again
-    if(err) cerr<<" dJ="<<d(0)<<" --> "<< i+1 <<"th tailor set of SN (of "
-		<< Nta-2 << "), max. "
-		<<Ni2<<" iterations.\n";
-    if((d[0]=dH*fac)>=tol) {
-      oSN = SN;
-      odJ = d[0];
-      if(!tryang) {
-	if(i%2) 
-	  SN.edgetailor(0.25,Max);
-	if(!i) SN.tailor(0.,tb*=0.1f,Max);
-	else SN.tailor(0.,-1,Max); // always add new terms 
-      } else tryang = false;
-      if(J(1) == 0. || sph_pot) SN.Jz0();
-      if(i==2 || i==6) Ni2 = (Ni2<=4)? Ni2 : (Ni2<8)? 4 : Ni2/2;
-      if(i==11) Ni2 = 2;
-      if(J(1) == 0. || sph_pot) SN.Jz0();
-      n1=fmax(Nth, 6*(SN.NumberofN1()/4+1));
-      n2=fmax(Nth, 6*(SN.NumberofN2()/4+1));
-      tlH = dH*tl9/d(0);
-      F=SbyLevMar(J,Phi,6,n1,n2,Ni2,tlH,tlC,SN,PT,TM,l=l0,Hav,dH,ngA,eH,err);
-      if(F<0) { 
-	if(err) {cerr<<" dJ="<<d(0)<<" --> again tailor set of SN, max. "
-		     <<Ni2<<" iterations.\n";
-	  cerr<<" SbyLevMar() returned "<<F<<'\n';}
-	if(F== -3) return -4;
-	return -1; 
-      }
-    }
-    if((d[0]=dH*fac)<tol || i == (Nta-2)-1) {
-      tryang = true;
-
-//    Determine the dS/dJ for the angle map
-      //if(type==0) 
-	{
-	if(err) cerr<<" Fit of dS/dJi.\n";
-	nrs = Nrs;
-	while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
-	if(!J(1) || sph_pot) nrs = OD*(SN.NumberofTerms());
-	F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
-	if(F) {
-	  if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
-	}
-	if(d(1)>tla || d(2)>tla || d(3)>tla || F) {
-	  if(err) cerr << "try more terms in AngMap\n";
-	  if(dO!=0.) dO = fmax(dO, 0.5*fmin(Om(0),Om(1)));
-	  SN.tailor(0., -1, Max);
-	  if(J(1) == 0. || sph_pot) SN.Jz0();
-	  while( ((2*nrs-1)*nrs) <= OD*(2*nrs+SN.NumberofTerms())) nrs++;
-	  if(!J(1) || sph_pot) nrs = OD*(SN.NumberofTerms());
-	  F = dSbyInteg(J,Phi,nrs,SN,PT,TM,dO,Om,d,AP,ipc,err);
-	  if(err) cerr<<" dSbyInteg() returned "<<F<<'\n';
-	  if(F) {
-	    return -4;
-	  }
-	}
-	fac = 1. / ( hypot(Om(0),Om(1))*Jabs );
-	d[0]= dH*fac;
-	if(d(0) < tol) done=true;
-	if(err) cerr<<" dJ = "<<d(0)<<'\n';
-      } 
-    }// else tryang = false;
-  }
-//---------- END LOOP ----------------------------------------------------------
- // Return
-    if(d(0) > 2*tol) return -3;
-    if(d(0) > tol)   return -2;
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // end of Fit.cc ///////////////////////////////////////////////////////////////
 
 int LowJzFit(	            // return:	error flag (see below)
@@ -1897,21 +1622,20 @@ int LowJzFit(	            // return:	error flag (see below)
   if(J(1) == 0.) {
     if(Ni>800)
       return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,PT,TM,SN,AP,
-		    Om,Hav,d,type,2,Ni-3,ipc,eH,Nth,err); 
+		    Om,Hav,d,type,false,Ni-3,ipc,eH,Nth,err); 
     else 
       return AllFit(J,Phi,tol,Max,800,OD,Nrs,PT,TM,SN,AP,
-		    Om,Hav,d,type,2,100,ipc,eH,Nth,err); // Let it run on
+		    Om,Hav,d,type,false,100,ipc,eH,Nth,err); // Let it run on
   }
   int F;
   double tolJz0 = tol*J(1)/J(0); // Alter tolerance for planar fit
   Actions Jz0=J; Jz0[1] = 0.;
   F = AllFit(Jz0,Phi,tolJz0,Max,Ni,OD,Nrs,PT,TM,SN,AP,
-  	     Om,Hav,d,type,2,
-	     25,ipc,eH,Nth,err);// Orbit in plane, precise
+  	     Om,Hav,d,type,false,25,ipc,eH,Nth,err);// Orbit in plane, precise
   int nadd = 4 + SN.NumberofTerms()/10;
   SN.addn1eq0(nadd);  // add terms with n1=0
   return AllFit(J,Phi,tol,Max,Ni,OD,Nrs,PT,TM,SN,AP,
-		Om,Hav,d,type,2,Nta,ipc,eH,Nth,err); 
+		Om,Hav,d,type,false,Nta,ipc,eH,Nth,err); 
 
 }
 
@@ -1984,9 +1708,7 @@ int PTFit(	            // return:	error flag (see below)
       if(err) cerr << "Point transform set up wrong before Fit\n";
       return -1;
     }
-    //Om = Phi->KapNuOm(Phi->RfromLc(J(2))); // Wrong for phi, it'll have to do
-    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-    Om[0] = 1.5*Om[2]; // Very approx
+    Om = Phi->KapNuOm(Phi->RfromLc(J(2))); // Wrong for phi, it'll have to do
     Om[1] = tmptab[3];
     if(J(0)==0) {
       SN.cut(0.); // point transform enough. Om_phi wrong, but it'll do
@@ -2043,22 +1765,16 @@ int PTFit(	            // return:	error flag (see below)
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
     if(F && F!=-1 && type==1) F = Omega(Phi,J,SN,PT,TM,Pi,Pih,32.*Pi,Om,dO,dOp);
     if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {
-      // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
-      Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-      Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+      Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
       dO = Om(1);  
     } else {
-      if(!J(1)) Om[1] = 1.5*Om[2];//
-      // (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+      if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
       rs   = NearResonant(Om);
       if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
       else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));
     }
-  } else if(!Om(0) || !Om(1) || !Om(2)) {                // if no estimates
-    // Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));     // and doing angle fit
-    Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-    Om[0] = Om[1] = 1.5*Om[2]; // Very approx
-  }
+  } else if(!Om(0) || !Om(1) || !Om(2))                 // if no estimates
+    Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));         // and doing angle fit
   if(err) cerr << "Omega estimate: "<< Om << "\n";
   fac  = 1. / ( hypot(Om(0),Om(1))*Jabs );
   d[0] = dH*fac;
@@ -2169,13 +1885,10 @@ int PTFit(	            // return:	error flag (see below)
 	F = Omega(Phi,J,SN,PT,TM,Pi,0.,64.*Pi,Om,dO,dOp);
 	if(F && F!=-1) F = Omega(Phi,J,SN,PT,TM,Pih,0.,32.*Pi,Om,dO,dOp);
 	if(F || Om(0)<Om(2) || (Om(1)<Om(2) && J(1)) ) {                       
-	  //Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
-	  Om[2] = WDabs(J(2))/powf(Phi->RfromLc(WDabs(J(2))),2);
-	  Om[0] = Om[1] = 1.5*Om[2]; // Very approx
+	  Om = Phi->KapNuOm(Phi->RfromLc(WDabs(J(2))));
 	  dO = Om(1);  
 	} else {
-	  if(!J(1)) Om[1] = 1.5*Om[2];
-	  //(Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
+	  if(!J(1)) Om[1] = (Phi->KapNuOm(Phi->RfromLc(WDabs(J(2)))))(1);
 	  rs   = NearResonant(Om);
 	  if(rs>0.2) dO = fmax(dO,1.e-4/rs*fmin(Om(0),Om(1)));
 	  else 	 dO = fmax(dO,0.02*fmin(Om(0),Om(1)));

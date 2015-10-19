@@ -5,9 +5,10 @@ Gives various parameters of the Galaxy and observing systems.
 
 *                                                                              *
 *  C++ code written by Walter Dehnen, 1995/96.                                 *
+*                      Paul McMillan, 2007-                                    *
 *  Oxford University, Department of Physics, Theoretical Physics.              *
 *  address: 1 Keble Road, Oxford OX1 3NP, United Kingdom.                      *
-*  e-mail:  dehnen.physics.ox.ac.uk                                            *
+*  e-mail:  paul@astro.lu.se                                                   *
 *                                                                              *
 *******************************************************************************/
 /*
@@ -55,7 +56,7 @@ namespace GalactoConstants {
     usun_in_kms 	= 11.1 ,   // Schonrich Binney Dehnen
     vsun_in_kms 	= 12.24,
     wsun_in_kms 	= 7.25 ,
-    Zsun		= 0.014, //temporary!!
+    Zsun		= 0.014, 
     Rsun	 	= Rsun_in_kpc  * Units::kpc,
     zsun 		= zsun_in_kpc  * Units::kpc,
     vcsun		= vcsun_in_kms * Units::kms,

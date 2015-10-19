@@ -25,10 +25,12 @@ double PoiClosedOrbit::actint(double theta) const {
 // function: do_orbit - Integrates an orbit from z=0 upwards and back to z=0
 //                      Tabulates coordinates in between.
 void PoiClosedOrbit::do_orbit(PSPD clo,   double delt, Potential* Phi,
-	      double* time, double* tbR,  double* tbz,  double* tbr,
-	      double* tbvr, double* tbpth,double* tbdrdth, int &np, int Nt) 
+			      double* time, double* tbR,  double* tbz,  
+			      double* tbr, double* tbvr, double* tbpth,
+			      double* tbdrdth, int &np, int Nt, double &zmax) 
 {
   double dt, ot,t=0.;
+  zmax = 0.;
   Record X(clo,Phi,1.e-12);
   X.set_maxstep(delt);
   PSPD W = clo;
@@ -43,6 +45,7 @@ void PoiClosedOrbit::do_orbit(PSPD clo,   double delt, Potential* Phi,
     time[np]   = t;
     tbR[np]    = X.QP(0);
     tbz[np]    = X.QP(1);
+    if( X.QP(1) > zmax ) zmax = X.QP(1);
     tbr[np]    = hypot(X.QP(0),X.QP(1));
     tbvr[np]   = (X.QP(0)*X.QP(2) + X.QP(1)*X.QP(3))/tbr[np];
     tbpth[np]  = X.QP(0)*X.QP(3) - X.QP(1)*X.QP(2);
@@ -52,11 +55,13 @@ void PoiClosedOrbit::do_orbit(PSPD clo,   double delt, Potential* Phi,
 
 ////////////////////////////////////////////////////////////////////////////////
 // function: set_Rstart - iterates towards correct Rstart for given energy (E)
-void PoiClosedOrbit::set_Rstart(double& Rstart,double Rstop, double& odiff,double& dr,
-			  bool& done, bool& either_side, bool& first) 
+void PoiClosedOrbit::set_Rstart(double& Rstart,double Rstop, double& odiff,
+				double& dr, double zmax,
+				bool& done, bool& either_side, bool& first) 
 {
-  double diff, small =1.e-4;
-  if(fabs(diff=Rstart-Rstop) < small*Rstart) done = true;
+  double diff, small =1.e-6, smallish = 1.e-4;
+  double criterion = (smallish*zmax<small*Rstart) ? smallish*zmax : small*Rstart;
+  if(fabs(diff=Rstart-Rstop) < criterion) done = true;
   else done = false;
       
   if(either_side && !done) {
@@ -243,7 +248,8 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J) {
   double Rstart0 = Phi->RfromLc(Lz), Rstart = Rstart0, dr=0.1*Rstart, Rstop,
     E = Phi->eff(Rstart,0.), dE, tiny=1.e-9, small=1.e-5, odiff,odiffJ,
     delt=0.002*Rstart*Rstart/Lz, dt,ot,pot, tJl, *psi, *psisq, *tbth2, 
-    Escale = Phi->eff(2.*Rstart,0.)-E; // positive number
+    Escale = Phi->eff(2.*Rstart,0.)-E, // positive number
+    zmax;
   PSPD  clo;
   Cheby rr2;
   E += tiny*Escale;
@@ -256,24 +262,24 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J) {
   // starting point, then integrate the orbit and use that to improve our 
   // guess
   for(nE=0;!done && nE!=nEmax;nE++) {           // iterate energy 
+
     for(norb=0;norb!=200 && !done;norb++) {  // for each energy, iterate start R
-      //cerr << " Rstart ini " << Rstart << " E = "<<E<<"\n";
       while((pot=Phi->eff(Rstart,tiny))>=E) {// avoid unphysical starting points
 	if(first) Rstart += 0.5*(Rstart0-Rstart);  
 	else Rstart = 0.01*clo[0] + 0.99*Rstart; // if use mean -> closed loop
-	//cerr << Rstart << ' ' << pot << ' ' << E<< "\n";
       }
       clo[0] = Rstart; clo[1] = tiny;        // clo = starting point
       clo[2] = 0.;  clo[3] = sqrt(2.*(E-pot)); 
-      //cerr << " Rstart " << Rstart << "\n";
+
       do {                          // integrate orbit (with enough datapoints) 
 	delt= (np==Nt)? delt*2 : (np<0.25*Nt &&np)? delt*.9*np/double(Nt):delt;
-	do_orbit(clo,delt,Phi,time,tbR,tbz,tbr,tbvr,tbpth,tbdrdth,np,Nt); 
+	do_orbit(clo,delt,Phi,time,tbR,tbz,tbr,tbvr,tbpth,tbdrdth,np,Nt,zmax);
       } while(np==Nt || np < Nt/4);
       Rstop = tbR[np-2]-tbz[np-2]/(tbz[np-1]-tbz[np-2])*(tbR[np-1]-tbR[np-2]); 
-      set_Rstart(Rstart,Rstop,odiff,dr,done,either_side,first);//pick new Rstart
+      set_Rstart(Rstart,Rstop,odiff,dr,zmax,done,either_side,first);//pick new Rstart
       norb++;
     } // end iteration in Rstart
+
     // clean up tables of values
     RewriteTables(np, time,tbR,tbz,tbr,tbvr,tbpth,tbir, tbth, imax);
     // find Jl, having set up chebyshev functions to do so.

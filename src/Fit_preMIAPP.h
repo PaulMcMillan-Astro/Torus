@@ -180,8 +180,8 @@ int AllFit(		// return:	error flag (see below)
     double&,            // output:	mean H
     Errors&,	        // output:	|dJ|/|J|, chirms of angle fits
     const int,          // input:       Full (0) or Half (1) fit
-    const int,          // input:       Stategy: 0=toy->all, 1=toy->Sn, 2=sn->all
-    const int,          // input:       Number of tailorings
+    const bool,         // input:       Safe (vary one thing at a time) fit?
+    const int,          // input:   Number of tailorings
     const int     =200, // input:	max. tolerated steps on average per cell
     const double  =0.,  // input:	estimate of expected <H>
     const int     =24,  // input:	min No of theta (per dim) for 1. fit
@@ -271,46 +271,6 @@ int PTFit(		// return:	error flag (see below)
 //			-2		Fit failed the goal by a factor <= 2
 //			-3		Fit failed the goal by more than that
 //			-4 		Fit aborted: serious problems occured
-
-
-
-//------------------------------------------------------------------------------
-
-/**
-\brief Fit the working components of a Torus in the case where the toy parameters must stay fixed.
- */
-int ToySetFit(		// return:	error flag (see below)
-    const Actions&,     // input:	Actions of Torus to be fit
-    Potential*,	   	// input:	pointer to Potential
-    const double,	// input:	goal for |dJ|/|J|
-    const int,		// input:	max. number of S_n
-    const int,		// input:	max. number of iterations
-    const int,		// input:	overdetermination of eqs. for angle fit
-    const int,    	// input:	min. number of cells for fit of dS/dJ
-    PoiTra&,            // in/output:	canonical map with parameters
-    ToyMap&,            // in/output:	toy-potential map with parameters
-    GenPar&,            // in/output:	parameters of generating function
-    AngPar&,            // output:	dSn/dJr & dSn/dJl
-    Frequencies&,	// in/output:	estimates of O_r, O_l, O_phi
-    double&,            // output:	mean H
-    Errors&,	        // output:	|dJ|/|J|, chirms of angle fits
-    const int,          // input:       Number of tailorings
-    const int     =200, // input:	max. tolerated steps on average per cell
-    const double  =0.,  // input:	estimate of expected <H>
-    const int     =24,  // input:	min No of theta (per dim) for 1. fit
-    const int     =0,	// input:	error output?
-    const bool =false);	// input:	spherical potential?
-
-//  meaning of return:	 0		everything seemed to go well
-//			-1		something wrong with input, usually
-//					bad starting values for the parameters
-//			-2		Fit failed the goal by a factor <= 2
-//			-3		Fit failed the goal by more than that
-//			-4 		Fit aborted: serious problems occured
-
-
-
-
 
 
 #endif

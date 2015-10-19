@@ -152,7 +152,11 @@ $(OBJ)Torus.o:	 $(SRC)Torus.cc $(Torus_h) $(PointTrans_h) $(Toy_Isochrone_h) \
 TorFit:	$(OBJ)Fit.o $(OBJ)GeneratingFunction.o 	$(OBJ)Point_ClosedOrbitCheby.o \
 	$(OBJ)Toy_Isochrone.o $(OBJ)Orb.o $(OBJ)Point_None.o $(OBJ)Torus.o
 
+$(OBJ)PassMyGrids.o:	 $(SRC)PassMyGrids.cc $(PassMyGrids_h)
+		 $(CPP) $(CFLAGS) $(SRC)PassMyGrids.cc; $(ARTOR)
 
+$(OBJ)RalphTestGrid.o:	 $(SRC)RalphTestGrid.cc $(RalphTestGrid_h)
+		 $(CPP) $(CFLAGS) $(SRC)RalphTestGrid.cc; $(ARTOR)
 
 ################################################################################
 #
@@ -186,6 +190,8 @@ testfalPot:	$(EXE)testfalPot.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
 testMultiPot:	$(EXE)testMultiPot.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
+testIsochronePot:	$(EXE)testIsochronePot.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
 GiveListProps:	$(EXE)GiveListProps.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 AUTOTORUS:	$(EXE)AUTOTORUS.cc MAIN_LIBS
@@ -215,11 +221,29 @@ SmoothStreamMaker:	$(EXE)SmoothStreamMaker.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 GridAndGrid:	$(EXE)GridAndGrid.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+#GridAndGridtest:	$(EXE)GridAndGridtest.cc MAIN_LIBS $(OBJ)PassMyGrids.o
+#		$(CPP) $(MFLAGS) $(OBJ)PassMyGrids.o $(EXE)$@.cc $(LDFLAGS)
+
+#RalphTest:	$(EXE)RalphTest.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
+#		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+
+#TestBed:	$(EXE)TestBed.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
+#		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+
+
+#Shells:	$(EXE)Shells.cc MAIN_LIBS
+#		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+
+#SimpleJR:	$(EXE)SimpleJR.cc MAIN_LIBS
+#		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+
+MakeAStream_J:	$(EXE)MakeAStream_J.cc MAIN_LIBS
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
        SmoothStreamMaker GridAndGrid CompareTorusIntegrated \
-       CompareTorusIntegrated_SOS testMultiPot 
+       CompareTorusIntegrated_SOS testMultiPot  MakeAStream_J
 

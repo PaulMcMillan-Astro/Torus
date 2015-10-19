@@ -486,7 +486,8 @@ int Torus::containsPoint(    // return:	    error flag (see below)
       if(Jt(2)>Pi) Jt[2] = TPi - Jt(2);
       it++;
       if((rmin-QP(0))*(QP(0)-rmax) < 0.) {
-	cerr << "out of range in Newton-Raphson within containsPoint\n";
+	cerr << "out of range in Newton-Raphson within containsPoint\n"
+	     << "rmin=" << rmin << " R="<<QP(0) << "  rmax="<< rmax << '\n';
 	return 0;
       }
       if(it == maxit1) {

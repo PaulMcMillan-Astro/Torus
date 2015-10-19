@@ -1083,6 +1083,54 @@ void GenPar::skip_terms(istream& from, const int n) const
 
 ////////////////////////////////////////////////////////////////////////////////
 //##############################################################################
+// class AngPar
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+AngPar AngPar::operator-() const
+{
+    AngPar F(*this);
+    for(register short i=0; i<F.dS1.NumberofTerms(); i++) {
+      F.dS1[i] = -F.dS1[i];
+      F.dS2[i] = -F.dS2[i];
+      F.dS3[i] = -F.dS3[i];
+    }
+    return F;
+}
+////////////////////////////////////////////////////////////////////////////////
+AngPar AngPar::operator-(const AngPar& GP) const
+{
+  AngPar F(*this); return F-=GP;
+}
+////////////////////////////////////////////////////////////////////////////////
+AngPar AngPar::operator+(const AngPar& GP) const
+{
+  AngPar F(*this); return F+=GP;
+}
+////////////////////////////////////////////////////////////////////////////////
+AngPar AngPar::operator*(const double& d) const
+{
+  AngPar F(*this); return F*=d;
+}
+////////////////////////////////////////////////////////////////////////////////
+AngPar AngPar::operator/(const double& d) const
+{
+  AngPar F(*this); return F/=d;
+}
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//##############################################################################
 // class GenFnc
 
 PSPD GenFnc::Forward(const PSPD& Jt) const
@@ -1109,6 +1157,16 @@ PSPT GenFnc::Forward3D(const PSPT& Jt3) const
   jt3.Take_PSPD(Forward(Jt2));
   return jt3;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+PSPT GenFnc::Forward3DWithDerivs(const PSPT& Jt3, double djdt[2][2]) const
+{
+  PSPT jt3 = Jt3;
+  PSPD Jt2=Jt3.Give_PSPD();
+  jt3.Take_PSPD(ForwardWithDerivs(Jt2,djdt));
+  return jt3;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 PSPD GenFnc::ForwardWithDerivs(const PSPD& Jt, double djdt[2][2]) const
 {
