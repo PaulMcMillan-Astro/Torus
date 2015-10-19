@@ -16,6 +16,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <vector>
 using std::cout;
 
 #include "Torus.h"
@@ -38,7 +39,7 @@ public:
   void find_sigs(int);
   void tune(int,int);
   void output(int,ofstream&);
-  void output(int,vector<Actions>,vector<int>);
+  void output(int,std::vector<Actions>,std::vector<int>);
   tunableMCMC(DF*, Potential*, Actions, Gaussian*, Random3*);
   ~tunableMCMC() {;}
 };
@@ -122,7 +123,7 @@ void tunableMCMC::output(int nout,ofstream &to) {
   }
 }
 
-void tunableMCMC::output(int nout,vector<Actions> Jout, vector<int> Wout) {
+void tunableMCMC::output(int nout,std::vector<Actions> Jout, std::vector<int> Wout) {
   int ntry=0;
   double Rtmp;
   Jout.push_back(oJ);
