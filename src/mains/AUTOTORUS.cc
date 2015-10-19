@@ -51,7 +51,7 @@ int main(int argc,char *argv[])
 //===========================================================================
 // 1. Get target potential
   if(string(argv[1]) == "LogPotentialYST") {
-    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
+    Phi = new LogPotential(220.*Units::kms,0.8,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
@@ -74,8 +74,12 @@ int main(int argc,char *argv[])
 
   }
 // Use the Torus member functions AutoTorus to take a first (weak) guess -------
-  flag = T->AutoFit(J,Phi,dJ,700,300,15,5,24,200,24,err);
+  // flag = T->AutoFit(J,Phi,dJ,700,300,15,5,24,200,24,err);
+  flag = T->AutoFit(J,Phi,dJ,600,150,12,4,16,200,40,err);
   std::cout << J << ", flag = " << flag<< "\n\n" << std::flush;
+
+  std::cout << T->minR() << ' '  << T->maxR() << ' ' << T->maxz() << '\n' 
+	    << std::flush;
 
   // Output. 
   // flag = 0  -> success
@@ -87,7 +91,7 @@ int main(int argc,char *argv[])
   if(outname != "") {
     ebf::WriteString(outname,"/log","Torus list","w");
     T->write_ebf(outname,"T1");
-    T->read_ebf(outname,"t1");
+    //T->read_ebf(outname,"T1");
   }
     T->show(std::cout); // give ASCII output to screen.
 

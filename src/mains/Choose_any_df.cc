@@ -38,6 +38,7 @@ public:
   void find_sigs(int);
   void tune(int,int);
   void output(int,ofstream&);
+  void output(int,vector<Actions>,vector<int>);
   tunableMCMC(DF*, Potential*, Actions, Gaussian*, Random3*);
   ~tunableMCMC() {;}
 };
@@ -121,6 +122,21 @@ void tunableMCMC::output(int nout,ofstream &to) {
   }
 }
 
+void tunableMCMC::output(int nout,vector<Actions> Jout, vector<int> Wout) {
+  int ntry=0;
+  double Rtmp;
+  Jout.push_back(oJ);
+  for(int i=0;i!=nout;) {
+    ntry++;
+    if(step()) {
+      i++;
+      Wout.push_back(ntry);
+      ntry = 0;
+      if(i != nout) Jout.push_back(oJ);
+    }
+  }
+}
+
 
 int MCMC(DF *f, Potential* Phi, Actions &oJ_pr, double& odf, 
 	 Gaussian &Gau, Random3 &R3) 
@@ -166,7 +182,7 @@ int main(int argc,char *argv[])
   string logname = string(argv[3]) + ".CdJ_log";
 
   if(string(argv[1]) == "LogPotential_220") {
-    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
+    Phi = new LogPotential(220.*Units::kms,0.8,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);

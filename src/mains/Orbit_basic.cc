@@ -53,7 +53,7 @@ int main(int argc,char *argv[])
     out3=root+".3.tab",out4=root+".4.tab",out5=root+".5.tab";
   
   if(string(argv[1]) == "LogPotential_220") {
-    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
+    Phi = new LogPotential(220.*Units::kms,0.8,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
