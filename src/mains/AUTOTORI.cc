@@ -53,7 +53,7 @@ int main(int argc,char *argv[])
 //===========================================================================
 // 1. Get target potential
   if(string(argv[1]) == "LogPotentialYST") {
-    Phi = new LogPotential(220.*Units::kms,0.8,0.,0.);
+    Phi = new LogPotential(220.*Units::kms,0.8,0.);
   } else {
     my_open(from,argv[1]);
     Phi = new GalaxyPotential(from);
@@ -61,7 +61,7 @@ int main(int argc,char *argv[])
   }
   //Phi = new MiyamotoNagaiPotential(1.*Units::G_i,1.,.45);
   //Phi = new LogPotential(244.5*Units::kms,0.7,0.,0.);
-  
+
 // input actions
 //  J[0] = atof(argv[2]); J[1] = atof(argv[3]); J[2] = atof(argv[4]);
 
@@ -91,7 +91,7 @@ int main(int argc,char *argv[])
     for(int j=0;j!=nignore;j++) from >> dummy;
     flag = T->AutoFit(J,Phi,dJ,700,300,15,5,24,200,24,err);
     std::cout << J << ", flag = " << flag<< "\n" << std::flush;
-    // Output. 
+    // Output.
     // flag = 0  -> success
     // flag = -1 -> catastrophic breakage
     // flag = -2 -> target < dH <2*target
@@ -100,7 +100,7 @@ int main(int argc,char *argv[])
     std::stringstream tor; tor << "t" << i+1;
     T->write_ebf(string(argv[3]),tor.str());
   }
-  cerr << "time taken in seconds: " 
+  cerr << "time taken in seconds: "
        << double(clock()-cpu0)/double(CLOCKS_PER_SEC) << "\n";
 }
 
