@@ -14,6 +14,25 @@ using std::cout;
 #include "WDMath.h"
 
 
+// Torus InterpTorus(Torus ***Tgrid,Actions Jbar,Actions dJ,Actions J){
+//     //Jbar centre of cube, dJ side length of cube
+//     Torus T; T=Tgrid[0][0][0];
+//     for(int i=0;i<2;i++) {
+//         double fi=(J[0]-(Jbar[0]-.5*dJ[0]))/dJ[0];
+//         for(int j=0;j<2;j++) {
+//             double fj=(J[1]-(Jbar[1]-.5*dJ[1]))/dJ[1];
+//             for(int k=0;k<2;k++) {
+//                 double fk=(J[2]-(Jbar[2]-.5*dJ[2]))/dJ[2];
+//                 if(i+j+k==0) T*=fi*fj*fk;
+//                 else T+=Tgrid[i][j][k]*(fi*fj*fk);
+//             }
+//         }
+//     }
+//     return T;
+// }
+
+
+
 Vector<double,3> find_eigen(Matrix <double,3,3> in, Matrix <double,3,3> &out) {
   // Find eigenvalues and eigenvectors using JAMA
   Vector<double,3> eigval;
@@ -313,9 +332,9 @@ int main(int argc,char *argv[])
       J[1] = Jzgrid[j];
       for(int k=0;k!=nJp;k++) {
   	J[2] = Jpgrid[k];
-  	T.AutoTorus(&Phi,J);
+  	T.SetToyPot(&Phi,J);
   	vec4 TP = T.TP();
-  	T.FixTPFit(J,TP,&Phi,0.001);
+  	T.FitWithFixToyPot(J,TP,&Phi,0.001);
   	TPgrid[i][j][k] = T.TP();
   	SNgrid[i][j][k] = T.SN();
   	APgrid[i][j][k] = T.AP();

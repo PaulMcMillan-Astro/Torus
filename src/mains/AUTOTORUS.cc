@@ -73,7 +73,7 @@ int main(int argc,char *argv[])
     }
 
   }
-// Use the Torus member functions AutoTorus to take a first (weak) guess -------
+  
   // flag = T->AutoFit(J,Phi,dJ,700,300,15,5,24,200,24,err);
   flag = T->AutoFit(J,Phi,dJ,600,150,12,4,16,200,40,err);
   std::cout << J << ", flag = " << flag<< "\n\n" << std::flush;

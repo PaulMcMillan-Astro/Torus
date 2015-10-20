@@ -31,6 +31,37 @@ typedef Matrix<double,4,4> DB44;
 static double RforSOS;
 static PSPD   Jtroot;
 
+Torus& Torus::operator*= (const double &x){
+	Actions Jtest=x*actions();
+	Frequencies Freqtest=x*omega();
+	vec4 TPtest=x*TP();
+	GenPar SNtest=SN()*x;
+	AngPar APtest=AP()*x;
+	SetActions(Jtest);
+	SetFrequencies(Freqtest);
+	SetTP(TPtest);
+	SetSN(SNtest);
+	SetAP(APtest);
+	return *this;
+}
+const Torus Torus::operator* (const double &x){
+	Torus T2; T2=*this;
+	T2*=x;
+	return T2;
+}
+Torus& Torus::operator+=(const Torus& T){
+	Actions Jtest=actions()+T.actions();
+	Frequencies Freqtest=omega()+T.omega();
+	vec4 TPtest=TP()+T.TP();
+	GenPar SNtest=SN()+T.SN();
+	AngPar APtest=AP()+T.AP();
+	SetActions(Jtest);
+	SetFrequencies(Freqtest);
+	SetTP(TPtest);
+	SetSN(SNtest);
+	SetAP(APtest);
+	return *this;
+}	
 void Torus::SetMaps(const double* pp,
 	            const vec4 &tp,
 	            const GenPar &sn,
@@ -1248,7 +1279,7 @@ int Torus::SOS_z(double* outz, double* outvz,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Torus::AutoTorus(Potential * Phi, const Actions Jin, const double R0) {
+void Torus::SetToyPot(Potential * Phi, const Actions Jin, const double R0) {
 
   IsoPar IP = 0.;
   double Rc = Phi->RfromLc(Jin(1)+fabs(Jin(2)));
@@ -1303,3 +1334,19 @@ void Torus::FindLimits() { // Approximate.
 
 
 
+Torus InterpTorus(Torus ***Tgrid,Actions Jbar,Actions dJ,Actions J){
+	//Jbar centre of cube, dJ side length of cube
+	Torus T; T=Tgrid[0][0][0];
+	for(int i=0;i<2;i++) {
+		double fi=(J[0]-(Jbar[0]-.5*dJ[0]))/dJ[0];
+		for(int j=0;j<2;j++) {
+			double fj=(J[1]-(Jbar[1]-.5*dJ[1]))/dJ[1];
+			for(int k=0;k<2;k++) {
+				double fk=(J[2]-(Jbar[2]-.5*dJ[2]))/dJ[2];
+				if(i+j+k==0) T*=fi*fj*fk;
+				else T+=Tgrid[i][j][k]*(fi*fj*fk);
+			}
+		}
+	}
+	return T;
+}

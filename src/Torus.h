@@ -52,7 +52,7 @@ can fit the corresponding Torus. Once this is done the whole orbit is known.
 
 The normal fitting procedure is:
 
-1) Member function AutoTorus chooses plausible values for the
+1) Member function SetTopPot chooses plausible values for the
 parameters of ToyIsochrone, and sets up original parameters of GenFnc
 and AngMap (an object of class GenPar) via the function MakeGeneric (a
 member function of GenPar).
@@ -143,9 +143,13 @@ private:
 
 
 public:
-    Torus();
+	Torus();
+	Torus(double);
     Torus(const Torus&);
-    Torus&	 operator= (const Torus&);
+    Torus&	operator= (const Torus&);
+    Torus&	operator*= (const double&);
+    Torus&	operator+= (const Torus&);
+    const Torus operator* (const double&);
   // Constructors
    ~Torus() { DelMaps(); }
   // Destructor
@@ -475,7 +479,7 @@ in the given */
 // (including higher order terms)
 
 
-    int          FixTPFit  	   (Actions,              // Actions
+    int      FitWithFixToyPot  	   (Actions,              // Actions
 				    vec4,               // Toy parameters
 				    Potential*,		  // galactic potential
 				    const double  =0.001, // goal for |dJ|/|J|
@@ -513,7 +517,7 @@ in the given */
 
     double     check              (Potential*);           // dH/H
  
-    void  AutoTorus               (Potential*,            // galactic potential
+    void  SetToyPot               (Potential*,            // galactic potential
 				   const Actions,         // Actions to fit
 				   const double=0 );      // Scale radius
 
@@ -527,6 +531,8 @@ in the given */
 // **************************** inline functions **************************** //
 
 inline Torus::Torus() : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0) {}
+
+inline Torus::Torus(double x) : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0) {}
 
 inline Torus::Torus(const Torus& T)
     : PhaseSpaceMap(), J(T.J), E(T.E), Fs(T.Fs), Om(T.Om), dc(T.dc)
@@ -1035,7 +1041,7 @@ inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol,
 			  const int ipc, const int Nth, const int err)
 {
   J = Jin;
-  AutoTorus(Phi,Jin);
+  SetToyPot(Phi,Jin);
   // show(cerr);
   register int F;
   GenPar SN=GF.parameters();
@@ -1091,7 +1097,7 @@ inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol,
 				  const int ipc, const int Nth, const int err)
 {
   J = Jin;
-  AutoTorus(Phi,Jin);
+  SetToyPot(Phi,Jin);
   // show(cerr);
   register int F;
   GenPar SN=GF.parameters();
@@ -1146,7 +1152,7 @@ inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
 				  const int ipc, const int Nth, const int err)
 {
   J = Jin;
-  AutoTorus(Phi,Jin);
+  SetToyPot(Phi,Jin);
   // show(cerr);
   register int F;
   GenPar SN=GF.parameters();
@@ -1165,7 +1171,7 @@ inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
     vec4 tmpIP = TM->parameters();
     GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
     SN=GF.parameters();
-    AutoTorus(Phi,Jin);
+    SetToyPot(Phi,Jin);
     F = LowJzFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 		 Om,E,dc,0,Nta,ipc,E,Nth,err);
     if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F== -1))) {
@@ -1205,7 +1211,7 @@ inline int Torus::AutoFit_LowJzonly(Actions Jin, Potential *Phi, const double to
 				  const int ipc, const int Nth, const int err)
 {
   J = Jin;
-  AutoTorus(Phi,Jin);
+  SetToyPot(Phi,Jin);
   // show(cerr);
   register int F;
   GenPar SN=GF.parameters();
@@ -1224,7 +1230,7 @@ inline int Torus::AutoFit_LowJzonly(Actions Jin, Potential *Phi, const double to
 
 
 
-inline int Torus::FixTPFit(Actions Jin, vec4 TPin,
+inline int Torus::FitWithFixToyPot(Actions Jin, vec4 TPin,
 			   Potential *Phi, const double tol, 
 			   const int Max, const int Mit, const int Nta, 
 			   const int Over, const int Ncl,
@@ -1232,7 +1238,7 @@ inline int Torus::FixTPFit(Actions Jin, vec4 TPin,
 			   const bool sph_pot)
 {
   J = Jin;
-  AutoTorus(Phi,Jin);
+  SetToyPot(Phi,Jin);
   TM->set_parameters(TPin);
   //  cerr << TP() << '\n';
   register int F;
@@ -1332,5 +1338,8 @@ inline double Torus::check(Potential *Phi) {
   }
   return dH;
 }
+
+Torus InterpTorus(Torus ***Tgrid,Actions Jbar,Actions dJ,Actions J);
+
 
 #endif

@@ -75,7 +75,7 @@ int main(int argc,char *argv[])
       cerr << "Input "<<argv[i]<<" not understood\n"; exit(1);
     }
   }
-// Use the Torus member functions AutoTorus to take a first (weak) guess -------
+
   int nout = how_many_lines(from), nignore=0;
   if((nignore =entrys_in_line(from)-3) != 0) {
     if(nignore<0) {
