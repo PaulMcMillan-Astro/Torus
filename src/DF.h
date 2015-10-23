@@ -42,7 +42,7 @@ public:
 
   /** \brief Take df parameters (including type of DF) from an input 
       (file)stream                                                       */
-  virtual int    setup_full(istream&)         =0;
+  //  virtual int    setup_full(istream&)         =0;
 
   /** \brief Puts parameters of the df in array passed as input pointer  */
   virtual void   Parameters(double*)          =0;
@@ -50,6 +50,62 @@ public:
   /** \brief Number of Parameters. Duh.                                  */
   virtual int    NumberofParameters()         =0;
 };
+
+
+
+
+/** 
+\brief Class for a very simple distribution function, constant in some range of J. 
+
+Very simple DF included to demonstrate how to create your own DF. f(J) = const for Jr<1, Jz<1, 0<Jphi<Jpmax where Jpmax is an input parameter and all values are in code units. 
+
+Input file example (for Jpmax = 2):
+S
+2
+
+
+*/
+class Simple_DF : public DF {
+public:
+  double JpMax;
+  int setup(istream&);
+  //int setup_full(istream&);
+  int    NumberofParameters() {return 1;}
+  void   Parameters(double*);
+  double df(Potential*,Actions);
+};
+
+
+/* inline int Simple_DF::setup(istream &from) { */
+/*   from >> JpMax; */
+/*   return 1; */
+/* } */
+
+inline int Simple_DF::setup(istream &from) {  
+  char type1;
+  int n;
+  from >> type1;
+  if(type1!='S') {
+    cerr << "df not understood\n";
+    return 0;
+  }
+  from >> JpMax;
+  return 1;
+}
+
+inline void Simple_DF::Parameters(double* output) {
+  output[0] = JpMax;
+  return;
+}
+
+inline double Simple_DF::df(Potential* Phi,Actions J) {
+  if(J[0]>1.) return 0.;
+  if(J[1]>1.) return 0.;
+  if(J[2]<0. || J[2]>JpMax) return 0.;
+  return 1./JpMax;
+}
+
+
 
 /** 
 \brief Base for classes that can quickly find the df for a single J,
@@ -68,7 +124,7 @@ public:
     from using floats not doubles.
 */
 
-class quickDF_lowmem {
+class quickDF {
  public:
   /** \brief Value of the df given last set of paramters given */
   virtual double df()                                              =0;
@@ -78,64 +134,6 @@ class quickDF_lowmem {
   virtual int    setup(Potential*,Actions,double*,bool*,int) =0;
   /** \brief Number of Parameters */
   virtual int    NumberofParameters()                              =0;
-};
-
-//*****************************************************************************
-// quasi-isothermal disk, BM11 paramters
-
-
-/** 
-\brief Class for a quasi-isothermal distribution function. 
-
-Parameters as used in Binney & McMillan 2011. The prefered style (and class) is that used by McMillan & Binney (2013) -- multidisk_DF
-
-Input parameters are given in a file (e.g. df/iso_oldstyle_JJB.df),
-which starts with "J 1", then gives parameters:
- 
-R0 sig_r(R=R0) sig_z(R=R0) Rd q
-
-with sig_r and sig_z in km/s, R0 & Rd in kpc. 
-*/
-class quasi_iso_DF_JJB : public DF {
-public:
-  double R0, 
-    sig2R, sig2z, Rd, q;
-  /** \brief set up DF from input stream. Input values R0 sig_r sig_z (in km/s) 
-      Rd q */
-  int setup(istream&);
-/** \brief set up DF from parameters. Input values R0 sig_r sig_z 
-    (in code units) Rd q */
-  void setup(double,double,double,double,double);
-  /** \brief set up DF from input stream. Stream must start J 1 then 
-      Input values R0 sig_r sig_z (in km/s) Rd q */
-  int setup_full(istream&);
-  quasi_iso_DF_JJB(double,double,double,double,double);
-  quasi_iso_DF_JJB() {;}
-  ~quasi_iso_DF_JJB() {;}
-  int    NumberofParameters() {return 5;}
-  void   Parameters(double*);
-  double df(Potential*,Actions);
-  //void describe(ostream&);
-};
-
-//*****************************************************************************
-/**
-\brief Class for a quasi-isothermal distribution function. 
-Parameters as used in Ting et al 2013 
-*/
-class quasi_iso_DF_YST : public DF {
-public:
-  double p_sigR, p_sigz, Rd, h_sig;
-  void setup(double,double,double,double);
-  int setup(istream&);
-  int setup_full(istream&);
-  quasi_iso_DF_YST(double,double,double,double);
-  quasi_iso_DF_YST() {;}
-  ~quasi_iso_DF_YST() {;}
-  int    NumberofParameters() {return 4;}
-  void   Parameters(double*);
-  double df(Potential*,Actions);
-  //void describe(ostream&);
 };
 
 
@@ -164,7 +162,7 @@ class multidisk_DF : public DF {
   double isumfracs;
 public:
   int setup(istream&);
-  int setup_full(istream&);
+  //int setup_full(istream&);
   multidisk_DF()  {ndiscs=0;}
   ~multidisk_DF();
   int    NumberofParameters() {return 2+6*ndiscs;}
@@ -178,7 +176,7 @@ public:
 that are the sum of multiple quasi-isothermal distribution
 functions. Parameters as used in Binney & McMillan 2011.
 */
-class multidisk_quickDF : public quickDF_lowmem {
+class multidisk_quickDF : public quickDF {
   double* params; //ndiscs, R0, sigRa0, sigza0, Rda, Rsa, L0a, fraca, etc 
   bool *change_params;
   int ndiscs;
@@ -195,146 +193,20 @@ public:
 
 
 
-
-//*****************************************************************************
-// quasi-isothermal disk, BM11 parameters - the meat
-inline quasi_iso_DF_JJB::quasi_iso_DF_JJB(double r0, double sigr,double sigz, 
-					  double RD, double Q) 
-{
-  setup(r0,sigr,sigz,RD,Q);
-}
-
-inline void quasi_iso_DF_JJB::setup(double r0, double sigr,double sigz, 
-				    double RD, double Q) 
-{
-  R0    = r0;
-  sig2R = sigr*sigr;
-  sig2z = sigz*sigz;
-  Rd    = RD;
-  q     = Q;
-}
-
-inline int quasi_iso_DF_JJB::setup(istream &from) {
-  double r0, sigr, sigz, RD, Q;
-  from >> r0 >> sigr >> sigz >> RD;
-  if(from.eof()) 
-    cerr << "Not enough parameters in file for quasi_iso_DF_JJB\n";
-  from >> Q;
-  sigr *= Units::kms;
-  sigz *= Units::kms;
-  setup(r0,sigr,sigz,RD,Q);
-  return 1;
-}
-
-inline int quasi_iso_DF_JJB::setup_full(istream &from) {  
-  char type1;
-  int n;
-  from >> type1;
-  if(type1!='j' && type1!='J') {
-    cerr << "df not understood\n";
-    return 0;
-  }
-  from >> n;
-  if(n!=1) {
-    cerr << "wrong number of disks in quasi_iso_DF_JJB\n";
-    return 0;
-  }
-  return setup(from);
-}
-
-inline void quasi_iso_DF_JJB::Parameters(double* output) {
-  output[0] = R0;
-  output[1] = sqrt(sig2R);
-  output[2] = sqrt(sig2z);
-  output[3] = Rd;
-  output[4] = q;
-}
-
-inline double quasi_iso_DF_JJB::df(Potential* Phi,Actions J) {
-
-  double R = Phi->RfromLc(fabs(J(2)));
-  double Sig = exp(-R/Rd);
-  Frequencies epi = Phi->KapNuOm(R);
-  double Sigrat = exp(2.*q*(R0-R)/Rd);
-  double sig2Rl = Sigrat*sig2R, sig2zl = Sigrat*sig2z;
-  double L0 = 10.*Units::kms*Units::kpc;
-  return 0.5*(1-tanh(J(2)/L0)) * epi(1)*epi(2)*Sig
-    *exp(-epi(0)*J(0)/sig2Rl-epi(1)*J(1)/sig2zl)/
-    (4*Pi*Pi*Pi*epi(0)*sig2Rl*sig2zl*Rd*Rd);
-}
-
-//*****************************************************************************
-// quasi-isothermal disk, Yuen-Sen's style - the meat
-inline quasi_iso_DF_YST::quasi_iso_DF_YST(double sr,double sz, 
-					  double hR, double hs) 
-{
-  setup(sr,sz,hR,hs);
-}
-
-inline void quasi_iso_DF_YST::setup(double sr,double sz, 
-				    double hR, double hs) 
-{
-  p_sigR = sr;
-  p_sigz = sz;
-  Rd     = hR;
-  h_sig  = hs;
-}
-
-inline int quasi_iso_DF_YST::setup(istream &from) {
-  double sr, sz, hR, hs;
-  from >> sr >> sz >> hR;
-  if(from.eof()) {
-    cerr << "Not enough parameters in file for quasi_iso_DF_YST\n";
-    return 0;
-  }
-  from >> hs;
-  sr *= Units::kms*Units::kms;
-  sz *= Units::kms*Units::kms;
-  setup(sr,sz,hR,hs);
-  return 1;
-}
-
-inline int quasi_iso_DF_YST::setup_full(istream &from) {  
-  char type1;
-  int n;
-  from >> type1;
-  if(type1!='y' && type1!='Y') {
-    cerr << "df not understood\n";
-    return 0;
-  }
-  from >> n;
-  if(n!=1) {
-    cerr << "wrong number of disks in quasi_iso_DF_YST\n";
-    return 0;
-  }
-  return setup(from);
-}
-
-inline void quasi_iso_DF_YST::Parameters(double* output) {
- 
-  output[0] = p_sigR;
-  output[1] = p_sigz;
-  output[2] = Rd;
-  output[3] = h_sig;
-}
-
-inline double quasi_iso_DF_YST::df(Potential* Phi,Actions J) {
-
-  double R = Phi->RfromLc(fabs(J(2)));
-  double Sig = exp(-R/Rd);
-  Frequencies epi = Phi->KapNuOm(R);
-  double Sigrat = exp(-R/h_sig);
-  double sig2Rl = Sigrat*p_sigR, sig2zl = Sigrat*p_sigz;
-  return epi(1)*epi(2)*Sig * exp(-epi(0)*J(0)/sig2Rl-epi(1)*J(1)/sig2zl) /
-    (4*Pi*Pi*Pi*epi(0)*sig2Rl*sig2zl*Rd*Rd);
-}
-
-
-
 //*****************************************************************************
 // Many quasi-isothermal disks, BM11 parameters - the meat
 
-inline int multidisk_DF::setup(istream &from) {
+
+inline int multidisk_DF::setup(istream &from) {  
+  char type1;
+  int n;
+  from >> type1;
+  
+  if(type1 !='m' && type1!='M') {
+    cerr <<type1<< " df not understood\n";
+    return 0;
+  }
+
   if(ndiscs) delete[] params;
   from >> ndiscs;
   params = new double[1+6*ndiscs]; 
@@ -361,18 +233,7 @@ inline int multidisk_DF::setup(istream &from) {
   }
   isumfracs = 1./isumfracs;
   return 1;
-}
-
-inline int multidisk_DF::setup_full(istream &from) {  
-  char type1;
-  int n;
-  from >> type1;
   
-  if(type1 !='m' && type1!='M') {
-    cerr <<type1<< " df not understood\n";
-    return 0;
-  }
-  return setup(from);
 }
 
 inline void multidisk_DF::Parameters(double* output) {
@@ -518,33 +379,22 @@ inline DF* set_DF(istream &from) { // return success?
   int n;
   DF *tmpdf;
   from >> type1;
+
+  from.seekg(0, ios::beg);
+  
   if(type1=='m' || type1=='M') {
       tmpdf = new multidisk_DF;
       tmpdf->setup(from);
       return tmpdf;
-    return NULL;
-  } else if(type1=='j' || type1=='J') {
-    from >> n;
-    if(n==1) {
-      tmpdf = new quasi_iso_DF_JJB;
-      tmpdf->setup(from);
-      return tmpdf;
-    } else {
-      cerr << "asking for more disks ("<<n<<") than I can provide yet\n";
-      return NULL;
-    }
-  } else if(type1=='y' || type1=='Y') {
-    from >> n;
-    if(n==1) {
-      tmpdf = new quasi_iso_DF_YST;
-      tmpdf->setup(from);
-      return tmpdf;
-    } else {
-      cerr << "asking for more disks ("<<n<<") than I can provide yet\n";
-      return NULL;
-    }
-  } else 
-    cerr << "df not understood\n";
+  }
+  if(type1=='S') {  
+    tmpdf = new Simple_DF;
+    tmpdf->setup(from);
+    return tmpdf;
+  }
+
+  
+  cerr << "df not understood\n";
   return NULL;
 }
 
