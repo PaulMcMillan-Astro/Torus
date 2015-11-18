@@ -147,8 +147,16 @@ void Torus::show(ostream& out) const
 	AM.dSdJ3().write_log(out);	
 }
 
-bool Torus::write_ebf(const string filename, const string torusname) 
+bool Torus::write_ebf(const string filename, const string torusname,
+		      const string mode) 
 {
+  if(mode=="w") {
+    ebf::WriteString(filename,"/log","Torus list","w");
+  } else if(mode !="a") {
+    cerr << "Unknown input mode to write_ebf: " << mode << "\n";
+    return false;
+  }
+  
   if(ebf::ContainsKey(filename,"/"+torusname)) { return false; }
 
   int NPTp = PT->NumberofParameters();

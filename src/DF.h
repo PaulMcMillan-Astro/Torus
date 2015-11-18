@@ -129,9 +129,9 @@ class quickDF {
   /** \brief Value of the df given last set of paramters given */
   virtual double df()                                              =0;
   /** \brief Change parameters and return df */
-  virtual double df(double*,bool*,int)                             =0;
+  virtual double df(double*)                                       =0;
   /** \brief set up the object given Potential, Actions & parameters of df */
-  virtual int    setup(Potential*,Actions,double*,bool*,int) =0;
+  virtual int    setup(Potential*,Actions,double*,bool*,int)       =0;
   /** \brief Number of Parameters */
   virtual int    NumberofParameters()                              =0;
 };
@@ -187,7 +187,7 @@ public:
   multidisk_quickDF() {ndiscs=0;}
   ~multidisk_quickDF();
   double df();
-  double df(double*,bool*,int);
+  double df(double*);
   int    NumberofParameters() {return 2+6*ndiscs;}
 };
 
@@ -315,17 +315,11 @@ inline int multidisk_quickDF::setup(Potential* Phi,
   return 1;
 }
 
-inline double multidisk_quickDF::df(double* p_in, bool* c_p_in, 
-					       int np)
-{ 
-  if(np!=NumberofParameters()) {
-    cerr << "multidisk_quickDF requires " << NumberofParameters() 
-	 << "parameters as input now that it's set up with "
-	 << ndiscs <<" discs\n";
-    exit(0);
-  }
+inline double multidisk_quickDF::df(double* p_in)
+{
+  
   params = p_in;
-  change_params = c_p_in;
+  //change_params = c_p_in;
   
   return df();
 }

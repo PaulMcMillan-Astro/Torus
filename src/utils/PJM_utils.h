@@ -114,7 +114,7 @@ namespace PJM {
   template <class T>
     T *matrix(int n){
     T *m1 = new T[n];
-    for(int i=0;i<n;i++) m1[i]=0.;
+    //for(int i=0;i<n;i++) m1[i]=0.;
     return m1;
   }
 

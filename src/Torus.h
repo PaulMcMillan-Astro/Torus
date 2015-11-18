@@ -154,11 +154,13 @@ public:
    ~Torus() { DelMaps(); }
   // Destructor
 
-
+   // write torus details to ebf file
    bool write_ebf(const string, 
-		  const string); // write torus details to ebf file
+		  const string,
+		  const string mode = "a"); // default mode: append
+    // read torus details from ebf file
    bool read_ebf (const string, 
-		  const string); // read torus details from ebf file
+		  const string);           
 
 
    double       energy  () const { return E; }
@@ -653,13 +655,8 @@ inline double Torus::DToverDt(		// return: 	|d(Tr,Tt)/d(tr,tt)|
 inline GCY Torus::FullMap(const Angles& A) const
 {
     GCY  gcy;
-    PSPD qp = PSPD(J(0),J(1),A(0),A(1)) >> AM >> GF >> (*TM) >> (*PT);
-    gcy[0] = qp(0);		// R
-    gcy[1] = qp(1);		// z
-    gcy[2] = A(2);		// phi
-    gcy[3] = qp(2);		// vR   = pR
-    gcy[4] = qp(3);		// vz   = pz
-    gcy[5] = J(2)/qp(0);	// vphi = Lz/R
+    PSPT qp = PSPT(J(0),J(1),J(2),A(0),A(1),A(2)) >> AM >> GF >> (*TM) >> (*PT);
+    for(int i=0;i!=6;i++) gcy[i] = qp[i];
     return gcy;
 }
 

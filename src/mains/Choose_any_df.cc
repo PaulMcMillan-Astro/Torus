@@ -39,7 +39,7 @@ public:
   void find_sigs(int);
   void tune(int,int);
   void output(int,ofstream&);
-  void output(int,std::vector<Actions>,std::vector<int>);
+  void output(int,std::vector<Actions>*,std::vector<int>*);
   tunableMCMC(DF*, Potential*, Actions, Gaussian*, Random3*);
   ~tunableMCMC() {;}
 };
@@ -123,17 +123,17 @@ void tunableMCMC::output(int nout,ofstream &to) {
   }
 }
 
-void tunableMCMC::output(int nout,std::vector<Actions> Jout, std::vector<int> Wout) {
+void tunableMCMC::output(int nout,std::vector<Actions> *Jout, std::vector<int> *Wout) {
   int ntry=0;
   double Rtmp;
-  Jout.push_back(oJ);
+  Jout->push_back(oJ);
   for(int i=0;i!=nout;) {
     ntry++;
     if(step()) {
       i++;
-      Wout.push_back(ntry);
+      Wout->push_back(ntry);
       ntry = 0;
-      if(i != nout) Jout.push_back(oJ);
+      if(i != nout) Jout->push_back(oJ);
     }
   }
 }

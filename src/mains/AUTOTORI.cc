@@ -83,7 +83,7 @@ int main(int argc,char *argv[])
     }
     cerr << "assuming that the first three entries per line are actions\n";
   }
-    ebf::WriteString(string(argv[3]),"/log","Torus list","w");
+  // ebf::WriteString(string(argv[3]),"/log","Torus list","w");
 
   for(int i=0;i!=nout;i++) {
     from >> J;
@@ -99,7 +99,10 @@ int main(int argc,char *argv[])
     // flag = -3 -> 2*target < dH
     // flag = -4 -> angle fit failed
     std::stringstream tor; tor << "t" << i+1;
-    T->write_ebf(string(argv[3]),tor.str());
+    if(!i)
+      T->write_ebf(string(argv[3]),tor.str(),"w");
+    else
+      T->write_ebf(string(argv[3]),tor.str(),"a");
   }
   cerr << "time taken in seconds: " 
        << double(clock()-cpu0)/double(CLOCKS_PER_SEC) << "\n";
