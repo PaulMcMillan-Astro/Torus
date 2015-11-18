@@ -2,6 +2,8 @@
 #
 #  README file for the Torus code 
 #
+# Code written by Walter Dehnen 1994-1997
+#                 Paul McMillan 2006-
 # If there are issues, contact Paul McMillan <paul@astro.lu.se>
 #
 ################################################################################
@@ -12,7 +14,7 @@ This code requires Sanjib Sharma's ebf format for c++
 This should be installed in a neighbouring directory to this one. Unzip the 
 directory there, then run: 
 
-./configure --prefix=\$PWD
+./configure --prefix=$PWD
 make
 make install
 
