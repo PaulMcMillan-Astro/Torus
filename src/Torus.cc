@@ -4,7 +4,8 @@
 *                                                                              *
 * C++ code written by Walter Dehnen, 1995,                                     *
 *                     Paul McMillan, 2007-                                     *
-* e-mail: paul@astro.lu.se                                                     *
+*                     James Binney, 2015-
+* * e-mail: paul@astro.lu.se                                                     *
 * github: https://github.com/PaulMcMillan-Astro/Torus                          *
 *                                                                              *
 *******************************************************************************/
@@ -14,7 +15,6 @@
 #include "Point_None.h"
 #include "Point_ClosedOrbitCheby.h"
 #include "Toy_Isochrone.h"
-//#include "Compress.h"
 #include "ebf.hpp"
 #include "Numerics.h"
 #include <cmath>
@@ -24,24 +24,29 @@ typedef Matrix<double,2,2> DB22;
 typedef Vector<double,4>   DB4;
 typedef Matrix<double,4,4> DB44;
 
+#define MAX(A,B) ((A)>(B)?(A):(B))
+
 ////////////////////////////////////////////////////////////////////////////////
 // class Torus ************************************************************** //
 ////////////////////////////////////////////////////////////////////////////////
 
-static double RforSOS;
-static PSPD   Jtroot;
-
-Torus& Torus::operator*= (const double &x){
-	Actions Jtest=x*actions();
-	Frequencies Freqtest=x*omega();
-	vec4 TPtest=x*TP();
+Torus& Torus::operator*=(const double& x){
+	J *=x; E *=x; Fs*=x; Om*=x; dc*=x; Rmin*=x; Rmax*=x;
+	vec4 TPtest=TP()*x;
 	GenPar SNtest=SN()*x;
 	AngPar APtest=AP()*x;
-	SetActions(Jtest);
-	SetFrequencies(Freqtest);
-	SetTP(TPtest);
-	SetSN(SNtest);
-	SetAP(APtest);
+	int k0=PT->NumberofParameters();
+	if(k0){
+		double tmp0[k0];
+		PT->parameters(tmp0);
+		int ncx=int(tmp0[4]), ncy=int(tmp0[5+ncx]), ncz=int(tmp0[6+ncx+ncy]);
+		for(int i=0;i<4;i++) tmp0[i]*=x;
+		for(int i=0; i<ncx; i++) tmp0[5+i]*=x;
+		for(int i=0; i<ncy; i++) tmp0[6+ncx+i]*=x;
+		for(int i=0; i<ncz; i++) tmp0[7+ncx+ncy+i]*=x;
+		SetMaps(tmp0,TPtest,SNtest,APtest);
+	}  else
+		SetMaps(TPtest,SNtest,APtest);
 	return *this;
 }
 const Torus Torus::operator* (const double &x){
@@ -50,18 +55,95 @@ const Torus Torus::operator* (const double &x){
 	return T2;
 }
 Torus& Torus::operator+=(const Torus& T){
-	Actions Jtest=actions()+T.actions();
-	Frequencies Freqtest=omega()+T.omega();
+	J +=T.J; E +=T.E; Fs+=T.Fs; Om+=T.Om; dc+=T.dc; Rmin+=T.Rmin; Rmax+=T.Rmax;
 	vec4 TPtest=TP()+T.TP();
 	GenPar SNtest=SN()+T.SN();
 	AngPar APtest=AP()+T.AP();
-	SetActions(Jtest);
-	SetFrequencies(Freqtest);
-	SetTP(TPtest);
-	SetSN(SNtest);
-	SetAP(APtest);
+	int k=(T.PT)->NumberofParameters(),k0=PT->NumberofParameters(),km=MAX(k,k0);
+	if(km){
+		double tmp[MAX(k,11)];
+		if(k) (T.PT)->parameters(tmp);
+		else {
+			tmp[4]=1; tmp[5]=1;//xa const fn
+			tmp[6]=2; tmp[7]=0; tmp[8]=1;//ya linear fn
+			tmp[9]=1; tmp[10]=1;//za const fn
+		}
+		int ncx=int(tmp[4]), ncy=int(tmp[5+ncx]), ncz=int(tmp[6+ncx+ncy]);
+		double tmp0[MAX(k0,11)];
+		if(k0) PT->parameters(tmp0);
+		else {
+			tmp0[4]=1; tmp0[5]=1;//xa const fn
+			tmp0[6]=2; tmp0[7]=0; tmp0[8]=1;//ya linear fn
+			tmp0[9]=1; tmp0[10]=1;//za const fn
+		}
+		int ncx0=int(tmp0[4]), ncy0=int(tmp0[5+ncx0]), ncz0=int(tmp0[6+ncx0+ncy0]);
+		int ncxma=MAX(ncx,ncx0),ncyma=MAX(ncy,ncy0),nczma=MAX(ncz,ncz0);
+		int kn=7+ncxma+ncyma+nczma;
+		double tmp1[kn];
+		tmp1[4]=ncxma; tmp1[5+ncxma]=ncyma; tmp1[6+ncxma+ncyma]=nczma;
+		if(k!=0 && k0!=0) for(int i=0;i<4;i++) tmp1[i]=tmp0[i]+tmp[i];
+		else if(k!=0)     for(int i=0;i<4;i++) tmp1[i]=tmp[i];
+		else if(k0!=0)    for(int i=0;i<4;i++) tmp1[i]=tmp0[i];
+		for(int i=0; i<ncx0; i++) tmp1[5+i]=tmp0[5+i];
+		for(int i=0; i<ncx; i++)  tmp1[5+i]+=tmp[5+i];
+		for(int i=0; i<ncy0; i++) tmp1[6+ncxma+i]=tmp0[6+ncx0+i];
+		for(int i=0; i<ncy; i++)  tmp1[6+ncxma+i]+=tmp[6+ncx+i];
+		for(int i=0; i<ncz0; i++) tmp1[7+ncxma+ncyma+i]=tmp0[7+ncx0+ncy0+i];
+		for(int i=0; i<ncz; i++)  tmp1[7+ncxma+ncyma+i]+=tmp[7+ncx+ncy+i];
+		SetMaps(tmp1,TPtest,SNtest,APtest);
+	}  else
+		SetMaps(TPtest,SNtest,APtest);
 	return *this;
-}	
+}
+const Torus Torus::operator+ (const Torus& T){
+	Torus T2; T2=*this;
+	T2+=T;
+	return T2;
+}
+Torus& Torus::operator-=(const Torus& T){
+	J -=T.J; E -=T.E; Fs-=T.Fs; Om-=T.Om; dc-=T.dc; Rmin-=T.Rmin; Rmax-=T.Rmax;
+	vec4 TPtest=TP()-T.TP();
+	GenPar SNtest=SN()-T.SN();
+	AngPar APtest=AP()-T.AP();
+	int k=(T.PT)->NumberofParameters(),k0=PT->NumberofParameters(),km=MAX(k,k0);
+	if(km){
+		double tmp[MAX(k,11)];
+		if(k) (T.PT)->parameters(tmp);
+		else {
+			tmp[4]=1; tmp[5]=1;//xa const fn
+			tmp[6]=2; tmp[7]=0; tmp[8]=1;//ya linear fn
+			tmp[9]=1; tmp[10]=1;//za const fn
+		}
+		int ncx=int(tmp[4]), ncy=int(tmp[5+ncx]), ncz=int(tmp[6+ncx+ncy]);
+		double tmp0[MAX(k0,1)];
+		if(k0) PT->parameters(tmp0);
+		else {
+			tmp0[4]=1; tmp0[5]=1;//xa const fn
+			tmp0[6]=2; tmp0[7]=0; tmp0[8]=1;//ya linear fn
+			tmp0[9]=1; tmp0[10]=1;//za const fn
+		}
+		int ncx0=int(tmp0[4]), ncy0=int(tmp0[5+ncx0]), ncz0=int(tmp0[6+ncx0+ncy0]);
+		int ncxma=MAX(ncx,ncx0),ncyma=MAX(ncy,ncy0),nczma=MAX(ncz,ncz0);
+		int kn=7+ncxma+ncyma+nczma;
+		double tmp1[kn];
+		tmp1[4]=ncxma; tmp1[5+ncxma]=ncyma; tmp1[6+ncxma+ncyma]=nczma;
+		for(int i=0;i<4;i++) tmp1[i]=tmp0[i]-tmp[i];
+		for(int i=0; i<ncx0; i++) tmp1[5+i]=tmp0[5+i];
+		for(int i=0; i<ncx; i++) tmp1[5+i]-=tmp[5+i];
+		for(int i=0; i<ncy0; i++) tmp1[6+ncxma+i]=tmp0[6+ncx0+i];
+		for(int i=0; i<ncy; i++) tmp1[6+ncxma+i]-=tmp[6+ncx+i];
+		for(int i=0; i<ncz0; i++) tmp1[7+ncxma+ncyma+i]=tmp0[7+ncx0+ncy0+i];
+		for(int i=0; i<ncz; i++) tmp1[7+ncxma+ncyma+i]-=tmp[7+ncx+ncy+i];
+		SetMaps(tmp1,TPtest,SNtest,APtest);
+	}  else
+		SetMaps(TPtest,SNtest,APtest);
+	return *this;
+}
+const Torus Torus::operator- (const Torus& T){
+	Torus T2; T2=*this;
+	T2-=T;
+	return T2;
+}
 void Torus::SetMaps(const double* pp,
 	            const vec4 &tp,
 	            const GenPar &sn,
@@ -157,6 +239,7 @@ bool Torus::write_ebf(const string filename, const string torusname,
     return false;
   }
   
+  
   if(ebf::ContainsKey(filename,"/"+torusname)) { return false; }
 
   int NPTp = PT->NumberofParameters();
@@ -187,10 +270,8 @@ bool Torus::write_ebf(const string filename, const string torusname,
   ebf::Write(filename,"/"+torusname+"/Rmin",&Rmin,"a","",1);
   ebf::Write(filename,"/"+torusname+"/Rmax",&Rmax,"a","",1);
   ebf::Write(filename,"/"+torusname+"/zmax",&zmax,"a","",1);
-  ebf::Write(filename,"/"+torusname+"/frequencies",
-	     &Om[0],"a","",Om.NumberofTerms());
-  ebf::Write(filename,"/"+torusname+"/errors",&dc[0],"a","",
-	     dc.NumberofTerms());
+  ebf::Write(filename,"/"+torusname+"/frequencies",&Om[0],"a","",Om.NumberofTerms());
+  ebf::Write(filename,"/"+torusname+"/errors",&dc[0],"a","",dc.NumberofTerms());
   
   // Where there is the possibility of alternatives, subdirectories
   if(NPTp)
@@ -468,7 +549,7 @@ inline bool velocities_are_dependent(		// return: v1, v2 dependent?
     return true;
 }
 
-int Torus::containsPoint(    // return:	    error flag (see below)
+bool Torus::containsPoint(
     const Position &Q,       // input:      (R,z,phi)
           Velocity &v1,      // output:	    (vR,vz,vphi)_1
 	  DB22     &D1,	     // output:     {d(R,z)/d(T1,T2)}_1    
@@ -481,7 +562,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
           bool     useA,     // input:      use input angles?
           double   delr)     // input:      tolerance in position 
     const
-// Returns 1 if (R,z,phi) is ever hit by the orbit, and 0 otherwise. If the 
+// Returns true if (R,z,phi) is ever hit by the orbit, and false otherwise. If the 
 // torus passes through the point given, this happens four times, in each case
 // with a different velocity. However, only two of these are independent, since 
 // changing the sign of both vR and vz simultaneously gives the same orbit. For
@@ -497,11 +578,11 @@ int Torus::containsPoint(    // return:	    error flag (see below)
   // Zeroth: Avoid bugs causing crashes/loops
   if(J(0)<0. || J(1) < 0.) {
     cerr << "Warning: negative actions in containsPoint\n";
-    return 0;
+    return false;
   }
   // First: Special case of Jl=0. Doing it normally creates infinite loop. 
   if(J(1)==0.){ 
-    if(Q(1)!=0.) return 0;   
+    if(Q(1)!=0.) return false;   
     Angles Ang = 0.;
     PSPD tmp = Map(Ang), QP =0., JT, Jt, Jtry;
     register PSPT   QP3D, Jt3D, JT3D;
@@ -511,7 +592,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     rmin=tmp(0);
     Ang[0]=Pi;   tmp = Map(Ang);
     rmax=tmp(0);
-    if(Q(0)<rmin || Q(0)>rmax) return 0;  
+    if(Q(0)<rmin || Q(0)>rmax) return false;  
     // Check that it's in range. If not...   
     Jt = PSPD(J(0),J(1),1.,0.);
     const int maxit1=100;
@@ -527,11 +608,11 @@ int Torus::containsPoint(    // return:	    error flag (see below)
       if((rmin-QP(0))*(QP(0)-rmax) < 0.) {
 	cerr << "out of range in Newton-Raphson within containsPoint\n"
 	     << "rmin=" << rmin << " R="<<QP(0) << "  rmax="<< rmax << '\n';
-	return 0;
+	return false;
       }
       if(it == maxit1) {
 	cerr << "too many iterations in Newton-Raphson within containsPoint\n";
-	return 0;
+	return false;
       }
     }
     v1[0]    = QP(2);
@@ -557,7 +638,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     v2 = v1; 
     D2 = 0.;
     D2[0][0] = D1[0][0];
-    return 1;
+    return true;
   }  
 //------------------------------------------------------------------------------
 // If it isn't  the special case. Do this the hard way.
@@ -590,7 +671,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     if(useA) { //cerr << A1 << "\n"; 
       Jt[2] = A1[0]; Jt[3] = A1[1]; }     // if guess is given
     LevCof(Jt,Q,1.,1.,QP,chio,B,A,dQdt);           // find detc/ detc
-    if(std::isnan(B(0))) return 0;
+    if(std::isnan(B(0))) return false;
     while(chio>rtin && maxit1>it++ && lam < 1.e20 ) {  // Lev Mar iteration
       //cerr << it << " ";
       lam1  = 1.+lam;
@@ -623,7 +704,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
 	    lam *= 8.;
     }
     //cerr << "\n";
-    if(chio > rtin) return 0;
+    if(chio > rtin) return false;
 
     v1[0]    = QP(2);
     v1[1]    = QP(3);
@@ -657,7 +738,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
 	v2 = v1; v2[0] *=-1.;
 	D2 = D1; D2[0][0] *=-1.; D2[0][1] *=-1.;
 	A2 = A1; A2[1] = (A2(1)>Pi)? -Pi+A2(1) : Pi+A2(1); 
-	return 1;
+	return true;
     }
     bool usedA=false;                  // used supplied guess
     bool notdone=true;
@@ -742,7 +823,7 @@ int Torus::containsPoint(    // return:	    error flag (see below)
     
     //if(tried>=64) cerr << D2;
 
-    return 1;
+    return true;
 }
 
 void Torus::CheckLevCof(PSPD QP_aim, Angles A_in) {
@@ -1172,44 +1253,99 @@ double Torus::DistancetoRadius(const double R) const
 ////////////////////////////////////////////////////////////////////////////////
 void Torus::SOSroot(const double t2, double& z, double& dz) const
 {
-    double          dQPdqp[4][4], dqdt[2][2], dqpdj[4][2], djdt[2][2];
-    register PSPD   jt, QP;
-    register int    i,j;
-    register double dqdt2;
-    Jtroot[3] = t2;
-    jt        = GF.ForwardWithDerivs(Jtroot, djdt);
-    QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
-    PT->Derivatives(dQPdqp);
-    TM->Derivatives(dqpdj);
-    z  = QP(1);
-    dz = 0.;
-    for(i=0; i<2; i++) {
-	dqdt2 = dqdt[i][1];
-	for(j=0; j<2; j++)
-	    dqdt2 += dqpdj[i][j] * djdt[j][1];
-        dz += dqdt2 * dQPdqp[1][i];
-    }
+	double          dQPdqp[4][4], dqdt[2][2], dqpdj[4][2], djdt[2][2];
+	register PSPD   jt, QP;
+	register int    i,j;
+	register double dqdt2;
+	PSPD Jtroot=PSPD(Jtr[0],Jtr[1],Jtr[2],t2);
+//	Jtroot[3] = t2;
+	jt        = GF.ForwardWithDerivs(Jtroot, djdt);
+	QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
+	PT->Derivatives(dQPdqp);
+	TM->Derivatives(dqpdj);
+	z  = QP(1);
+	dz = 0.;
+	for(i=0; i<2; i++) {
+		dqdt2 = dqdt[i][1];
+		for(j=0; j<2; j++)
+			dqdt2 += dqpdj[i][j] * djdt[j][1];
+		dz += dqdt2 * dQPdqp[1][i];
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Torus::SOS(ostream& to, const int Nthr) const
+// Files (R,z,pR,pz,theta_z) where torus cuts z=0
+////////////////////////////////////////////////////////////////////////////////
+void Torus::SOS(ostream& to, const int Nthr)
+// runs _toy_ theta_r from 0 - Pi finding _toy_ theta_z that brings
+// orbit to z=0
 {
-    Jtroot = PSPD(J(0),J(1),0.,0.);
-    to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
-    const double allowed = -1.e-8;
-    double tempz1,tempz2,tempdz;
-    for(int ithr=1; ithr<Nthr; ithr++) {
-      Jtroot[2] = double(ithr) * Pi / double(Nthr);
-      SOSroot(-Pih,tempz1,tempdz); SOSroot(Pih,tempz2,tempdz);
-      if(tempz1*tempz2<0.){
-	Jtroot[3] = rtsafe(this,&Torus::SOSroot, -Pih, -(-Pih), -allowed);
+//	Jtroot = PSPD(J(0),J(1),0.,0.);
+	Jtr[0]=J[0]; Jtr[1]=J[1]; Jtr[2]=Jtr[3]=0;
+	PSPD Jtroot=PSPD(J(0),J(1),0.,0.);
 	to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
-      }
-    }
-    Jtroot[2] = Pi;
-    Jtroot[3] = 0.;
-    to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
+	const double allowed = -1.e-8;
+	double tempz1,tempz2,tempdz;
+	for(int ithr=1; ithr<Nthr; ithr++) {
+		Jtr[2]=Jtroot[2] = double(ithr) * Pi / double(Nthr);
+		SOSroot(-Pih,tempz1,tempdz); SOSroot(Pih,tempz2,tempdz);
+		if(tempz1*tempz2<0.){
+			Jtroot[3] = rtsafe(this,&Torus::SOSroot, -Pih, -(-Pih), -allowed);
+			to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
+		}
+	}
+	Jtroot[2] = Pi;
+	Jtroot[3] = 0.;
+	to << (Jtroot>>GF>>(*TM)>>(*PT)) <<"    "<<Jtroot(3)<<'\n';
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Called by resSOS to compute z and dz/dtheta_z subject to theta_r-theta_z=t1p
+////////////////////////////////////////////////////////////////////////////////
+void Torus::resSOSroot(const double t2, double& z, double& dz) const
+{
+	double          dQPdqp[4][4], dqdt[2][2], dqpdj[4][2], djdt[2][2];
+	register PSPD   JT,jt, QP;
+	register int    i,j;
+	register double t1=t2+t1p,dqdt2[2],dz2[2];
+	//t1,t2 are the true thetas
+//	Jtroot[2]=t1; Jtroot[3] = t2;
+	PSPD Jtroot=PSPD(Jtr[0],Jtr[1],t1,t2);
+	JT	  = AM.Forward(Jtroot);//get toy angles
+	jt        = GF.ForwardWithDerivs(JT, djdt);//get toy actions
+	QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
+	PT->Derivatives(dQPdqp);
+	TM->Derivatives(dqpdj);
+	z  = QP(1);
+	for(int k=0;k<2;k++){
+		dz2[k] = 0.;
+		for(i=0; i<2; i++) {
+			dqdt2[k] = dqdt[i][k];
+			for(j=0; j<2; j++)
+				dqdt2[k] += dqpdj[i][j] * djdt[j][k];
+			dz2[k] += dqdt2[k] * dQPdqp[1][i];
+		}
+	}
+	dz=dz2[1]+dz2[0];//for N=(1,-1,0)
+}
+////////////////////////////////////////////////////////////////////////////////
+//Finds where the torus cuts z=0 subject to the restricton theta_r-theta_z=t1pp
+////////////////////////////////////////////////////////////////////////////////
+void Torus::resSOS(ostream& to,const double t1pp)
+//for given difference of _true_ theta_r - theta_z find _true_ theta_r
+//and theta_z that brings orbit to z=0 
+{
+	t1p=t1pp;
+	PSPD Jtroot = PSPD(J(0),J(1),0.,0.);
+	Jtr[0]=J[0]; Jtr[1]=J[1];
+	const double allowed = -1.e-8;
+	double tempz1,tempz2,tempdz;
+	resSOSroot(-Pih,tempz1,tempdz); resSOSroot(Pih,tempz2,tempdz);
+	if(tempz1*tempz2<0.){
+		Jtr[3]=Jtroot[3] = rtsafe(this,&Torus::resSOSroot, -Pih, -(-Pih), -allowed);
+		Jtr[2]=Jtroot[2]=t1p+Jtroot[3];
+		to << std::setw(12) << (Jtroot>>AM>>GF>>(*TM)>>(*PT)) <<"   "<<Jtroot(3)<<'\n';
+	}
+}
 ////////////////////////////////////////////////////////////////////////////////
 void Torus::SOS_z_root(const double t2, double& RmRS, double& dR) const
 {
@@ -1217,7 +1353,7 @@ void Torus::SOS_z_root(const double t2, double& RmRS, double& dR) const
     register PSPD   jt, QP;
     register int    i,j;
     register double dqdt2;
-    Jtroot[2] = t2;
+    PSPD Jtroot=PSPD(Jtr[0],Jtr[1],t2,Jtr[3]);
     jt        = GF.ForwardWithDerivs(Jtroot, djdt);
     QP        = TM->ForwardWithDerivs(jt, dqdt) >> (*PT);
     PT->Derivatives(dQPdqp);
@@ -1232,16 +1368,17 @@ void Torus::SOS_z_root(const double t2, double& RmRS, double& dR) const
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void Torus::SOS_z(ostream& to, const double RSOS, const int Nthz) const
+void Torus::SOS_z(ostream& to, const double RSOS, const int Nthz)
 {
-  Jtroot = PSPD(J(0),J(1),0.,0.);
+	PSPD Jtroot = PSPD(J(0),J(1),0.,0.);
+	Jtr[0]=J[0]; Jtr[1]=J(1);
   RforSOS = RSOS;
   int ntry=100;
   double tmpR1,tmpR2,thmin,thmax;
   const double allowed = -1.e-8;
   // do this slowly but safely-ish
   for(int ithz=0; ithz<Nthz; ithz++) {
-    Jtroot[3] = double(ithz) * TPi / double(Nthz);
+    Jtr[3]=Jtroot[3] = double(ithz) * TPi / double(Nthz);
     // OK first, can I do this the easy way?
     Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
@@ -1258,16 +1395,17 @@ void Torus::SOS_z(ostream& to, const double RSOS, const int Nthz) const
 }
 ////////////////////////////////////////////////////////////////////////////////
 int Torus::SOS_z(double* outz, double* outvz, 
-		 const double RSOS, const int Nthz) const
+		 const double RSOS, const int Nthz)
 {
-  Jtroot = PSPD(J(0),J(1),0.,0.);
+	PSPD Jtroot = PSPD(J(0),J(1),0.,0.);
+	Jtr[0]=J[0]; Jtr[1]=J[1];
   RforSOS = RSOS;
   int ntry=100,nout=0;
   double tmpR1,tmpR2,thmin,thmax;
   const double allowed = -1.e-8;
   // do this slowly but safely-ish
   for(int ithz=0; ithz<Nthz; ithz++) {
-    Jtroot[3] = double(ithz) * TPi / double(Nthz);
+    Jtr[3]=Jtroot[3] = double(ithz) * TPi / double(Nthz);
     // OK first, can I do this the easy way?
     Jtroot[2] = thmin = 0.; tmpR1 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
     Jtroot[2] = thmax = Pi; tmpR2 = (Jtroot>>GF>>(*TM)>>(*PT))(0);
@@ -1327,8 +1465,6 @@ void Torus::AutoPTTorus(Potential *Phi, const Actions Jin, const double R0) {
   SetPP(Phi,Jin);
 }
 
-
-
 void Torus::FindLimits() { // Approximate.
   Angles Ang = 0.;
   Ang[1] = Pih;    
@@ -1338,19 +1474,76 @@ void Torus::FindLimits() { // Approximate.
   Ang[0] = Pi; Ang[1] =0.;
   Rmax = (MapfromToy(Ang))(0);
 }
-
-
-
-
+Torus InterpTorus(Torus *Tgrid,double *Jgrid,int np,double Jr){
+	int top,bot;
+	if(Jgrid[0]>Jgrid[np-1]){
+		top=0; bot=np-1;
+	}else{
+		top=np-1; bot=0;
+	}//now top should point to largest Jr
+//	if(Jr>Jgrid[top] || Jr<Jgrid[bot]) printf("off grid in InterpTorus: %f %f %f\n",
+//		Jr,Jgrid[bot],Jgrid[bot]);
+	Torus T;
+	if((Jgrid[top]-Jr)*(Jr-Jgrid[bot])<0.){
+		if(Jr<Jgrid[bot]) T= Tgrid[bot];
+		else T=Tgrid[top];
+	}else{
+		while(abs(top-bot)>1){
+			int n=(top+bot)/2;
+			if((Jgrid[top]-Jr)*(Jr-Jgrid[n])>=0) bot=n;
+			else top=n;
+		}
+		double f=(Jgrid[top]-Jr)/(Jgrid[top]-Jgrid[bot]);//distance from top
+		if(f){
+			T=Tgrid[bot];
+			if(1-f) {T*=f; T+=Tgrid[top]*(1-f);
+			}
+		} else T=Tgrid[top];
+	}
+	return T;
+}
+Torus InterpTorus2(Torus *Tgrid,double *Jgrid,int np,double Jr){
+	//as above but grid defined only on even-numbered slots
+	int top,bot;
+	if(np%2==0) printf("InterpTorus2: np must be odd\n");
+	if(Jgrid[0]>Jgrid[np-1]){
+		top=0; bot=(np-1)/2;
+	}else{
+		top=(np-1)/2; bot=0;
+	}//now top should point to largest Jr
+	if(Jr>Jgrid[2*top] || Jr<Jgrid[2*bot]) printf("off grid in InterpTorus: %f %f %f\n",
+		Jr,Jgrid[2*bot],Jgrid[2*bot]);
+	Torus T;
+	if((Jgrid[2*top]-Jr)*(Jr-Jgrid[2*bot])<0.){
+		if(Jr<Jgrid[2*bot]) T= Tgrid[2*bot];
+		else T=Tgrid[2*top];
+	}else{
+		while(abs(top-bot)>1){
+			int n=(top+bot)/2;
+			if((Jgrid[2*top]-Jr)*(Jr-Jgrid[2*n])>=0) bot=n;
+			else top=n;
+		}
+		double f=(Jgrid[2*top]-Jr)/(Jgrid[2*top]-Jgrid[2*bot]);//distance from top
+		if(f){
+			T=Tgrid[2*bot];
+			if(1-f) {T*=f; T+=Tgrid[2*top]*(1-f);
+			}
+		} else T=Tgrid[2*top];
+	}
+	return T;
+}
 Torus InterpTorus(Torus ***Tgrid,Actions Jbar,Actions dJ,Actions J){
 	//Jbar centre of cube, dJ side length of cube
 	Torus T; T=Tgrid[0][0][0];
+	double fi=(Jbar[0]+.5*dJ[0]-J[0])/dJ[0];//distance from top = weight of bottom
 	for(int i=0;i<2;i++) {
-		double fi=(J[0]-(Jbar[0]-.5*dJ[0]))/dJ[0];
+		if(i==1) fi=1-fi;
+		double fj=(Jbar[1]+.5*dJ[1]-J[1])/dJ[1];
 		for(int j=0;j<2;j++) {
-			double fj=(J[1]-(Jbar[1]-.5*dJ[1]))/dJ[1];
+			if(j==1) fj=1-fj;
+			double fk=(Jbar[2]+.5*dJ[2]-J[2])/dJ[2];
 			for(int k=0;k<2;k++) {
-				double fk=(J[2]-(Jbar[2]-.5*dJ[2]))/dJ[2];
+				if(k==1) fk=1-fk;
 				if(i+j+k==0) T*=fi*fj*fk;
 				else T+=Tgrid[i][j][k]*(fi*fj*fk);
 			}
@@ -1358,3 +1551,4 @@ Torus InterpTorus(Torus ***Tgrid,Actions Jbar,Actions dJ,Actions J){
 	}
 	return T;
 }
+

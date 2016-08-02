@@ -149,8 +149,11 @@ $(OBJ)Torus.o:	 $(SRC)Torus.cc $(Torus_h) $(PointTrans_h) $(Toy_Isochrone_h) \
 		 $(Compress_h) $(Numerics_h) $(GeneratingFunction_h)
 		 $(CPP) $(CFLAGS) $(SRC)Torus.cc; $(ARTOR)
 
+$(OBJ)resTorus.o: $(SRC)resTorus.cc $(SRC)resTorus.h $(OBJ)Torus.o
+		  $(CPP) $(CFLAGS) $(SRC)Torus.cc; $(ARTOR)		  
+
 TorFit:	$(OBJ)Fit.o $(OBJ)GeneratingFunction.o 	$(OBJ)Point_ClosedOrbitCheby.o \
-	$(OBJ)Toy_Isochrone.o $(OBJ)Orb.o $(OBJ)Point_None.o $(OBJ)Torus.o
+	$(OBJ)Toy_Isochrone.o $(OBJ)Orb.o $(OBJ)Point_None.o $(OBJ)Torus.o $(OBJ)resTorus.o
 
 $(OBJ)PassMyGrids.o:	 $(SRC)PassMyGrids.cc $(PassMyGrids_h)
 		 $(CPP) $(CFLAGS) $(SRC)PassMyGrids.cc; $(ARTOR)
@@ -227,9 +230,11 @@ GridAndGrid:	$(EXE)GridAndGrid.cc MAIN_LIBS
 #RalphTest:	$(EXE)RalphTest.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
 #		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
-#TestBed:	$(EXE)TestBed.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
-#		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
+TestBed:	$(EXE)TestBed.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
+DensProfForRS:	$(EXE)DensProfForRS.cc MAIN_LIBS 
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 #Shells:	$(EXE)Shells.cc MAIN_LIBS
 #		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)

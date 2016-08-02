@@ -23,7 +23,7 @@ Walter Dehnen's GalaxyPotential code
 /*
 
 Put into the Torus code (with a minimum of fuss) by Paul McMillan, Oxford 2010
-email: p.mcmillan1@physics.ox.ac.uk
+email: paul@astro.lu.se
 
 */
 //                                                                             |

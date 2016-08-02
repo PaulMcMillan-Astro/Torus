@@ -10,6 +10,7 @@
 // address:  Department of Physics and Astronomy, University of Leicester      |
 //           University Road, Leicester LE1 7RH, United Kingdom                |
 //                                                                             |
+// Adapted for the Torus code by Paul McMillan 2010-
 //-----------------------------------------------------------------------------+
 //                                                                             |
 // source code for class GalaxyPotential and dependencies                      |
