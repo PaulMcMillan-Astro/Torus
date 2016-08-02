@@ -1,0 +1,7 @@
+// Header required to interface with getclosed
+
+void rkqs(double *y,double *dydx,int N,double *x,double htry,double eps,
+	  double *yscal, double *hdid, double *hnext,
+	  void (*derivs)(double, double*, double*));
+
+double zbrent(double *pars,double (*func)(double*,double), double x1, double x2,double fa,double fb,double tol,int itmax);
