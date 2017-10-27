@@ -131,11 +131,11 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 
 ==============================================================================*/
 {
-    register int    i1, i2, j, k, l, m;
+  register int    i1, i2, j, k, l, m, N=0;
     register PSPD   jt, QP;
     double          dqpdj[4][2], dQPdqp[4][4], dHdQP[4], dHdqp[4];
     Pdble           dHda, dHavda, dqpdalfa[4], dQPdbeta[4];
-    register double H, Hsqav, temp,chims;
+    register double H, Hsqav, temp,chims,delta;
 
     dHda   = new double[mfit];
     dHavda = new double[mfit];
@@ -201,8 +201,14 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 	    for(j=0; j<dj1dS.NumberofTerms(); j++,m++)
 		dHda[m] = dHdj[0] * dj1dS(j) + dHdj[1] * dj2dS(j);
             if(m!=mfit) cerr<<"wrong MFIT in LevMarCof()\n";
-	    Hav   += H;
-	    Hsqav += H*H;
+	    
+	    //Hav   += H;
+	    //Hsqav += H*H;
+	    N++;
+	    delta=H-Hav;
+	    Hav   += delta/double(N);
+	    Hsqav += delta*(H-Hav);
+
 	    for(k=0; k<mfit; k++) {
 		dHavda[k] += dHda[k];
 		bk[k]     += H * dHda[k];
@@ -247,8 +253,16 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 		    for(k=0, dHda[m]=0.; k<4; k++)
 			dHda[m] += dHdqp[k] * dqpdalfa[k][j];
             if(m!=mfit) cerr<<"wrong MFIT in LevMarCof()\n";
-	    Hav   += H;
-	    Hsqav += H*H;
+
+	    // Hav   += H;
+	    // Hsqav += H*H;
+	    
+
+	    N++;
+	    delta=H-Hav;
+	    Hav   += delta/double(N);
+	    Hsqav += delta*(H-Hav);
+	    
 	    for(k=0; k<mfit; k++) {
 		dHavda[k] += dHda[k];
 		bk[k]     += H * dHda[k];
@@ -262,9 +276,10 @@ dH/dS_(n1,n2) = dH_eff/d(Q,P) * d(Q,P)/d(q,p) * d(q,p)/dj * dj/dS_(n1,n2)
 // Now normalize and finally compute bk, akl, delta H, and dchisq
 //
     temp    = 1./double(GF.N_th1()*GF.N_th2());
-    Hav    *= temp;
+    //Hav    *= temp;
     Hsqav  *= temp;
-    chims  = Hsqav - Hav*Hav;
+    chims  = Hsqav;// - Hav*Hav; // changed st dev method
+    
     chirms = (chims>0.)? sqrt(chims) : 0 ;
     dchisq  = 0.;
     for(k=0; k<mfit; k++) {

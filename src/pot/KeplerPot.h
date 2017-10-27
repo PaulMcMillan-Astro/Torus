@@ -1,36 +1,36 @@
 /***************************************************************************//**
-\file MultiPot.h
-\brief Contains class MultiPotential.
+\file KeplerPot.h
+\brief Contains class KeplerPotential.
 
-Combines multiple potentials into one.
+Gives the Kepler (point mass) potential.
 
 *                                                                              *
-* MultiPot.h                                                                   *
+* KeplerPot.h                                                                   *
 *                                                                              *
 * C++ code written by Paul McMillan, 2014-
 *                                                                              *
 *******************************************************************************/
 
-#ifndef MultiPotential_def_
-#define MultiPotential_def_ 1
+#ifndef KeplerPotential_def_
+#define KeplerPotential_def_ 1
 
 #include <iostream>
 #include <cmath>
 #include "Potential.h"
+#include "Units.h"
 
-/** \brief A sum of multiple potentials. The potentials can be defined separately.
+/** \brief A Kepler potential.
 
-    Input parameter is a pointer to an array of Potential pointers.
+    Input parameter is mass.
 
  */
 
-class MultiPotential : public Potential {
-  int npot;
-  Potential **PotList;
+class KeplerPotential : public Potential {
+  double GM;
 public:
-  MultiPotential();
-  ~MultiPotential() {;}
-  MultiPotential(Potential**, const int);
+  KeplerPotential();
+  ~KeplerPotential() {;}
+  KeplerPotential(double);
   double operator() (const double, const double) const;
   double operator() (const double, const double, double&, double&) const;
   // double RfromLc(const double, double* = 0) const;
@@ -39,9 +39,8 @@ public:
 };
 
 
-inline MultiPotential::MultiPotential(Potential **inPotList,
-				      const int np) :
-		      PotList(inPotList), npot(np)
+inline KeplerPotential::KeplerPotential(double M) :
+		      GM(M*Units::G)
 
 {
 

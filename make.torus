@@ -29,13 +29,13 @@ WDMath_h	   = $(INCL)WDMath.h
 Random_h	   = $(INCL)Random.h
 Compress_h	   = $(INCL)Compress.h
 FreeMemory_h	   = $(INCL)FreeMemory.h
-Vector_h	   = $(INCL)Vector.h 
+Vector_h	   = $(INCL)Vector.h
 Matrix_h	   = $(INCL)Matrix.h $(Vector_h)
 Numerics_templates = $(INCL)Numerics.templates $(Matrix_h)
 Numerics_h	   = $(INCL)Numerics.h $(Matrix_h) $(Pi_h) $(Numerics_templates)
 Pspline_h	   = $(INCL)Pspline.h $(FreeMemory_h) $(Numerics_h)
-PJMNum_h	   = $(SRCUTILS)PJMNum.h 
-PJMebf_h	   = $(SRCUTILS)PJMebf.h 
+PJMNum_h	   = $(SRCUTILS)PJMNum.h
+PJMebf_h	   = $(SRCUTILS)PJMebf.h
 CHB_h		   = $(SRCUTILS)CHB.h
 
 AUXIL_H		   = $(Pi_h) $(Random_h) $(Compress_h)   \
@@ -50,15 +50,15 @@ AUXIL_H		   = $(Pi_h) $(Random_h) $(Compress_h)   \
 Err_h 		= $(SRCUTILS)Err.h
 Units_h 	= $(SRCUTILS)Units.h
 Types_h 	= $(SRCUTILS)Types.h
-Constants_h	= $(SRCUTILS)Constants.h $(Units_h)		
+Constants_h	= $(SRCUTILS)Constants.h $(Units_h)
 PJMCoords_h	= $(SRCUTILS)PJMCoords.h $(Constants_h)
 Potential_h 	= $(INC)Potential.h $(Types_h)
 Maps_h		= $(INC)Maps.h $(Pi_h) $(Err_h) $(Types_h)
-GeneratingFunctions_h = $(INC)GeneratingFunctions.h $(Maps_h) 
+GeneratingFunctions_h = $(INC)GeneratingFunctions.h $(Maps_h)
 Toy_Isochrone_h	= $(INC)Toy_Isochrone.h $(Maps_h)
 Point_ClosedOrbitCheby_h	= $(INC)Point_ClosedOrbitCheby.h $(Maps_h) $(CHB_h)
 Point_None_h		= $(INC)Point_None.h $(Maps_h)
-PointTrans_h	= $(Point_ClosedOrbitCheby_h) $(Point_None_h) 
+PointTrans_h	= $(Point_ClosedOrbitCheby_h) $(Point_None_h)
 Orb_h		= $(INC)Orb.h $(Maps_h) $(Potential_h) $(Numerics_h)
 Fit_h		= $(INC)Fit.h $(Maps_h) $(Potential_h)
 Torus_h		= $(INC)Torus.h	$(Maps_h) $(Vector_h) $(Matrix_h) \
@@ -70,6 +70,7 @@ DF_h		= $(INC)DF.h
 # 1.3 header files: the potentials
 #
 IsochronePot_h		= $(SRCPOT)IsochronePot.h $(Potential_h)
+KeplerPot_h		= $(SRCPOT)KeplerPot.h $(Potential_h)
 StackelPot_h		= $(SRCPOT)StackelPot.h $(Potential_h)
 MiyamotoNagaiPot_h	= $(SRCPOT)MiyamotoNagaiPot.h $(Potential_h)
 LogPot_h		= $(SRCPOT)LogPot.h $(Potential_h)
@@ -84,7 +85,7 @@ BASIC_H		= $(Units_h) $(Types_h) $(PJMCoords_h)
 TORFIT_H	= $(BASIC) $(Maps_h) $(Torus_h) $(Fit_h) $(GeneratingFunctions_h) \
 		  $(Toy_Isochrone_h) $(PointTrans_h) $(IntegClasses_h) $(DF_h) $(AUXIL_H)
 GALPOT_H	= $(Potential_h) $(StackelPot_h) $(LogPot_h) $(IsochronePot_h) \
-			$(MiyamotoNagaiPot_h) $(falPot_h) $(MultiPot_h) \
+			$(MiyamotoNagaiPot_h) $(falPot_h) $(MultiPot_h) $(KeplerPot_h) \
 			$(AUXIL_H)
 OTHER_H		= $(AUXIL_H)
 
@@ -99,7 +100,7 @@ $(OBJ)Random.o:		$(SRCUTILS)Random.cc $(Random_h) $(Numerics_h)
 
 $(OBJ)Numerics.o:	$(SRCUTILS)Numerics.cc $(Numerics_h) $(FreeMemory_h)
 			$(CPP) $(CFLAGS_WD) $< ; $(ARLIB)
-$(OBJ)WDMath.o:		$(SRCUTILS)WDMath.cc $(WDMath_h) 
+$(OBJ)WDMath.o:		$(SRCUTILS)WDMath.cc $(WDMath_h)
 			$(CPP) $(CFLAGS_WD) $< ; $(ARLIB)
 $(OBJ)Compress.o:	$(SRCUTILS)Compress.cc $(Compress_h) $(FreeMemory_h) \
 				$(Numerics_h)
@@ -143,14 +144,14 @@ $(OBJ)Orb.o:	 $(SRC)Orb.cc $(Orb_h)
 		 $(CPP) $(CFLAGS) $(SRC)Orb.cc; $(ARTOR)
 $(OBJ)Point_None.o:	 $(SRC)Point_None.cc $(PointTrans_h) $(Compress_h) $(Pi_h) $(WDMath_h)
 		 $(CPP) $(CFLAGS) $(SRC)Point_None.cc; $(ARTOR)
-$(OBJ)Point_ClosedOrbitCheby.o: $(SRC)Point_ClosedOrbitCheby.cc $(Point_ClosedOrbitCheby_h) $(Compress_h) $(Pi_h) $(WDMath_h) 
+$(OBJ)Point_ClosedOrbitCheby.o: $(SRC)Point_ClosedOrbitCheby.cc $(Point_ClosedOrbitCheby_h) $(Compress_h) $(Pi_h) $(WDMath_h)
 		 $(CPP) $(CFLAGS) $(SRC)Point_ClosedOrbitCheby.cc; $(ARTOR)
 $(OBJ)Torus.o:	 $(SRC)Torus.cc $(Torus_h) $(PointTrans_h) $(Toy_Isochrone_h) \
 		 $(Compress_h) $(Numerics_h) $(GeneratingFunction_h)
 		 $(CPP) $(CFLAGS) $(SRC)Torus.cc; $(ARTOR)
 
 $(OBJ)resTorus.o: $(SRC)resTorus.cc $(SRC)resTorus.h $(OBJ)Torus.o
-		  $(CPP) $(CFLAGS) $(SRC)Torus.cc; $(ARTOR)		  
+		  $(CPP) $(CFLAGS) $(SRC)resTorus.cc; $(ARTOR)
 
 TorFit:	$(OBJ)Fit.o $(OBJ)GeneratingFunction.o 	$(OBJ)Point_ClosedOrbitCheby.o \
 	$(OBJ)Toy_Isochrone.o $(OBJ)Orb.o $(OBJ)Point_None.o $(OBJ)Torus.o $(OBJ)resTorus.o
@@ -176,11 +177,23 @@ $(OBJ)MultiPot.o: $(MultiPot_h) $(SRCPOT)MultiPot.cc
 	$(CPP) $(CFLAGS) $(SRCPOT)MultiPot.cc; $(ARPOT)
 $(OBJ)IsochronePot.o: $(IsochronePot_h) $(SRCPOT)IsochronePot.cc
 	$(CPP) $(CFLAGS) $(SRCPOT)IsochronePot.cc; $(ARPOT)
+$(OBJ)KeplerPot.o: $(KeplerPot_h) $(SRCPOT)KeplerPot.cc
+	$(CPP) $(CFLAGS) $(SRCPOT)KeplerPot.cc; $(ARPOT)
 $(OBJ)falPot.o: $(falPot_h) $(SRCPOT)falPot.cc \
 	      $(FreeMemory_h) $(Numerics_h) $(Pspline_h)
 	      $(CPP) $(CFLAGS) $(SRCPOT)falPot.cc;$(ARPOT)
 
-GalPot:	$(OBJ)falPot.o $(OBJ)MiyamotoNagaiPot.o $(OBJ)StackelPot.o $(OBJ)IsochronePot.o $(OBJ)LogPot.o $(OBJ)MultiPot.o
+GalPot:	$(OBJ)falPot.o $(OBJ)MiyamotoNagaiPot.o $(OBJ)StackelPot.o $(OBJ)IsochronePot.o $(OBJ)LogPot.o $(OBJ)MultiPot.o $(OBJ)KeplerPot.o
+
+################################################################################
+#
+# resTorus objects
+#
+
+$(OBJ)pstuff.o: src/resTorusExample/pstuff.cc
+		$(CPP) $(CFLAGS) -Isrc/resTorusExample/ src/resTorusExample/pstuff.cc
+$(OBJ)getclosed.o: src/resTorusExample/getclosed.cc
+		$(CPP) $(CFLAGS) -Isrc/resTorusExample/ src/resTorusExample/getclosed.cc
 
 
 MAIN_LIBS:	Library TorFit GalPot Other
@@ -233,7 +246,7 @@ GridAndGrid:	$(EXE)GridAndGrid.cc MAIN_LIBS
 TestBed:	$(EXE)TestBed.cc MAIN_LIBS $(OBJ)RalphTestGrid.o
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
-DensProfForRS:	$(EXE)DensProfForRS.cc MAIN_LIBS 
+DensProfForRS:	$(EXE)DensProfForRS.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 #Shells:	$(EXE)Shells.cc MAIN_LIBS
@@ -246,9 +259,13 @@ MakeAStream_J:	$(EXE)MakeAStream_J.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 
 
+# Added for resTorus
+drive:	$(EXE)drive.cc MAIN_LIBS $(OBJ)pstuff.o $(OBJ)getclosed.o
+	$(CPP) $(MFLAGS) -Isrc/resTorusExample/ $(EXE)$@.cc $(OBJ)pstuff.o $(OBJ)getclosed.o $(LDFLAGS)
+
+
 mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
        SmoothStreamMaker GridAndGrid CompareTorusIntegrated \
-       CompareTorusIntegrated_SOS testMultiPot  MakeAStream_J
-
+       CompareTorusIntegrated_SOS testMultiPot  MakeAStream_J drive
