@@ -1,24 +1,24 @@
 /***************************************************************************//**
 \file Torus.h
 \brief Contains class Torus. The code that puts it all together.
-									     
-*//*                                                                            
- Torus.h                                                                      
-                                                                              
- C++ code written by Walter Dehnen, 1995-97,                                  
-                     Paul McMillan, 2007-                                      
+
+*//*
+ Torus.h
+
+ C++ code written by Walter Dehnen, 1995-97,
+                     Paul McMillan, 2007-
                      James Binney, 2015-
- e-mail: paul@astro.lu.se                                                     
- github: https://github.com/PaulMcMillan-Astro/Torus                          
-                                                                              
- class Torus         A Torus is defined by the Actions and its parameters, it 
-	              gives mapping   Angle variables -> cylindrical co-ords.  
-		      Among other things, a Torus can fit itself, can make a   
-		      surface of section, can compute whether a space point is 
-		      ever hit, and if so with which velocity and probability  
-		      (density).                      
-                                                                              
-                                                                              
+ e-mail: paul@astro.lu.se
+ github: https://github.com/PaulMcMillan-Astro/Torus
+
+ class Torus         A Torus is defined by the Actions and its parameters, it
+	              gives mapping   Angle variables -> cylindrical co-ords.
+		      Among other things, a Torus can fit itself, can make a
+		      surface of section, can compute whether a space point is
+		      ever hit, and if so with which velocity and probability
+		      (density).
+
+
 *******************************************************************************/
 
 #ifndef _Torus_
@@ -33,21 +33,22 @@
 #include "Potential.h"
 #include "PJMCoords.h"
 #include "Fit.h"
-#include "Types.h"
+#include "types.h"
+#include "Toy_Isochrone.h"
 /**
-\brief Class combining everything. Can fit a Torus with Actions J in a 
-given Potential. Then gives position and velocity given angles. Lots 
+\brief Class combining everything. Can fit a Torus with Actions J in a
+given Potential. Then gives position and velocity given angles. Lots
 of other fun stuff too.
 
-This class is where everything gets combined together. It's the main event. 
+This class is where everything gets combined together. It's the main event.
 
 Fundamentally a Torus is defined by four objects, one each of classes AngMap
-GenFnc ToyMap and PoiTra. Torus contains these objects and has the ability to 
+GenFnc ToyMap and PoiTra. Torus contains these objects and has the ability to
 fit them for a given Potential. It can then use them to do the complete transformation from angle-action coordinates to position & velocity.
 
 Fitting tk make this a heading
 
-Given a Potential and a set of Actions (3 values J_R, J_z, J_phi), AutoFit 
+Given a Potential and a set of Actions (3 values J_R, J_z, J_phi), AutoFit
 can fit the corresponding Torus. Once this is done the whole orbit is known.
 
 The normal fitting procedure is:
@@ -57,14 +58,15 @@ parameters of ToyIsochrone, and sets up original parameters of GenFnc
 and AngMap (an object of class GenPar) via the function MakeGeneric (a
 member function of GenPar).
 
-2) 
+2)
 
  */
 class Torus : public PhaseSpaceMap {
 private:
   Actions	J;                            // Torus actions
   double	E, Fs, Rmin, Rmax, zmax;      // Energy, df_value
-                                              // approx limits in R, z
+					      // approx limits in R, z
+  double        scale;			      // 1 unless has been scaled for interpolation
   Frequencies   Om;                           // orbital frequencies
   Errors        dc;                           // errors (see above)
   PoiTra       *PT;                           // Point transform
@@ -73,28 +75,28 @@ private:
   AngMap	AM;                           // Angle Mapping (th->thT)
   double Jtr[4];
 
-  Angles      mirror_Angles(Angles,double) const; 
-  // For given angles & coord phi, find angles giving same x, -vR, -vz, vphi  
+  Angles      mirror_Angles(Angles,double) const;
+  // For given angles & coord phi, find angles giving same x, -vR, -vz, vphi
   Velocity    mirror_Velocity(Velocity) const;      // return -vR, -vz, vphi
   GCY         build_GCY(Position,Velocity) const;   // return w=x,v
 
   void        SetMaps(const double*, const vec4&,
 		      const GenPar&, const AngPar&);
-  // set maps within Torus from parameters of point transform, toymap, 
-  // generating function S(J), dS/dJ 
+  // set maps within Torus from parameters of point transform, toymap,
+  // generating function S(J), dS/dJ
   void        SetMaps(const vec4&, const GenPar&, const AngPar&);
   // As above, but no point transform
   void        DelMaps();
   // Delete maps in Torus (avoiding memory leaks)
-  void 	LevCof (const PSPD&, const Position&, const double&, 
+  void 	LevCof (const PSPD&, const Position&, const double&,
 		const double&, PSPD&,
 		double&, Vector<double,2>&, Matrix<double,2,2>&,
 		Matrix<double,2,2>&) const;
-  void 	LevCof (const PSPD&, const PSPD&, const double&, 
+  void 	LevCof (const PSPD&, const PSPD&, const double&,
 		const double&, const double&, PSPD&,
 		double&, Vector<double,2>&, Matrix<double,2,2>&,
 		Matrix<double,4,2>&) const;
-  void 	LevCof (const PSPD&, const PSPD&, const Vector<double,4>&, 
+  void 	LevCof (const PSPD&, const PSPD&, const Vector<double,4>&,
 		PSPD&, double&, Vector<double,2>&, Matrix<double,2,2>&,
 		Matrix<double,4,2>&) const;
   // Compute chi, where
@@ -110,7 +112,7 @@ private:
   double RforSOS;
   void        SOS_z_root(const double, double&, double&) 	  const;
   // Used when finding surface of section at R=RSOS. Determines z & dz/dth_z.
-
+  double GM(double,double,double);
 
 /*     int          ThinFit          (Potential*,		  // galactic potential  */
 /* 				    const int     =0,     // Full(0)/Half(1)Fit */
@@ -162,14 +164,13 @@ public:
    ~Torus() { DelMaps(); }
   // Destructor
 
+   bool write_ebf(const string,
+		  const string,             // write torus details to ebf file
+      const string mode = "a"); // default mode: append);
+      
+   bool read_ebf (const string,
+		  const string); // read torus details from ebf file
 
-   // write torus details to ebf file
-   bool write_ebf(const string, 
-		  const string,
-		  const string mode = "a"); // default mode: append
-    // read torus details from ebf file
-   bool read_ebf (const string, 
-		  const string);           
 
    double       energy  () const { return E; }
    double       fsample () const { return Fs; }
@@ -194,21 +195,21 @@ public:
    int          n1       (const int i)const{ return GF.n1(i); }
    int          n2       (const int i)const{ return GF.n2(i); }
    // Functions returning parameters of the Torus
- 
+
    void         show    (ostream&) const;  // Gives human readable torus details
-   
+
    PoiTra&	 canmap  ()		    { return *PT; }
    ToyMap&	 toymap  ()		    { return *TM; }
    // returns addresses of point transform, toy map
    void	 SetPP	 (Potential*, const Actions);
    // Set point transform from potential, Jphi, Jz.
-   void	 SetPP	 (Actions, Cheby, Cheby, Cheby, double,double);
+   void	 SetPP	 (Cheby, Cheby, Cheby, double);
    void	 SetPP	 (double*);
    void	 SetPP	 ();
    void	 SetTP	 (const vec4& );
    void	 SetSN	 (const GenPar& sn) { GF.set_parameters(sn); }
    void	 SetAP	 (const AngPar& ap) { AM.set_parameters(ap); }
-   
+
    void         SetActions	   (const Actions&, const double=0.);
    void         SetFs   	   (const double);
    void         SetFrequencies    (const Frequencies&);
@@ -221,8 +222,8 @@ public:
 
     PSPD         Forward	   (const PSPD&) const;
     PSPT         Forward3D	   (const PSPT&) const;
-// these routines are here because they must be. They translate 
-// (Jr,Jl[,Jp],Tr,Tt,[Tp]) into (R,z[,phi],vR,vz[,vphi]), but give a 
+// these routines are here because they must be. They translate
+// (Jr,Jl[,Jp],Tr,Tt,[Tp]) into (R,z[,phi],vR,vz[,vphi]), but give a
 // WARNING if the actions do not match those of the Torus
 
     PSPD         Map	           (const Angles&) const;
@@ -232,7 +233,7 @@ public:
 // returns (R,z, vR,vz) given toy angles (tr, tt, phi)
 
     PSPD         MapfromToy	   (const Angles&, PSPD&, double& ) const;
-// as above, but also returns  - (Jr,Jz,Tr,Tt) and 
+// as above, but also returns  - (Jr,Jz,Tr,Tt) and
 //                             - the determinant |d(Tr,Tt)/d(tr,tt)|
 
     PSPT         Map3D	           (const Angles&) const;
@@ -242,12 +243,15 @@ public:
 
     double       DToverDt	   (const Angles&) const;
 // given toy angles (tr,tt, phi) returns the determinant |d(Tr,Tt)/d(tr,tt)|
+    double       DToverDt	   (const Angles&,Angles&) const;
+// given toy angles (tr,tt, phi) returns the determinant
+// |d(Tr,Tt)/d(tr,tt)| and the true angles
 
     double       DToverDt	   (const Angles&, PSPD&) const;
 // as above, but also returns (Jr,Jz,Tr,Tt) in the second argument
 
     GCY		 FullMap	   (const Angles&) const;
-// returns (R,z,phi, vR,vz,vphi) given (Tr, Tt, phi)
+// returns (R,z,phi, vR,vz,vphi) given (Tr, Tt, Tphi)
 
     Position     PosMap		   (const Angles&) const;
 // returns just (R,z,phi) given (Tr, Tt, phi)
@@ -260,7 +264,10 @@ public:
     void         SOS_z		   (ostream&, const double,const int=200);
 // writes positions of a z-pz surface of section computed from the orbit
 // by default 200 angles are used.
-    int          SOS_z		   (double*, double*, 
+    void         RpSOS		   (ostream&,const int=200);
+// writes positions of a R-pR at z=0 phi=0 surface of section computed from the orbit
+// by default 200 angles are used.
+    int          SOS_z		   (double*, double*,
 				    const double,const int=200);
 // writes positions of a z-pz surface of section computed from the orbit
 // by default 200 angles are used.
@@ -268,6 +275,7 @@ public:
     double       DistancetoPoint   (const Position&) const;
 // Returns distance from given position to nearest point on torus
     double       DistancetoPoint   (const Position&, double&, double&) const;
+    double       DistancetoPoint_Ang   (const Position&, Angles&) const;
 // Returns distance from given position to nearest point on torus
 // Input toy angles for first guess, output for closest point.
     double       DistancetoPoint   (const Position&, Position&) const;
@@ -275,9 +283,20 @@ public:
     Vector<double,2> DistancetoPSP (const PSPD&, double&, Angles&) const;
 // Returns distance from given pspd to nearest point on torus
 
-    Vector<double,4> DistancetoPSP (const PSPD&, Vector<double,4>&, 
+    Vector<double,4> DistancetoPSP (const PSPD&, Vector<double,4>&,
 				    Angles&) const;
 // Returns distance from given pspd to nearest point on torus
+    void LevCof3D(const Angles&,Matrix<double,3,3>&, const Position&, PSPT&,double&,
+		  Vector<double,3>&, Matrix<double,3,3>&, Matrix<double,3,3>&) const;
+    void get_derivs(const Angles&, Matrix<double,3,3>&, Matrix<double,3,3>&) const;
+//compute
+//   chi^2 = (R0-R(th))^2+(z0-z(th))^2+R0^2(phi0-phi(th))^2 and its
+//   derivatives wrs (toy) theta
+    void LevCof3DTrue(const Angles&,Matrix<double,3,3>&, const Position&, PSPT&,double&,
+		  Vector<double,3>&, Matrix<double,3,3>&) const;
+//compute
+//   chi^2 = (R0-R(th))^2+(z0-z(th))^2+R0^2(phi0-phi(th))^2 and its
+//   derivatives wrs (true) theta
 
     void CheckLevCof(PSPD, Angles);
     void CheckLevCof(Position, Angles);
@@ -291,29 +310,29 @@ public:
     bool containsPoint (const Position&,Velocity&,Matrix<double,2,2>&,Angles&,
 		       Velocity&,Matrix<double,2,2>&,Angles&,bool,bool,bool,
 		       double)  const;
-/* Returns true if (R,z,phi) is ever hit by the orbit, and false otherwise. If the 
+/* Returns true if (R,z,phi) is ever hit by the orbit, and false otherwise. If the
  torus passes through the point given, this happens four times, in each case
  with a different velocity. However, only two of these are independent, since
- changing the sign of both vR and vz simultaneously gives the same orbit, 
- at (2Pi-TR,Pi-Tz). For each of these two the two possible (vR,vz) and the 
+ changing the sign of both vR and vz simultaneously gives the same orbit,
+ at (2Pi-TR,Pi-Tz). For each of these two the two possible (vR,vz) and the
  matrix d(R,z)/d(Tr,Tz) is returned. If the first bool is true, the angles
- (TR,Tz,Tphi) are also calculated in each case. If the second bool is true, 
- the TOY angles are returned. 
+ (TR,Tz,Tphi) are also calculated in each case. If the second bool is true,
+ the TOY angles are returned.
 
-   This is the function that does the actual work, but the end user will 
+   This is the function that does the actual work, but the end user will
  (probably) only use the related functions which use this one (see below).
- 
+
    The other function can take as parameters (and thus return) any sensible
- mixture of 'Velocity's, 'GCY's (R,z,phi,vR,vz,vphi), Angles, and either 
- the matrix d(R,z)/d(Tr,Tz) or the determinant |d(x,y,z)/d(Tr,Tz,Tphi)| 
- which vanishes on the edge of the orbit, such that its inverse, the density 
- of the orbit, diverges there (that's the reason why the density itself is 
+ mixture of 'Velocity's, 'GCY's (R,z,phi,vR,vz,vphi), Angles, and either
+ the matrix d(R,z)/d(Tr,Tz) or the determinant |d(x,y,z)/d(Tr,Tz,Tphi)|
+ which vanishes on the edge of the orbit, such that its inverse, the density
+ of the orbit, diverges there (that's the reason why the density itself is
  not returned).
 
    Note that because Velocity and Angles are both just 3-vectors I have to call
- the function containsPoint_Ang if it only returns Angles, and 
+ the function containsPoint_Ang if it only returns Angles, and
  containsPoint_Vel if it only returns Velocities
-*/ 
+*/
 
 
 // Those other functions
@@ -329,7 +348,7 @@ public:
     bool containsPoint (const Position&,GCY&,Matrix<double,2,2>&,Angles&,
 		       GCY&, Matrix<double,2,2>&,Angles&,bool=false,
 		       bool=false,double=0.) const;
-    bool containsPoint(const Position&,Velocity&,Velocity&,double&,
+    bool containsPoint(const Position&,Velocity&,Velocity&,double&,//used!
 		      Angles&,Angles&,Velocity&,Velocity&,double&,
 		      Angles&,Angles&,bool=false,bool=false,double=0.)const;
     bool containsPoint(const Position&,Velocity&,double&,Angles&,
@@ -341,7 +360,7 @@ public:
     bool containsPoint (const Position&,GCY&,double&,Angles&,
 		       GCY&,double&,Angles&,bool=false,bool=false,
 		       double=0.) const;
-// Lots of them 
+// Lots of them
     bool containsPoint(const Position&,Velocity&,Velocity&,Angles&,Angles&,
 		      Velocity&,Velocity&,Angles&,Angles&,bool=false,
 		      bool=false,double=0.) const;
@@ -359,14 +378,14 @@ public:
 			   double=0.) const;
 
     bool containsPoint (const Position&,Velocity&,Velocity&,double&,
-		       Velocity&,Velocity&,double&,double=0.) const;
+			Velocity&,Velocity&,double&,double=0.) const;
     bool containsPoint (const Position&,GCY&,GCY&,double&,
 		       GCY&,GCY&,double&,double=0.) const;
     bool containsPoint (const Position&,Velocity&,double&,
 		       Velocity&,double&,double=0.) const;
     bool containsPoint (const Position&,GCY&,double&,GCY&,double&,
 		       double=0.) const;
- // Lots and lots and lots. 
+ // Lots and lots and lots.
     bool containsPoint (const Position&,Velocity&,Velocity&,Matrix<double,2,2>&,
 		       Velocity&,Velocity&,Matrix<double,2,2>&,double=0.) const;
     bool containsPoint (const Position&,GCY&,GCY&,Matrix<double,2,2>&,
@@ -410,14 +429,14 @@ in the given */
 				    const double  =0.003, // goal for |dJ|/|J|
 				    const int     =600,   // max. number of Sn
 				    const int     =150,	  // max. iterations
-				    const int     =12,    // max. SN tailorings 
+				    const int     =12,    // max. SN tailorings
 				    const int     =3,	  // overdetermination
 				    const int     =16,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
 				    const int     =12,    // min. # of theta
-							  //    per dim 
+							  //    per dim
 				    const int     =0);	  // error output?
 // performs a complete fit: Actions are fixed while the torus parameters are
 // used as initial guess and are changed in order to fit the torus in the given
@@ -435,25 +454,25 @@ in the given */
 				 const int	=12,
 				 const int	=0);
 // Performs fit using a non-trivial point transformation
-    
+
     int          AutoFit_TPfirst  	   (Actions,              // Actions
 				    Potential*,		  // galactic potential
 				    const double  =0.003, // goal for |dJ|/|J|
 				    const int     =600,   // max. number of Sn
 				    const int     =150,	  // max. iterations
-				    const int     =12,    // max. SN tailorings 
+				    const int     =12,    // max. SN tailorings
 				    const int     =3,	  // overdetermination
 				    const int     =16,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
 				    const int     =12,    // min. # of theta
-							  //    per dim 
+							  //    per dim
 				    const int     =0);	  // error output?
 // performs a complete fit: Actions are fixed while the torus parameters are
 // used as initial guess and are changed in order to fit the torus in the given
 // potential.
-// 
+//
 // In this case we use the strategy of fitting the toy potential parameters first
 // then only varying the generating function
 
@@ -463,21 +482,21 @@ in the given */
 				    const double  =0.003, // goal for |dJ|/|J|
 				    const int     =600,   // max. number of Sn
 				    const int     =150,	  // max. iterations
-				    const int     =12,    // max. SN tailorings 
+				    const int     =12,    // max. SN tailorings
 				    const int     =3,	  // overdetermination
 				    const int     =16,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
 				    const int     =12,    // min. # of theta
-							  //    per dim 
+							  //    per dim
 				    const int     =0);	  // error output?
 // performs a complete fit: Actions are fixed while the torus parameters are
 // used as initial guess and are changed in order to fit the torus in the given
 // potential.
-// 
-// In this case we use the strategy of fitting the low order terms in the generating 
-// function first then varying both the toy potential and the generating function 
+//
+// In this case we use the strategy of fitting the low order terms in the generating
+// function first then varying both the toy potential and the generating function
 // (including higher order terms)
 
 
@@ -486,21 +505,21 @@ in the given */
 				    const double  =0.003, // goal for |dJ|/|J|
 				    const int     =600,   // max. number of Sn
 				    const int     =150,	  // max. iterations
-				    const int     =12,    // max. SN tailorings 
+				    const int     =12,    // max. SN tailorings
 				    const int     =3,	  // overdetermination
 				    const int     =16,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
 				    const int     =12,    // min. # of theta
-							  //    per dim 
+							  //    per dim
 				    const int     =0);	  // error output?
 // performs a complete fit: Actions are fixed while the torus parameters are
 // used as initial guess and are changed in order to fit the torus in the given
 // potential.
-// 
-// In this case we use the strategy of fitting the low order terms in the generating 
-// function first then varying both the toy potential and the generating function 
+//
+// In this case we use the strategy of fitting the low order terms in the generating
+// function first then varying both the toy potential and the generating function
 // (including higher order terms)
 
 
@@ -510,14 +529,14 @@ in the given */
 				    const double  =0.001, // goal for |dJ|/|J|
 				    const int     =700,   // max. number of Sn
 				    const int     =200,	  // max. iterations
-				    const int     =14,    // max. SN tailorings 
+				    const int     =14,    // max. SN tailorings
 				    const int     =3,	  // overdetermination
 				    const int     =24,	  // min. # of cells
 							  //	for angle fit
 				    const int     =200,   // max. # of steps
 							  //    on av. per cell
 				    const int     =24,    // min. # of theta
-							  //    per dim 
+							  //    per dim
 				    const int     =0, 	  // error output?
 				    const bool    =false);//spherical potential?
 // performs a complete fit: Actions and toy parameters are fixed while the
@@ -527,7 +546,7 @@ in the given */
 // Most useful when looking to interpolate between tori.
 
 
-    
+
 
  /*    int          ManualHalfFit   (Potential*,  // galactic potential */
 /* 			    const double  =0.001, // goal for |dJ|/|J| */
@@ -541,26 +560,26 @@ in the given */
 
 
     double     check              (Potential*);           // dH/H
- 
+
     void  SetToyPot               (Potential*,            // galactic potential
 				   const Actions,         // Actions to fit
 				   const double=0 );      // Scale radius
 
     void AutoPTTorus             (Potential*,             // galactic potential
 				  const Actions,          // Actions to fit
-				  const double=0 );       // Scale radius 
+				  const IsoPar );	  // TM parameters
 
     void         FindLimits        ();
 };
 
 // **************************** inline functions **************************** //
 
-inline Torus::Torus() : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0) {}
+inline Torus::Torus() : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0), scale(1) {}
 
-inline Torus::Torus(double x) : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0) {}
+inline Torus::Torus(double x) : J(0.), E(0.), Fs(0.), Om(0.), dc(0.), PT(0), TM(0), scale(1) {}
 
 inline Torus::Torus(const Torus& T)
-    : PhaseSpaceMap(), J(T.J), E(T.E), Fs(T.Fs), Om(T.Om), dc(T.dc)
+    : PhaseSpaceMap(), J(T.J), E(T.E), Fs(T.Fs), Om(T.Om), dc(T.dc), scale(T.scale)
 {
   if((T.PT)->NumberofParameters()) {
     double tmp[(T.PT)->NumberofParameters()];
@@ -575,26 +594,6 @@ inline Torus::Torus(const Torus& T)
 	    (T.AM).parameters());
 }
 
-inline Torus& Torus::operator= (const Torus& T)
-{
-	PT=0;
-	TM=0;
-	J =T.J; E =T.E; Fs=T.Fs; Om=T.Om; dc=T.dc;
-	if((T.PT)->NumberofParameters()){
-		double tmp[(T.PT)->NumberofParameters()];
-		(T.PT)->parameters(tmp);
-		SetMaps(tmp,
-			  (T.TM)->parameters(),
-			  (T.GF).parameters(),
-			  (T.AM).parameters());
-	}  else
-		SetMaps((T.TM)->parameters(),
-			  (T.GF).parameters(),
-			  (T.AM).parameters()); // May cause trouble as PT/TM != 0 initially
-	return *this;
-}
-
-
 inline void Torus::SetActions(const Actions& j, const double fs)
 { J  = j;  Fs = fs; }
 inline void Torus::SetFrequencies(const Frequencies& om)
@@ -604,7 +603,7 @@ inline void Torus::SetFs(const double fs)
 
 
 inline int Torus::NumberofParameters() const
-{ 
+{
     return   PT->NumberofParameters()
 	   + TM->NumberofParameters()
 	   + GF.NumberofParameters()
@@ -612,37 +611,37 @@ inline int Torus::NumberofParameters() const
 }
 
 inline int Torus::NumberofSn() const
-{ 
+{
     return GF.NumberofParameters();
 }
-    
+
 inline PSPD Torus::Forward(const PSPD &JT) const
-{ 
+{
     if((JT(0) != J(0)) || JT(1) != J(1))
 	cerr<<" WARNING: Torus::Forward() called with different action(s)\n";
     return JT >> AM >> GF >> (*TM) >> (*PT);
 }
 inline PSPT Torus::Forward3D(const PSPT &JT) const
-{ 
+{
     if((JT(0) != J(0)) || JT(1) != J(1) || JT(2) != J(2))
 	cerr<<" WARNING: Torus::Forward() called with different action(s)\n";
     return JT >> AM >> GF >> (*TM) >> (*PT);
 }
 
-inline PSPD Torus::Map(const Angles& A) const { 
+inline PSPD Torus::Map(const Angles& A) const {
     return PSPD(J(0),J(1),A(0),A(1)) >> AM >> GF >> (*TM) >> (*PT);
 }
-inline PSPT Torus::Map3D(const Angles& A) const { 
+inline PSPT Torus::Map3D(const Angles& A) const {
   return PSPT(J(0),J(1),J(2),A(0),A(1),A(2)) >> AM >> GF >> (*TM) >> (*PT);
 }
 
 inline PSPD Torus::MapfromToy(		// return:	(R,z,vR,vz)
 	    const Angles& A) const	// input:       (tr,tt,phi)
-{ 
+{
     return    PSPD(J(0),J(1),A(0),A(1)) >> GF >> (*TM) >> (*PT);
 }
 inline PSPT Torus::MapfromToy3D(const Angles& A) const
-{ 
+{
   return PSPT(J(0),J(1),J(2),A(0),A(1),A(2))>> GF >> (*TM) >> (*PT);
 }
 
@@ -650,7 +649,7 @@ inline PSPD Torus::MapfromToy(		// return:	(R,z,vR,vz)
 	    const Angles& A,		// input:       (tr,tt,phi)
 	    PSPD&	  JT,		// output:	(Jr,Jz,Tr,Tt)
 	    double&       Det) const    // output:      |d(Tr,Tt)/d(tr,tt)|
-{ 
+{
     double dTdt[2][2];
     PSPD Jt = PSPD(J(0),J(1),A(0),A(1));
     JT      = AM.BackwardWithDerivs(Jt,dTdt);
@@ -658,13 +657,23 @@ inline PSPD Torus::MapfromToy(		// return:	(R,z,vR,vz)
     return    Jt >> GF >> (*TM) >> (*PT);
 }
 
-inline double Torus::DToverDt(		// return: 	|d(Tr,Tt)/d(tr,tt)|
-	      const Angles& A,		// input:	(tr,tt,phi)
-	      PSPD& JT) const		// output:	(Jr,Jz,Tr,Tt)
+inline double Torus::DToverDt(				//return |d(Tr,Tt)/d(tr,tt)|
+			      const Angles& A,		// input:	(tr,tt,phi)
+			      Angles &AT) const		//output: (Tr,Tt,Tp)
 {
-    double dTdt[2][2];
-    JT = AM.BackwardWithDerivs( PSPD(J(0),J(1),A(0),A(1)) , dTdt );
-    return  dTdt[0][0]*dTdt[1][1] - dTdt[0][1]*dTdt[1][0];
+	double dTdt[2][2];
+	PSPT JT = AM.Backward3DWithDerivs(PSPT(J(0),J(1),J(2),A(0),A(1),A(2)), dTdt );
+	for(int i=0;i<3;i++) AT[i]=JT[i+3];
+	return  dTdt[0][0]*dTdt[1][1] - dTdt[0][1]*dTdt[1][0];
+}
+
+inline double Torus::DToverDt(		// return: 	|d(Tr,Tt)/d(tr,tt)|
+			      const Angles& A,		// input:	(tr,tt,phi)
+			      PSPD& JT) const		// output:	(Jr,Jz,Tr,Tt)
+{
+	double dTdt[2][2];
+	JT = AM.BackwardWithDerivs( PSPD(J(0),J(1),A(0),A(1)) , dTdt );
+	return  dTdt[0][0]*dTdt[1][1] - dTdt[0][1]*dTdt[1][0];
 }
 
 inline double Torus::DToverDt(		// return: 	|d(Tr,Tt)/d(tr,tt)|
@@ -678,12 +687,12 @@ inline double Torus::DToverDt(		// return: 	|d(Tr,Tt)/d(tr,tt)|
 inline GCY Torus::FullMap(const Angles& A) const
 {
     GCY  gcy;
-    PSPD qp = PSPD(J(0),J(1),A(0),A(1)) >> AM >> GF >> (*TM) >> (*PT);
+    PSPT qp = PSPT(J(0),J(1),J(2),A(0),A(1),A(2)) >> AM >> GF >> (*TM) >> (*PT);
     gcy[0] = qp(0);		// R
     gcy[1] = qp(1);		// z
-    gcy[2] = A(2);		// phi
-    gcy[3] = qp(2);		// vR   = pR
-    gcy[4] = qp(3);		// vz   = pz
+    gcy[2] = qp(2);		// phi
+    gcy[3] = qp(3);		// vR   = pR
+    gcy[4] = qp(4);		// vz   = pz
     gcy[5] = J(2)/qp(0);	// vphi = Lz/R
     return gcy;
 }
@@ -738,7 +747,7 @@ inline bool Torus::containsPoint(    // return:     is X ever hit ?
 //
 
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,
-			  Matrix<double,2,2>& M_1, Angles& A11, 
+			  Matrix<double,2,2>& M_1, Angles& A11,
 			  Velocity& v21, Matrix<double,2,2>& M_2,
 			  Angles& A21, bool toy, bool usea, double delr) const
 {
@@ -747,31 +756,31 @@ inline bool Torus::containsPoint (const Position& X,Velocity& v11,
 }
 
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,
-			  Matrix<double,2,2>& M_1, Angles& A11, Angles& A12, 
+			  Matrix<double,2,2>& M_1, Angles& A11, Angles& A12,
 			  Velocity& v21, Velocity& v22, Matrix<double,2,2>& M_2,
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 			  double delr) const
 {
   if(!containsPoint(X,v11,M_1,A11,v21,M_2,A21,true,toy,usea,delr)) return false;
-  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21); 
+  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21);
   A12=mirror_Angles(A11,X(2));   A22=mirror_Angles(A21,X(2));
   return true;
 }
 inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
-			  Matrix<double,2,2>& M_1, Angles& A11, Angles& A12, 
+			  Matrix<double,2,2>& M_1, Angles& A11, Angles& A12,
 			  GCY& w21, GCY& w22, Matrix<double,2,2>& M_2,
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 			  double delr) const
 {
   Velocity v11,v12,v21,v22;
-  if(!containsPoint(X,v11,v12,M_1,A11,A12,v21,v22,M_2,A21,A22,toy,usea,delr)) 
+  if(!containsPoint(X,v11,v12,M_1,A11,A12,v21,v22,M_2,A21,A22,toy,usea,delr))
     return false;
   w11 = build_GCY(X,v11); w12 = build_GCY(X,v12);
   w21 = build_GCY(X,v21); w22 = build_GCY(X,v22);
   return true;
 }
 inline bool Torus::containsPoint (const Position& X,GCY& w11,
-			  Matrix<double,2,2>& M_1, Angles& A11, 
+			  Matrix<double,2,2>& M_1, Angles& A11,
 			  GCY& w21, Matrix<double,2,2>& M_2,
 			  Angles& A21, bool toy, bool usea, double delr) const
 {
@@ -782,21 +791,21 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11,
 }
 ///////
 
-inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,
-			  double& d_1, Angles& A11, Angles& A12, 
+inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,//used
+			  double& d_1, Angles& A11, Angles& A12,
 			  Velocity& v21, Velocity& v22, double& d_2,
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 				 double delr) const
 {
   Matrix <double,2,2> M_1,M_2;
-  if(!containsPoint(X,v11,v12,M_1,A11,A12,v21,v22,M_2,A21,A22,toy,usea,delr)) 
+  if(!containsPoint(X,v11,v12,M_1,A11,A12,v21,v22,M_2,A21,A22,toy,usea,delr))
     return false;
   d_1  = X(0) * (M_1(0,0)*M_1(1,1) - M_1(0,1)*M_1(1,0));
   d_2  = X(0) * (M_2(0,0)*M_2(1,1) - M_2(0,1)*M_2(1,0));
   return true;
 }
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,
-			  double& d_1, Angles& A11, 
+			  double& d_1, Angles& A11,
 			  Velocity& v21, double& d_2,
 			  Angles& A21, bool toy, bool usea, double delr) const
 {
@@ -808,22 +817,22 @@ inline bool Torus::containsPoint (const Position& X,Velocity& v11,
 }
 
 inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
-			  double& d_1, Angles& A11, Angles& A12, 
+			  double& d_1, Angles& A11, Angles& A12,
 			  GCY& w21, GCY& w22, double& d_2,
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 				 double delr) const
 {
   Velocity v11,v12,v21,v22;
-  if(!containsPoint(X,v11,v12,d_1,A11,A12,v21,v22,d_2,A21,A22,toy,usea,delr)) 
+  if(!containsPoint(X,v11,v12,d_1,A11,A12,v21,v22,d_2,A21,A22,toy,usea,delr))
     return false;
   w11 = build_GCY(X,v11); w12 = build_GCY(X,v12);
   w21 = build_GCY(X,v21); w22 = build_GCY(X,v22);
   return true;
 }
 
-inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1, 
-				 Angles& A11, GCY& w21, double& d_2, 
-				 Angles& A21, bool toy, bool usea, 
+inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1,
+				 Angles& A11, GCY& w21, double& d_2,
+				 Angles& A21, bool toy, bool usea,
 				 double delr) const
 {
   Velocity v11,v21;
@@ -834,16 +843,16 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1,
 ///////
 
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,
-			  Angles& A11, Angles& A12,Velocity& v21,Velocity& v22, 
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A11, Angles& A12,Velocity& v21,Velocity& v22,
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 				 double delr) const
 {
   Matrix <double,2,2> M_1,M_2;
   if(!containsPoint(X,v11,v12,M_1,A11,A12,v21,v22,M_2,A21,A22,toy,usea,delr)) return false;
   return true;
 }
-inline bool Torus::containsPoint (const Position& X,Velocity& v11, Angles& A11, 
-			  Velocity& v21, Angles& A21, bool toy, bool usea, 
+inline bool Torus::containsPoint (const Position& X,Velocity& v11, Angles& A11,
+			  Velocity& v21, Angles& A21, bool toy, bool usea,
 				 double delr) const
 {
   Matrix <double,2,2> M_1,M_2;
@@ -852,18 +861,18 @@ inline bool Torus::containsPoint (const Position& X,Velocity& v11, Angles& A11,
 }
 
 inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
-			  Angles& A11, Angles& A12, GCY& w21, GCY& w22, 
-			  Angles& A21,Angles& A22, bool toy, bool usea, 
+			  Angles& A11, Angles& A12, GCY& w21, GCY& w22,
+			  Angles& A21,Angles& A22, bool toy, bool usea,
 				 double delr) const
 {
   Matrix <double,2,2> M_1,M_2;
-  if(!containsPoint(X,w11,w12,M_1,A11,A12,w21,w22,M_2,A21,A22,toy,usea,delr)) 
+  if(!containsPoint(X,w11,w12,M_1,A11,A12,w21,w22,M_2,A21,A22,toy,usea,delr))
     return false;
   return true;
 }
 
-inline bool Torus::containsPoint (const Position& X,GCY& w11, Angles& A11, 
-			  GCY& w21, Angles& A21, bool toy, bool usea, 
+inline bool Torus::containsPoint (const Position& X,GCY& w11, Angles& A11,
+			  GCY& w21, Angles& A21, bool toy, bool usea,
 				 double delr) const
 {
   Matrix <double,2,2> M_1,M_2;
@@ -871,7 +880,7 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11, Angles& A11,
   return true;
 }
 
-inline bool Torus::containsPoint_Ang (const Position& X, Angles& A11, 
+inline bool Torus::containsPoint_Ang (const Position& X, Angles& A11,
 			  Angles& A21, bool toy, bool usea, double delr) const
 {
   Velocity v11,v21;
@@ -880,7 +889,7 @@ inline bool Torus::containsPoint_Ang (const Position& X, Angles& A11,
 }
 
 inline bool Torus::containsPoint_Ang (const Position& X, Angles& A11,Angles& A12,
-			  Angles& A21, Angles& A22, bool toy, bool usea, 
+			  Angles& A21, Angles& A22, bool toy, bool usea,
 				     double delr) const
 {
   Velocity v11,v12,v21,v22;
@@ -891,17 +900,17 @@ inline bool Torus::containsPoint_Ang (const Position& X, Angles& A11,Angles& A12
 ///////////////////     Now if you're not interested in the Angles
 
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,
-				 Matrix<double,2,2>& M_1, Velocity& v21, 
-				 Velocity& v22, Matrix<double,2,2>& M_2, 
+				 Matrix<double,2,2>& M_1, Velocity& v21,
+				 Velocity& v22, Matrix<double,2,2>& M_2,
 				 double delr) const
 {
   if(!containsPoint(X,v11,M_1,v21,M_2,delr)) return false;
-  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21); 
+  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21);
   return true;
 }
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,
-				 Matrix<double,2,2>& M_1, 
-				 Velocity& v21, Matrix<double,2,2>& M_2, 
+				 Matrix<double,2,2>& M_1,
+				 Velocity& v21, Matrix<double,2,2>& M_2,
 				 double delr) const
 {
   Angles A11, A21;
@@ -910,8 +919,8 @@ inline bool Torus::containsPoint (const Position& X,Velocity& v11,
 }
 
 inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
-				 Matrix<double,2,2>& M_1,  
-				 GCY& w21, GCY& w22, Matrix<double,2,2>& M_2, 
+				 Matrix<double,2,2>& M_1,
+				 GCY& w21, GCY& w22, Matrix<double,2,2>& M_2,
 				 double delr) const
 {
   Velocity v11,v12,v21,v22;
@@ -922,7 +931,7 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
 }
 
 inline bool Torus::containsPoint (const Position& X,GCY& w11,
-			  Matrix<double,2,2>& M_1, 
+			  Matrix<double,2,2>& M_1,
 			  GCY& w21, Matrix<double,2,2>& M_2, double delr) const
 {
   Velocity v11,v21;
@@ -934,7 +943,7 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11,
 
 inline bool Torus::containsPoint (const Position& X,Velocity& v11,Velocity& v12,
 				 double& d_1,
-				 Velocity& v21, Velocity& v22, double& d_2, 
+				 Velocity& v21, Velocity& v22, double& d_2,
 				 double delr) const
 {
   if(!containsPoint(X,v11,d_1,v21,d_2,delr)) return false;
@@ -952,7 +961,7 @@ inline bool Torus::containsPoint (const Position& X,Velocity& v11,double& d_1,
 }
 
 inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
-				 double& d_1, GCY& w21, GCY& w22, 
+				 double& d_1, GCY& w21, GCY& w22,
 				 double& d_2, double delr) const
 {
   Velocity v11,v12,v21,v22;
@@ -962,7 +971,7 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
   return true;
 }
 
-inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1, 
+inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1,
 			  GCY& w21, double& d_2, double delr) const
 {
   Velocity v11,v21;
@@ -975,11 +984,11 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11, double& d_1,
 ///////
 
 inline bool Torus::containsPoint_Vel (const Position& X,Velocity& v11,
-			       Velocity& v12,Velocity& v21,Velocity& v22, 
+			       Velocity& v12,Velocity& v21,Velocity& v22,
 				     double delr) const
 {
   if(!containsPoint_Vel(X,v11,v21,delr)) return false;
-  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21); 
+  v12=mirror_Velocity(v11);      v22=mirror_Velocity(v21);
   return true;
 }
 inline bool Torus::containsPoint_Vel(const Position& X,Velocity& v11,
@@ -1000,7 +1009,7 @@ inline bool Torus::containsPoint (const Position& X,GCY& w11,GCY& w12,
   return true;
 }
 
-inline bool Torus::containsPoint (const Position& X,GCY& w11, GCY& w21, 
+inline bool Torus::containsPoint (const Position& X,GCY& w11, GCY& w21,
 				 double delr) const
 {
   Velocity v11,v21;
@@ -1060,8 +1069,8 @@ inline PSPD Torus::StartPoint(const double th1, const double th2) const
 /*     return F; */
 /* } */
 
-inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol, 
-			  const int Max, const int Mit, const int Nta, 
+inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol,
+			  const int Max, const int Mit, const int Nta,
 			  const int Over, const int Ncl,
 			  const int ipc, const int Nth, const int err)
 {
@@ -1073,7 +1082,7 @@ inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol,
 	AngPar AP=AM.parameters();
 	F = AllFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 		   Om,E,dc,0,0,Nta,ipc,E,Nth,err);
-	double JzFactor = 0.5 * 
+	double JzFactor = 0.5 *
 			  (1 + tanh( (J(0)-0.5*fabs(J(2))) / (0.25*fabs(J(2)) ) ) ) ;
 	double LowJzFitParam = 0.005 + 0.05*JzFactor;
 
@@ -1084,27 +1093,29 @@ inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol,
 		SN=GF.parameters();
 		F = LowJzFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 			     Om,E,dc,0,Nta,ipc,E,Nth,err);
-		if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F== -1))) { 
-			Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; AP = tmpAP; 
+		if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F== -1))) {
+			Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; AP = tmpAP;
 			TM->set_parameters(tmpIP); F=oF;
 		}
 	}
 
 	if(F && J(0)<0.05*J(1)) { // possibly something with number of terms used
 		Frequencies tmpOm = Om; double tmpE = E; Errors tmpdc = dc;
-		vec4 tmpIP = TM->parameters();
+		//SetToyPot(Phi,J,0);//By now TM screwed up; start over
+		IsoPar tmpIP = TM->parameters();
+		printf("IsoPar: %f %f %f %f\n",tmpIP[0],tmpIP[1],tmpIP[2],tmpIP[3]);
 		GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
 		SN=GF.parameters();
 		if(err) cerr << "using AutoPTTorus\n";
-		AutoPTTorus(Phi,J,3.);
+		AutoPTTorus(Phi,J,tmpIP);
 		if(err) cerr << "using PTFit\n";
 		F = PTFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 			  Om,E,dc,0,Nta,ipc,E,Nth,err);
-		if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) ||
+		/*if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) ||
 			 ((F==-4 && oF!=-1) || F== -1))) {
 			Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; AP = tmpAP;
 			TM->set_parameters(tmpIP); F=oF; SetPP();
-		}
+		}*/
 	}
 	GF.set_parameters(SN);
 	AM.set_parameters(AP);
@@ -1113,8 +1124,8 @@ inline int Torus::AutoFit(Actions Jin, Potential *Phi, const double tol,
 	return F;
 }
 
-inline int Torus::FixMapsFit(Actions Jin, Potential *Phi, const double tol, 
-			     const int Max, const int Mit, const int Nta, 
+inline int Torus::FixMapsFit(Actions Jin, Potential *Phi, const double tol,
+			     const int Max, const int Mit, const int Nta,
 			     const int Over, const int Ncl,
 			     const int ipc, const int Nth, const int err)
 {
@@ -1129,7 +1140,7 @@ inline int Torus::FixMapsFit(Actions Jin, Potential *Phi, const double tol,
 	GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
 	SN=GF.parameters();
 	if(err) cerr << "using AutoPTTorus\n";
-	AutoPTTorus(Phi,J,3.);
+	AutoPTTorus(Phi,J,tmpIP);
 	if(err) cerr << "using PTFit\n";
 	F = PTFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 		  Om,E,dc,0,Nta,ipc,E,Nth,err);
@@ -1145,8 +1156,8 @@ inline int Torus::FixMapsFit(Actions Jin, Potential *Phi, const double tol,
 }
 
 
-inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol, 
-				  const int Max, const int Mit, const int Nta, 
+inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol,
+				  const int Max, const int Mit, const int Nta,
 				  const int Over, const int Ncl,
 				  const int ipc, const int Nth, const int err)
 {
@@ -1157,8 +1168,8 @@ inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol,
   GenPar SN=GF.parameters();
   AngPar AP=AM.parameters();
   F = AllFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
-	       Om,E,dc,0,1,Nta,ipc,E,Nth,err); 
-  double JzFactor = 0.5 * 
+	       Om,E,dc,0,1,Nta,ipc,E,Nth,err);
+  double JzFactor = 0.5 *
     (1 + tanh( (J(0)-0.5*fabs(J(2))) / (0.25*fabs(J(2)) ) ) ) ;
   double LowJzFitParam = 0.005 + 0.05*JzFactor;
 
@@ -1169,19 +1180,19 @@ inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol,
     SN=GF.parameters();
     F = LowJzFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 		 Om,E,dc,0,Nta,ipc,E,Nth,err);
-    if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F== -1))) { 
-      Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; AP = tmpAP; 
+    if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F== -1))) {
+      Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; AP = tmpAP;
       TM->set_parameters(tmpIP); F=oF;
     }
   }
-  
+
   if(F && J(0)<0.05*J(1)) { // possibly something with number of terms used
     Frequencies tmpOm = Om; double tmpE = E; Errors tmpdc = dc;
     vec4 tmpIP = TM->parameters();
     GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
     SN=GF.parameters();
     if(err) cerr << "using AutoPTTorus\n";
-    AutoPTTorus(Phi,J,3.);
+    AutoPTTorus(Phi,J,tmpIP);
     if(err) cerr << "using PTFit\n";
     F = PTFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 	      Om,E,dc,0,Nta,ipc,E,Nth,err);
@@ -1200,8 +1211,8 @@ inline int Torus::AutoFit_TPfirst(Actions Jin, Potential *Phi, const double tol,
 }
 
 
-inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol, 
-				  const int Max, const int Mit, const int Nta, 
+inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
+				  const int Max, const int Mit, const int Nta,
 				  const int Over, const int Ncl,
 				  const int ipc, const int Nth, const int err)
 {
@@ -1215,12 +1226,12 @@ inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
 
   F = AllFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 	     Om,E,dc,0,2,Nta,ipc,E,Nth,err);
-  double JzFactor = 0.5 * 
+  double JzFactor = 0.5 *
     (1 + tanh( (J(0)-0.5*fabs(J(2))) / (0.25*fabs(J(2)) ) ) ) ;
   double LowJzFitParam = 0.005 + 0.05*JzFactor;
- 
+
    if(F && (J(1)<LowJzFitParam*J(0)) ) {
-    
+
     Frequencies tmpOm = Om; double tmpE = E; Errors tmpdc = dc;
     vec4 tmpIP = TM->parameters();
     GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
@@ -1233,14 +1244,14 @@ inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
       TM->set_parameters(tmpIP); F=oF;
     }
   }
-  
+
   if(F && J(0)<0.05*J(1)) { // possibly something with number of terms used
     Frequencies tmpOm = Om; double tmpE = E; Errors tmpdc = dc;
-    vec4 tmpIP = TM->parameters();
+    IsoPar tmpIP = TM->parameters();
     GenPar tmpSN = SN; AngPar tmpAP = AP; int oF = F;
     SN=GF.parameters();
     if(err) cerr << "using AutoPTTorus\n";
-    AutoPTTorus(Phi,J,3.);
+    AutoPTTorus(Phi,J,tmpIP);
     if(err) cerr << "using PTFit\n";
     F = PTFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
 	      Om,E,dc,0,Nta,ipc,E,Nth,err);
@@ -1259,8 +1270,8 @@ inline int Torus::AutoFit_SNfirst(Actions Jin, Potential *Phi, const double tol,
 }
 
 
-inline int Torus::AutoFit_LowJzonly(Actions Jin, Potential *Phi, const double tol, 
-				  const int Max, const int Mit, const int Nta, 
+inline int Torus::AutoFit_LowJzonly(Actions Jin, Potential *Phi, const double tol,
+				  const int Max, const int Mit, const int Nta,
 				  const int Over, const int Ncl,
 				  const int ipc, const int Nth, const int err)
 {
@@ -1285,117 +1296,48 @@ inline int Torus::AutoFit_LowJzonly(Actions Jin, Potential *Phi, const double to
 
 
 inline int Torus::FitWithFixToyPot(Actions Jin, vec4 TPin,
-			   Potential *Phi, const double tol, 
-			   const int Max, const int Mit, const int Nta, 
+			   Potential *Phi, const double tol,
+			   const int Max, const int Mit, const int Nta,
 			   const int Over, const int Ncl,
-			   const int ipc, const int Nth, const int err, 
+			   const int ipc, const int Nth, const int err,
 			   const bool sph_pot)
 {
   J = Jin;
   SetToyPot(Phi,Jin);
   TM->set_parameters(TPin);
-  //  cerr << TP() << '\n';
+  //  cerr << TP() << '\n';IP
   register int F;
   GenPar SN=GF.parameters();
   AngPar AP=AM.parameters();
- 
+  printf("FitWithFixToyPot: %f %f %f %f\n",TPin[0],TPin[1],TPin[2],TPin[3]);
   F = ToySetFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP,
-		Om,E,dc,
-		Nta,ipc,E,Nth,err,false); 
-  
+		Om,E,dc,Nta,ipc,E,Nth,err,false);
+
   GF.set_parameters(SN);
   AM.set_parameters(AP);
 
   FindLimits();
-  
+
   return F;
 }
 
-
-
-
-/* inline int Torus::ManualHalfFit(Potential* Phi, const double tol, const int Max, */
-/* 				const int Mit, const int Nta, const int Nth,  */
-/* 				const int err) */
-/* { */
-/*     register int F; */
-/*     GenPar SN=GF.parameters(); */
-/*     AngPar AP=AM.parameters(); */
-/*     F = AllFit(J,Phi,tol,Max,Mit,0,0,*PT,*TM,SN,AP,Om,E,dc,1,false,Nta,0,E,Nth,err); */
-/*     if(F && J(1)<0.01*J(0)) { */
-/*       Frequencies tmpOm = Om; double tmpE = E; Errors tmpdc = dc; */
-/*       // vec6 tmpPP = PT->parameters(); */
-/*       vec4 tmpIP = TM->parameters(); */
-/*       GenPar tmpSN = SN; int oF = F; */
-/*       F = LowJzFit(J,Phi,tol,Max,Mit,0,0,*PT,*TM,SN,AP, */
-/* 		   Om,E,dc,1,Nta,0,E,Nth,err); */
-/*       if(F && ((dc(0) > tmpdc(0) && oF!=-4 && oF!=-1) || (F==-4 || F == -1))) {  */
-/* 	Om = tmpOm; E = tmpE; dc = tmpdc; SN = tmpSN; */
-/* 	//PT->set_parameters(tmpPP);  */
-/* 	TM->set_parameters(tmpIP); F=oF; */
-/*       } */
-/*     } */
-
-/*     GF.set_parameters(SN); */
-/*     SN = 0.; */
-/*     AM.set_parameters(AngPar(SN,SN,SN)); */
-/*     FindLimits(); */
-/*     return F; */
-/* } */
-
-
-/* inline int Torus::ThinFit(Potential *Phi, const int type, const double tol,  */
-/* 			   const int Max, const int Mit, const int Nta,  */
-/* 			   const int Nth, const int err, const int Over,  */
-/* 			   const int Ncl, const int ipc ) */
-/* { */
-/*     register int F; */
-/*     GenPar SN=GF.parameters(); */
-/*     AngPar AP=AM.parameters(); */
-/*     F = LowJzFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP, */
-/* 		 Om,E,dc,type,Nta,ipc,E,Nth,err); */
-/*     GF.set_parameters(SN); */
-/*     if(type==1) { // if HalfFit. */
-/*       SN = 0.; */
-/*       AM.set_parameters(AngPar(SN,SN,SN)); */
-/*     } */
-/*     AM.set_parameters(AP); */
-/*     FindLimits(); */
-/*     return F; */
-/* } */
-
-/* inline int Torus::PointFit(Potential *Phi, const double tol, const int Max, */
-/* 		      const int Mit, const int Nta, const int Over, const int Ncl, */
-/* 		      const int ipc, const int Nth, const int err) */
-/* { */
-/*   AutoPTTorus(Phi,J,3.); */
-/*   register int F; */
-/*   GenPar SN=GF.parameters(); */
-/*   AngPar AP=AM.parameters(); */
-/*   F = PTFit(J,Phi,tol,Max,Mit,Over,Ncl,*PT,*TM,SN,AP, */
-/* 	    Om,E,dc,0,Nta,ipc,E,Nth,err);  */
-/*   GF.set_parameters(SN); */
-/*   AM.set_parameters(AP); */
-/*   FindLimits(); */
-/*   return F; */
-/* } */
-
 inline double Torus::check(Potential *Phi) {
-  
+
   double H, dH,lambda,tmp=0.;
   int nbad;
   GenPar SN=GF.parameters();
   if(SbyLevMar(J,Phi,7,std::max(24, 6*(SN.NumberofN1()/4+1)),
 	       std::max(24, 6*(SN.NumberofN2())/4+1),1,
-	       0.,0.,SN,*PT,*TM,lambda,H,dH,nbad,tmp,0)) { 
+	       0.,0.,SN,*PT,*TM,lambda,H,dH,nbad,tmp,0)) {
     cerr << "Got some negative actions\n"; return 0.;
   }
   return dH;
 }
 Torus InterpTorus(Torus*,double*,int,double);
 Torus InterpTorus2(Torus*,double*,int,double);
+Torus InterpTorus_n2(Torus**,int,Actions,Actions,Actions);
+Torus InterpTorus_2n(Torus**,int,Actions,Actions,Actions);
 Torus InterpTorus(Torus***,Actions,Actions,Actions);
 
 #include "resTorus.h"
-
 #endif

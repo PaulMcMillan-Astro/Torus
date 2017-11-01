@@ -125,8 +125,10 @@ $(OBJ)PJMebf.o:	$(SRCUTILS)PJMebf.cc $(PJMebf_h)
 $(OBJ)Err.o:	       $(SRCUTILS)Err.cc $(Err_h)
 		       $(CPP) $(CFLAGS) $(SRCUTILS)Err.cc; $(ARTOR)
 
+$(OBJ)jjb_utils.o:	$(SRCUTILS)jjb_utils.cc $(SRCUTILS)jjb_utils.h
+				$(CPP) $(CFLAGS) $(SRCUTILS)jjb_utils.cc; $(AROTHER)
 
-Other:	$(OBJ)PJMNum.o $(OBJ)CHB.o $(OBJ)PJMCoords.o $(OBJ)PJMebf.o $(OBJ)Err.o
+Other:	$(OBJ)PJMNum.o $(OBJ)CHB.o $(OBJ)PJMCoords.o $(OBJ)PJMebf.o $(OBJ)Err.o $(OBJ)jjb_utils.o
 
 
 
@@ -268,4 +270,4 @@ mains: Library TorFit GalPot Other testfalPot GiveListProps AUTOTORUS \
        AUTOTORI READLIST Choose_any_df Create_DF_tori \
        Sample_list_limits Orbit_basic Coord_converter Add_Uncert \
        SmoothStreamMaker GridAndGrid CompareTorusIntegrated \
-       CompareTorusIntegrated_SOS testMultiPot  MakeAStream_J drive
+       CompareTorusIntegrated_SOS testMultiPot  MakeAStream_J #drive

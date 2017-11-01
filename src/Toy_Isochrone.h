@@ -6,8 +6,9 @@ isochrone potential, used as the toy mapping.
 
 *                                                                              *
 * C++ code written by Walter Dehnen, 1994-96,                                  *
-*                     Paul McMillan, 2007-                                     *
-* e-mail:  paul@astro.lu.se                                                    *
+*                     Paul McMillan, 2007-
+*                     James Binney 2017 -
+* e-mail:  binney@physics.ox.ac.uk
 * github:  https://github.com/PaulMcMillan-Astro/Torus                         *
 *                                                                              *
 ********************************************************************************
@@ -18,13 +19,14 @@ isochrone potential, used as the toy mapping.
 *                                                                              *
 *                                    -   GM                        Lz^2        *
 *                  Phi(r,th) = -------------------------- + ------------------ *
-*                              b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)sin(th))^2 *
+*                              b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)cos(th))^2 *
 *                                                                              *
 *                  The paramters are GM, b, Lz and r0. However, GM and b are   *
 *                  not allowed to become negative, which may cause problems    *
 *                  for fitting algorithms. Therefore, class ToyIsochrone uses  *
 *                  the parameters gamma^2 = GM, and beta^2 = b, such that beta *
-*                  and gamma can be `any' real number, except for zero.        *
+*                  and gamma can be `any' real number, except for zero.
+*                  Not that th=0 in the equatorial plane not at the pole*
 *                                                                              *
 * class IsoPar     is a VecPar with 4 elements for holding the parameters      *
 *                  of a ToyIsochrone.                                          *
@@ -51,7 +53,7 @@ typedef Vector<double,4> IsoPar; // Vector.h
                                                                               
                        -   GM                        Lz^2        
      Phi(r,th) = -------------------------- + ------------------ 
-                 b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)sin(th))^2 
+                 b + Sqrt[ b^2 + (r-r0)^2 ]   2((r-r0)cos(th))^2 
                                                                               
     The parameters are GM, b, Lz and r0. However, GM and b are not
     allowed to become negative, which may cause problems for fitting
@@ -65,7 +67,7 @@ private:
     double gamma,beta,Lz,r0;	// parameters
     double M,b;			// mass & scale length
     double sMb,sMob,jp;		// scaling and J_phi
-    mutable double a,e,ae,eps,u,H,chi,psi,cpsi,spsi,sGam, jr,jt,tr,tt, 
+    mutable double a,e,ae,eps,u,ufn,H,chi,psi,cpsi,spsi,sGam, jr,jt,tr,tt, 
       r,th,pr,pt,wr,wt,wt0r,at,wh,sq, HH,H2;
     mutable bool derivs_ok;
     void   Set();
@@ -75,11 +77,13 @@ private:
     double wfun(const double&) const;
     double wfundw(const double&, double&) const;
     double Fint(double,double,double,double) const;
+    double GM(double,double,double);
 public:
     void dump() const;
     ToyIsochrone();
     ToyIsochrone(const IsoPar& );
     ToyIsochrone(const ToyIsochrone& );
+    ToyIsochrone(double,double,double,double,double);
    ~ToyIsochrone() {}
     void    set_parameters    (const IsoPar&);
     vec4  parameters        ()                           const;
@@ -89,9 +93,11 @@ public:
     int     NumberofParameters()                           const { return 4; }
     void    Derivatives       (double[4][2])               const;
     void    Derivatives       (double[4][2], double*[4])   const;
+    void    Derivatives3D     (double[3][3])               const;
     PSPD    ForwardWithDerivs (const PSPD&, double[2][2])  const;
     PSPD    ForwardWithDerivs (const PSPD&, double[2][2],
 			       double[2][2])               const;
+    PSPT    Forward3DwithDerivs(const PSPT&,double[3][3]) const;
     PSPD    Forward           (const PSPD&)                const;
     PSPD    Backward          (const PSPD&)                const;
     PSPT    Forward3D         (const PSPT&)                const;

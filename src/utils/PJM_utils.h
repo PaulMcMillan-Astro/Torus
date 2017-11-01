@@ -27,7 +27,7 @@ using std::string;
 using std::ifstream;
 using std::ofstream;
 
-void my_open(ifstream& from, const char* name) {
+inline void my_open(ifstream& from, const char* name) {
   from.open(name);
   if(!from) {
     cerr << "FILE "<< name <<" doesn't exist\n";
@@ -35,7 +35,7 @@ void my_open(ifstream& from, const char* name) {
   }
 }
 
-void my_open(ofstream& to, const char* name) {
+inline void my_open(ofstream& to, const char* name) {
   to.open(name);
   if(!to) {
     cerr << "FILE "<< name <<" can't be created\n";
@@ -43,7 +43,7 @@ void my_open(ofstream& to, const char* name) {
   }
 }
 
-void my_open(ifstream& from, string name) {
+inline void my_open(ifstream& from, string name) {
   from.open(name.c_str());
   if(!from) {
     cerr << "FILE "<< name <<" doesn't exist\n";
@@ -51,7 +51,7 @@ void my_open(ifstream& from, string name) {
   }
 }
 
-void my_open(ofstream& to, string name) {
+inline void my_open(ofstream& to, string name) {
   to.open(name.c_str());
   if(!to) {
     cerr << "FILE "<< name <<" can't be created\n";
@@ -59,7 +59,7 @@ void my_open(ofstream& to, string name) {
   }
 }
 
-int how_many_lines(ifstream &from) {
+inline int how_many_lines(ifstream &from) {
   string line;
   int nlines=0;
   from.clear();
@@ -70,7 +70,7 @@ int how_many_lines(ifstream &from) {
   return nlines;
 }
 
-int entrys_in_line(ifstream &from) {
+inline int entrys_in_line(ifstream &from) {
   string line;
   int nentrys=0,ini = from.tellg();
   if(!getline(from,line)) return 0;
@@ -87,7 +87,7 @@ int entrys_in_line(ifstream &from) {
   return nentrys;
 }
 
-int entrys_in_line(string line) {
+inline int entrys_in_line(string line) {
   int nentrys=0;
   bool gap=false, wasgap=true;
   for(unsigned int i=0;i!=line.size();i++) {
@@ -100,7 +100,7 @@ int entrys_in_line(string line) {
   return nentrys;
 }
 
-string int_to_string(int number)
+inline string int_to_string(int number)
 {
   std::stringstream ss;//create a stringstream
    ss << number;//add number to the stream
@@ -114,7 +114,7 @@ namespace PJM {
   template <class T>
     T *matrix(int n){
     T *m1 = new T[n];
-    //for(int i=0;i<n;i++) m1[i]=0.;
+//    for(int i=0;i<n;i++) m1[i]=0.;
     return m1;
   }
 
@@ -209,12 +209,12 @@ namespace PJM {
 	  m2[i][j][k] = m1;
   }
 
-  void ERROR(string out) {
+inline void ERROR(string out) {
     std::cerr << out << '\n'; exit(1);
   }
 
 
-  double gaussian(double x, double x0, double sig) {
+inline double gaussian(double x, double x0, double sig) {
     double isig = 1./sig, tmp = (x-x0)*isig, tmp2 = -0.5*tmp*tmp;
     const double isrttpi = 0.39894228;
     return isrttpi*isig*exp(tmp2);

@@ -107,9 +107,11 @@ public:
     virtual vec4    upper_bounds     (const double,const double) const=0;
     virtual void    Derivatives      (double[4][2])              const=0;
     virtual void    Derivatives      (double[4][2], Pdble[4])    const=0;
+    virtual void    Derivatives3D     (double[3][3])             const=0;
     virtual PSPD    ForwardWithDerivs(const PSPD&, double[2][2]) const=0;
     virtual PSPD    ForwardWithDerivs(const PSPD&, double[2][2], 
 				      double[2][2])              const=0;
+    virtual PSPT    Forward3DwithDerivs(const PSPT&,double[3][3]) const=0;
     //
     // virtual PSPT    Forward3DWithDerivs(const PSPT&, double[2][2]) const=0;
     // virtual PSPT    Forward3DWithDerivs(const PSPT&, double[2][2],
@@ -125,6 +127,8 @@ class PoiTra : public PhaseSpaceMapWithBackward {
 public:
   virtual void    parameters       (double *)                  const=0;
   virtual void    Derivatives      (double[4][4])	       const=0; 
+  virtual PSPT    Forward3D         (const PSPT&)              const=0;
+  virtual PSPT    Backward3D        (const PSPT&)              const=0;
 };
 
 inline void AlignAngles(PSPD& JT)

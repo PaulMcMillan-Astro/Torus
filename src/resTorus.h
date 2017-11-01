@@ -1,3 +1,5 @@
+#ifndef _resTorus_
+#define _resTorus_
 /* Class that provides tori of 1:1 resonant orbits computed from
    * p-theory (Binney 2016).  The creator requires at least two untrapped
    * orbits of a common E, one either side of the region of traping. The other arguments
@@ -13,7 +15,9 @@
 #include <fstream>
 #include <math.h>
 #include "Torus.h"
-#include "Potential.h"
+#include "potential.h"
+#include "Numerics.templates"
+#include "jjb_utils.h"
 
 class resTorus{
 	private:
@@ -55,3 +59,4 @@ class resTorus{
 		void getJs(Actions&,Actions&);//returns extremes of unperturbed actions
 		Actions actions(const Angles&);// return unperturbed actions at given point
 };
+#endif

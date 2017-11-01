@@ -28,7 +28,7 @@ PoiNone::PoiNone(const PoiNone& P)
 
 ////////////////////////////////////////////////////////////////////////////////
 PSPD PoiNone::Forward(const PSPD& w) const
-{
+{//spherical to cylindrical coords
     derivs_ok=true; 
 // extract w=(q,p)
     r  = w(0);
@@ -57,7 +57,7 @@ PSPT PoiNone::Forward3D(const PSPT& w3) const
 }
 ////////////////////////////////////////////////////////////////////////////////
 PSPD PoiNone::Backward(const PSPD& W) const
-{
+{//cylindrical to spherical coords
     derivs_ok=true; 
 
     R  = W(0);

@@ -3,6 +3,7 @@
 *  CHB.cc                                                                      *
 *                                                                              *
 * C++ code written by Paul McMillan, 2008                                      *
+*	and James Binney 2016
 * Oxford University, Department of Physics, Theoretical Physics.               *
 * address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
 * e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
@@ -119,13 +120,45 @@ Cheby&  Cheby::operator= (const Cheby& Ch) {
     tabsize = Ch.tabsize;
     s = new double[tabsize];
     for(int i=0;i!=tabsize;i++)
-      s[i] = Ch.s[i];
+	    s[i] = Ch.s[i];
     e1 = new double[NChb];
     for(int i=0;i!=NChb;i++)
-      e1[i] = Ch.e1[i];
+	    e1[i] = Ch.e1[i];
   }
   return *this;
 }
+Cheby& Cheby::operator*= (const double& x){
+	for(int i=0;i<NChb;i++)	e1[i] *= x;
+	return *this;
+}
+const Cheby Cheby::operator* (const double& x){
+	Cheby Ch; Ch=*this;
+	Ch*=x;
+	return Ch;
+}
+Cheby& Cheby::operator+= (const Cheby& Ch){
+	if(NChb >= Ch.NChb)
+		for(int i=0;i<Ch.NChb;i++) e1[i]+=Ch.e1[i];
+	else {// we're adding in a higher poly
+		double *tmpe1 = new double[NChb];
+		for(int i=0;i<NChb;i++) tmpe1[i]=e1[i];
+		delete[] e1; e1 = new double[Ch.NChb];
+		for(int i=0;i<NChb;i++)	e1[i] = tmpe1[i]+Ch.e1[i];
+		for(int i=NChb;i<Ch.NChb;i++) e1[i]=Ch.e1[i];
+		NChb = Ch.NChb; delete[] tmpe1;
+		delete[] s;
+		tabsize = Ch.tabsize;
+		s = new double[tabsize];
+		for(int i=0;i<tabsize;i++)
+			s[i] = Ch.s[i];
+	}
+	return *this;
+}
+const Cheby Cheby::operator+ (const Cheby& Ch){
+	Cheby Ch2; Ch2=*this;
+	Ch2+=Ch;
+	return Ch2;
+}		
 
 ////////////////////////////////////////////////////////////////////////////////
 void Cheby::writecoeffs(std::ostream& out) const
@@ -257,18 +290,35 @@ void Cheby::chebyfit(double * x, double * y, const int np, const int NC)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// For Chebshev polynomial C(x) w. input x, these are: x, C(x), C'(x),
+// C''(x), C'''(x)
+void Cheby::unfitderiv(const double x,double &y, double &dy, double &d2y, double &d3y) const
+{
+	int nCm1=NChb-1, nCm2=nCm1-1, nCm3=nCm2-1;
+	y   = e1[nCm1];
+	dy  = e1[nCm1] * nCm1;
+	d2y = e1[nCm1] * nCm1 * nCm2;
+	d3y = e1[nCm1] * nCm1 * nCm2 * nCm3;
+	for(int i=nCm2;i>=0;i--) {
+		y = y*x + e1[i];
+		if(i>0) dy  = dy*x  + e1[i]*i;
+		if(i>1) d2y = d2y*x + e1[i]*i*(i-1);
+		if(i>2) d3y = d3y*x + e1[i]*i*(i-1)*(i-2);
+	}
+}
+////////////////////////////////////////////////////////////////////////////////
 // For Chebshev polynomial C(x) w. input x, these are: x, C(x), C'(x), C''(x)
 void Cheby::unfitderiv(const double x,double &y, double &dy, double &d2y) const
 {
-  int nCm1=NChb-1, nCm2= nCm1-1;
-  y   = e1[nCm1];
-  dy  = e1[nCm1] * nCm1;
-  d2y = e1[nCm1] * nCm1 * nCm2;
-  for(int i=nCm2;i>=0;i--) {
-    y = y*x + e1[i];
-    if(i>0) dy  = dy*x  + e1[i]*i;
-    if(i>1) d2y = d2y*x + e1[i]*i*(i-1);
-  }
+	int nCm1=NChb-1, nCm2= nCm1-1;
+	y   = e1[nCm1];
+	dy  = e1[nCm1] * nCm1;
+	d2y = e1[nCm1] * nCm1 * nCm2;
+	for(int i=nCm2;i>=0;i--) {
+		y = y*x + e1[i];
+		if(i>0) dy  = dy*x  + e1[i]*i;
+		if(i>1) d2y = d2y*x + e1[i]*i*(i-1);
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////
 // For Chebshev polynomial C(x) w. input x, these are: x, C(x), C'(x)

@@ -953,14 +953,14 @@ GenPar& GenPar::operator=(const double x)
 ////////////////////////////////////////////////////////////////////////////////
 GenPar& GenPar::operator*=(const double x)
 {
-    for(register short i=0; i<ntot; i++) S[i] *= x;
-    return *this;
+	for(register short i=0; i<ntot; i++) S[i] *= x;
+	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////
 GenPar& GenPar::operator/=(const double x)
 {
     if(x==0.) TorusError("GenPar: division by zero",-errGen_);
-    for(register short i=0; i<ntot; i++) S[i] *= x;
+    for(register short i=0; i<ntot; i++) S[i] /= x;
     return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -1108,10 +1108,14 @@ AngPar AngPar::operator+(const AngPar& GP) const
 {
   AngPar F(*this); return F+=GP;
 }
+AngPar& AngPar::operator*=(const double x)
+{
+	dS1*=x; dS2*=x; dS3*=x; return *this;
+}
 ////////////////////////////////////////////////////////////////////////////////
 AngPar AngPar::operator*(const double& d) const
 {
-  AngPar F(*this); return F*=d;
+	AngPar F(*this); return F*=d;
 }
 ////////////////////////////////////////////////////////////////////////////////
 AngPar AngPar::operator/(const double& d) const
@@ -1169,7 +1173,7 @@ PSPT GenFnc::Forward3DWithDerivs(const PSPT& Jt3, double djdt[2][2]) const
 
 ////////////////////////////////////////////////////////////////////////////////
 PSPD GenFnc::ForwardWithDerivs(const PSPD& Jt, double djdt[2][2]) const
-{
+{//compute toy actions
     register PSPD   jt=Jt;
     register short  i;
     register double thn, sncos, snsin;
@@ -1177,7 +1181,7 @@ PSPD GenFnc::ForwardWithDerivs(const PSPD& Jt, double djdt[2][2]) const
     djdt[1][0]=0;
     djdt[1][1]=0;
     for(i=0; i<Sn.NumberofTerms(); i++) if(Sn(i)!=0.) {
-	thn    = jt(2)*Sn.n1(i) + jt(3)*Sn.n2(i);
+	    thn    = jt(2)*Sn.n1(i) + jt(3)*Sn.n2(i);
 	sncos  = Sn(i) * cos(thn); 
 	snsin  = Sn(i) * sin(thn); 
 	sncos += sncos;   // sncos = 2 * Sn * cos(n1*th1 + n2*th2)
@@ -1191,7 +1195,6 @@ PSPD GenFnc::ForwardWithDerivs(const PSPD& Jt, double djdt[2][2]) const
     djdt[0][1] = djdt[1][0];
     return jt;
 }
-
 //##############################################################################
 // class GenFncFit
 
@@ -1483,27 +1486,46 @@ PSPT AngMap::Backward3D (const PSPT& Jt) const
 ////////////////////////////////////////////////////////////////////////////////
 PSPT AngMap::Backward3DWithDerivs(const PSPT& Jt, double dTdt[2][2]) const
 {
-    register short    i;
-    register PSPT   JT=Jt;
-    register double temp, costh, sinth;
-    dTdt[0][0] = dTdt[1][1] = 1.;
-    dTdt[0][1] = dTdt[1][0] = 0.;
-    for(i=0; i<A.NumberofTerms(); i++) {
-	temp   = A.dS1.n1(i)*Jt(3) + A.dS1.n2(i)*Jt(4);
-        sinth  = sin(temp); sinth += sinth;    // 2 * sin(n1*th1+n2*th2)
-        costh  = cos(temp); costh += costh;    // 2 * cos(n1*th1+n2*th2)
-	JT[3] += A.dS1(i) * sinth;
-	JT[4] += A.dS2(i) * sinth;
-	JT[5] += A.dS3(i) * sinth;
-	dTdt[0][0] += (temp = A.dS1(i)*costh) * A.dS1.n1(i);
-	dTdt[0][1] +=  temp                   * A.dS1.n2(i);
-	dTdt[1][0] += (temp = A.dS2(i)*costh) * A.dS2.n1(i);
-	dTdt[1][1] +=  temp                   * A.dS2.n2(i);
-    }
-    return JT;
+	register short    i;
+	register PSPT   JT=Jt;
+	register double temp, costh, sinth;
+	dTdt[0][0] = dTdt[1][1] = 1.;
+	dTdt[0][1] = dTdt[1][0] = 0.;
+	for(i=0; i<A.NumberofTerms(); i++) {
+		temp   = A.dS1.n1(i)*Jt(3) + A.dS1.n2(i)*Jt(4);
+		sinth  = sin(temp); sinth += sinth;    // 2 * sin(n1*th1+n2*th2)
+		costh  = cos(temp); costh += costh;    // 2 * cos(n1*th1+n2*th2)
+		JT[3] += A.dS1(i) * sinth;
+		JT[4] += A.dS2(i) * sinth;
+		JT[5] += A.dS3(i) * sinth;
+		dTdt[0][0] += (temp = A.dS1(i)*costh) * A.dS1.n1(i);
+		dTdt[0][1] +=  temp                   * A.dS1.n2(i);
+		dTdt[1][0] += (temp = A.dS2(i)*costh) * A.dS2.n1(i);
+		dTdt[1][1] +=  temp                   * A.dS2.n2(i);
+	}
+	return JT;
 }
 
-
+void AngMap::getMatrix(const PSPT& Jt, double M[3][3]) const{
+	//M_ij=d^2S/d\thetaT_i dJ_j=(dtheta_j/d\thetaT_i)_J=(dJT_i/dJ_j)_thetaT
+	register double temp, costh, sinth;
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			M[i][j]=0;
+		}
+		M[i][i]=1;
+	}
+	for(int k=0; k<A.NumberofTerms(); k++) {
+		temp   = A.dS1.n1(k)*Jt(3) + A.dS1.n2(k)*Jt(4);
+		costh  = 2*cos(temp);
+		M[0][0] += (temp = A.dS1(k)*costh) * A.dS1.n1(k);
+		M[1][0] +=  temp                   * A.dS1.n2(k);
+		M[0][1] += (temp = A.dS2(k)*costh) * A.dS2.n1(k);
+		M[1][1] +=  temp                   * A.dS2.n2(k);
+		M[0][2] += (temp = A.dS3(k)*costh) * A.dS3.n1(k);
+		M[1][2] +=  temp                   * A.dS3.n2(k);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 PSPT AngMap::Forward3D (const PSPT& JT3) const

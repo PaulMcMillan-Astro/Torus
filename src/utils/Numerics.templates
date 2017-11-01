@@ -176,7 +176,6 @@ template<class S>  S    sign(const S x, const S s)
 template <class S>
 S rtsafe(void(*funcd)(S,S&,S&), const S x1, const S x2, const S xacc)
 {
-    int j;
     const int maxit=100;
     S   xh,xl,dx,dxo,f,df,fh,fl,rts,swap,temp;
 
@@ -198,7 +197,7 @@ S rtsafe(void(*funcd)(S,S&,S&), const S x1, const S x2, const S xacc)
     dxo = WDabs(x2-x1);
     dx  = dxo;
     (*funcd)(rts,f,df);
-    for (j=1;j<=maxit;j++)
+    for (int j=0;j<maxit;j++)
     {
 	if((((rts-xh)*df-f)*((rts-xl)*df-f)>= 0.) || (WDabs(2.*f)>WDabs(dxo*df))) {
 	    dxo = dx;
@@ -222,7 +221,9 @@ S rtsafe(void(*funcd)(S,S&,S&), const S x1, const S x2, const S xacc)
 	    fh  = f;
 	}
     }
-    Numerics_error("maximum number of iterations exceeded in rtsafe");
+    char msg[200];
+    sprintf(msg,"maximum number of iterations exceeded in rtsafe:\n%g %g %g %g\n",xl,xh,fl,fh);
+    Numerics_error(msg);
     return rts;
 }
 
@@ -230,10 +231,8 @@ S rtsafe(void(*funcd)(S,S&,S&), const S x1, const S x2, const S xacc)
 template <class C, class S>
 S rtsafe(const C* const o, void(C::*funcd)(S,S&,S&) const, const S x1, const S x2, const S xacc)
 {
-    int j;
     const int maxit=100;
     S   xh,xl,dx,dxo,f,df,fh,fl,rts,swap,temp;
-
     (o->*funcd)(x1,fl,df);
     (o->*funcd)(x2,fh,df);
     if(fl*fh >= 0.)  Numerics_error("root must be bracketed in rtsafe");
@@ -252,7 +251,7 @@ S rtsafe(const C* const o, void(C::*funcd)(S,S&,S&) const, const S x1, const S x
     dxo = WDabs(x2-x1);
     dx  = dxo;
     (o->*funcd)(rts,f,df);
-    for (j=1;j<=maxit;j++)
+    for (int j=0;j<maxit;j++)
     {
 	if((((rts-xh)*df-f)*((rts-xl)*df-f)>= 0.) || (WDabs(2.*f)>WDabs(dxo*df))) {
 	    dxo = dx;
@@ -276,7 +275,9 @@ S rtsafe(const C* const o, void(C::*funcd)(S,S&,S&) const, const S x1, const S x
 	    fh  = f;
 	}
     }
-    Numerics_error("maximum number of iterations exceeded in rtsafe");
+    char msg[200];
+    sprintf(msg,"maximum number of iterations exceeded in rtsafe:\n%g %g %g %g\n",xl,xh,fl,fh);
+    Numerics_error(msg);
     return rts;
 }
 
@@ -2129,6 +2130,28 @@ template<class X, class Y>  // X == scalar, Y == vector like
 inline Y rk4(const Y y, const X x, const X h,Y(*derivs)(const X, const Y))
 {
   return rk4(y,derivs(x,y),x,h,derivs);
+}
+
+////////////////////////////////////////////////////
+
+template<class C, class X, class Y>  // X == scalar, Y == vector like
+inline Y RK4(C *const o,const Y y, const Y dy0, const X x, const X h,
+	     Y(C::*derivs)(const X, const Y))
+{
+  const    X   hh=0.5*h, h6=h/6., xh=x+hh;
+  register Y   yt,dym,dyt;
+  dyt = (o->*derivs)(xh,y+hh*dy0);
+  dym = (o->*derivs)(xh,y+hh*dyt);
+  yt  = y+h*dym;
+  dym+= dyt;
+  dyt = (o->*derivs)(x+h,yt);
+  return y+h6*(dy0+dyt+dym+dym);
+}
+
+template<class C, class X, class Y>  // X == scalar, Y == vector like
+inline Y RK4(const C *o, const Y y, const X x, const X h,Y(C::*derivs)(const X, const Y))
+{
+  return rk4(o,y,(o->*derivs)(x,y),x,h,derivs);
 }
 
 

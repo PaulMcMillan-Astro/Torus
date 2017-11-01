@@ -84,8 +84,8 @@ public:
    GenPar& operator=    (const double);
    GenPar& operator*=   (const double);
    GenPar& operator/=   (const double);
-   GenPar  operator-    () const;
 
+   GenPar  operator-    () const;
    GenPar  operator+    (const GenPar&) const;
    GenPar  operator-    (const GenPar&) const;
    GenPar  operator*    (const double&) const;
@@ -123,8 +123,8 @@ inline istream& operator>> (istream& from, GenPar& G)
 	{ G.read(from); return from; }
 inline ostream& operator<< (ostream& to, GenPar& G)
 	{ G.write(to); return to; }
-inline GenPar operator* (const double x, const GenPar& GP) 
-{ return GP*x; }
+	inline GenPar operator* (const double x, const GenPar& GP) 
+			{ return GP*x; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -153,21 +153,20 @@ public:
     void    dSdJ2(const int i, const double val)  { dS2[i] = val; }
     void    dSdJ3(const int i, const double val)  { dS3[i] = val; }
 
-
-   AngPar  operator-    () const;
-   AngPar  operator+    (const AngPar&) const;
-   AngPar  operator-    (const AngPar&) const;
-   AngPar  operator*    (const double&) const;
-   AngPar  operator/    (const double&) const;
-   
-
-    
     AngPar&  operator=    (const AngPar&);
     AngPar&  operator+=   (const AngPar&);
     AngPar&  operator-=   (const AngPar&);
     AngPar&  operator=    (const double);
     AngPar&  operator*=   (const double);
     AngPar&  operator/=   (const double);
+
+
+    AngPar  operator-    () const;
+    AngPar  operator+    (const AngPar&) const;
+    AngPar  operator-    (const AngPar&) const;
+    AngPar  operator*    (const double&) const;
+    AngPar  operator/    (const double&) const;
+   
 
     int         operator==   (const AngPar&) const;
     int         operator!=   (const AngPar&) const;
@@ -197,10 +196,12 @@ inline AngPar& AngPar::operator-=(const AngPar& a)
 	{ dS1-=a.dS1; dS2-=a.dS2; dS3-=a.dS3; return *this; }
 inline AngPar& AngPar::operator=(const double x)
 	{ dS1=x; dS2=x; dS3=x; return *this; }
-inline AngPar& AngPar::operator*=(const double x)
-	{ dS1*=x; dS2*=x; dS3*=x; return *this; }
+//inline AngPar& AngPar::operator*=(const double x)
+//	{ dS1*=x; dS2*=x; dS3*=x; return *this; }
 inline AngPar& AngPar::operator/=(const double x)
 	{ dS1/=x; dS2/=x; dS3/=x; return *this; }
+inline AngPar operator* (const double x, const AngPar& AP) 
+			{ return AP*x; }
 inline int AngPar::operator== (const AngPar& a) const
 	{ return (dS1==a.dS1 && dS2==a.dS2 && dS3==a.dS3 ); }
 inline int AngPar::operator!= (const AngPar& a) const
@@ -241,6 +242,7 @@ public:
     PSPT    Forward3DWithDerivs (const PSPT&, double[2][2]) const; 
     PSPD    Forward           (const PSPD&)		  const;
     PSPT    Forward3D         (const PSPT&)		  const;
+    void    getMatrix         (double[2][2])              const;
 };
 
 inline GenPar  GenFnc::parameters() const
@@ -328,6 +330,7 @@ public:
     PSPT    Forward3D         (const PSPT&) const;
     PSPT    Backward3D        (const PSPT&) const;
     PSPT    Backward3DWithDerivs(const PSPT&, double[2][2]) const;
+    void    getMatrix         (const PSPT&,double[3][3])         const;
 };
 inline         AngMap::AngMap (const AngPar& a) : A(a) {}
 inline         AngMap::AngMap (const AngMap& am) : PhaseSpaceMapWithBackward(),

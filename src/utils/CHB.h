@@ -6,6 +6,7 @@ Outputs value and derivatives at given points.
 
 *                                                                              *
 * C++ code written by Paul McMillan, 2008                                      *
+*	and James Binney 2016
 * Oxford University, Department of Physics, Theoretical Physics.               *
 * address: 1 Keble Road, Oxford OX1 3NP, United Kingdom                        *
 * e-mail:  p.mcmillan1@physics.ox.ac.uk                                        *
@@ -39,7 +40,11 @@ class Cheby {
   Cheby                 ();             
   Cheby                 (const Cheby&); // copy other one
   ~Cheby                ();
-  Cheby&    operator=   (const Cheby&); // copy other one 
+  Cheby&    operator=   (const Cheby&); // copy other one
+  const Cheby operator+ (const Cheby&); // add other one
+  Cheby& operator+=     (const Cheby&); // add other one 
+  const Cheby operator* (const double&); // scale other one
+  Cheby& operator*=     (const double&); // scale other one 
   Cheby                 (const int);    // just set up table of coefficients
   Cheby                 (double *, const int); // Already fit
   Cheby                 (double *, double *,const int,const int); // y,x,np,NC
@@ -61,6 +66,9 @@ class Cheby {
   // fit Chebyshev polynomial with NC coefficients to y(x), defined at np points
   // if NC undefined on input (i.e.=0), then NChb unchanged.
 
+  void      unfitderiv  (const double, double&, double&, double&, double&) const;
+  // For Chebshev polynomial C(x) w. input x, these are: x, C(x),
+  // C'(x), C''(x), C'''(x)
   void      unfitderiv  (const double, double&, double&, double&) const;
   // For Chebshev polynomial C(x) w. input x, these are: x, C(x), C'(x), C''(x)
   void      unfitderiv  (const double, double&, double&)          const;

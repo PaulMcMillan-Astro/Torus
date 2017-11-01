@@ -25,6 +25,10 @@
 // here only the non-inline non-template functions are listed: /////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+double *dmatrix(int);
+double **dmatrix(int,int);
+void delmatrix(double**,int);
+
 int GaussJordan(double**,const int,double**,const int);
 int GaussJordan(float**, const int,float**, const int);
 int GaussJordan(double**,const int,double*);
@@ -48,6 +52,7 @@ inline void CholeskyInvert(double** a, const int n)
 	{ CholeskyInvertL(a,n); CholeskyInvertF(a,n); }
 
 int  LUDecomposition(float**, const int, int*, int&);
+double LUDet3(Matrix<double,3,3>&);
 void LUSolution(const float**, const int, const int*, float*);
 void LUInvert(const float**, float**, const int, const int*);
 

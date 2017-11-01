@@ -88,3 +88,4 @@ assuming a simple model for stream formation.
 
 The shell script Simple_Survey.csh runs a simple example set of programmes.
 
+The additional machinery described in Binney (2017) requires special compilation. See readme.txt in the src/ directory for details. 

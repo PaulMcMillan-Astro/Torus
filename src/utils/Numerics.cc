@@ -13,8 +13,27 @@
 #include <algorithm>
 #include "Numerics.h"
 #include "FreeMemory.h"
+#include "matrix.h"
 
-
+/*
+double *dmatrix(int n){
+	double *m1 = new double[n];
+	for(int i=0;i<n;i++) m1[i]=0;
+	return m1;
+}
+double **dmatrix(int n,int m){
+	double **m1 = new double*[n];
+	for(int i=0; i<n; i++) m1[i] = dmatrix(m);
+	return m1;
+}
+void delmatrix(double **m1,int n){
+	for(int i=0;i<n;i++) delete[] m1[i];
+	delete [] m1;
+}
+*/
+double *dmatrix(int);
+double **dmatrix(int,int);
+void delmatrix(double**,int);
 
 ////////////////////////////////////////////////////////////////////////////////
 typedef int*     Pint;
@@ -1074,7 +1093,16 @@ int LUDecomposition(PPdbl a, const int n, Pint indx, int& d)
     delete[] vv;
     return 0;
 }
-
+double LUDet3(Matrix<double,3,3> &A){//det of 3x3 matrix
+	int n=3,d,indx[n];
+	double **AA; AA=dmatrix(n,n);
+	for(int i=0;i<n;i++)
+		for(int j=0;j<n;j++) AA[i][j]=A[i][j];
+	LUDecomposition(AA,n,indx,d);
+	double D=d;
+	for(int i=0;i<n;i++) D*=AA[i][i];
+	delmatrix(AA,n); return D;
+}
 ////////////////////////////////////////////////////////////////////////////////
 void LUSolution(double **a, const int n, const int *indx, Pdbl b)
 {

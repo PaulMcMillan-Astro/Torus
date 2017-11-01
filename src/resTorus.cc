@@ -1,29 +1,9 @@
-/* Functionality for 1:1 resonantly trapped tori per Binney (2016)
+/* Functionality for 1:1 resonantly trapped tori pewr Binney (2016)
  * Coded by James Binney March 2016 */
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <math.h>
-#include "Torus.h"
-#include "Potential.h"
-#include "Numerics.templates"
-
-#define MIN(A,B) ((A)<(B)?(A):(B))
-#define MAX(A,B) ((A)>(B)?(A):(B))
-#define SGN(A)  ((A)>0? 1:-1)
+#include "resTorus.h"
 
 static double PI=acos(-1),PIH=PI/2,TPI=2*PI;
 
-static void quadratic(double a,double b,double c,double *roots){
-	//smallest 1st, diff of roots in roots[2]
-	double discr=b*b-4*a*c;
-	//if(discr<0) printf("discr<0 in quadratic: %g %g %g %g\n",a,b,c,discr);
-	discr=sqrt(MAX(0,discr));
-	double q=-.5*(b+SGN(b)*discr),r1=q/a,r2=c/q;
-	if(fabs(a)<1e-30) r1=1e30;//effectively a linear equation
-	if(fabs(q)<1e-30) r2=-r1;//effectively a perfect square=0
-	roots[0]=MIN(r1,r2); roots[1]=MAX(r1,r2); roots[2]=roots[1]-roots[0];
-}
 static double piIt(double diff){//deal with TPI ambiguities
 	if(fabs(diff-TPI)<fabs(diff)) return diff-TPI;
 	else if(fabs(diff+TPI)<fabs(diff)) return diff+TPI;
@@ -37,16 +17,6 @@ static double swap_theta12(double t,Angles &theta1){//get onto best theta on unp
 		theta1=theta2; return diff2;
 	} else return diff1;
 }
-inline double lntp(double *x,double *y,int nin,double xp){
-	int bot=0,top=nin-1;
-	while(fabs(top-bot)>1){
-		int n=(top+bot)/2;
-		if((x[top]-xp)*(xp-x[n])>=0) bot=n;
-		else top=n;
-	}
-	double f=(x[top]-xp)/(x[top]-x[bot]);
-	return f*y[bot]+(1-f)*y[top];
-}	
 resTorus::resTorus(Torus *Tg,double *Jg,int no,Actions Jbin,double om,double *hr){
 // Framework common to all 1:1 resonant torus of given E. Still have to specify I
 	Tgrid=Tg; // pointer to 1d array of tori: usually one each side of trapping zone
@@ -54,7 +24,7 @@ resTorus::resTorus(Torus *Tg,double *Jg,int no,Actions Jbin,double om,double *hr
 	norb=no;  // number of tori in array
 	Jb=Jbin;  // actions of the perfectly resonant torus
 	omp=om;   // dOmega_N/dJ
-	hres=hr;  // h_(2,-2) anhd its 1st 2 derivatives
+	hres=hr;  // h_(2,-2) and h_(4,-4) and their 1st 2 derivatives
 	if(hres[0]>0){
 		O=true; t1c=0;
 	} else{
@@ -88,7 +58,7 @@ void resTorus::getImin_max(){
 	double I1= 2*(hres[0]+hres[3])-pow(hres[1]+hres[4],2)/(.5*omp+hres[2]+hres[5]);
 	Imax=.9999*MAX(I0,I1); Imin=MIN(I0,I1);
 	if(Imin<0) Imin*=.9999; else Imin*=1.0001;
-//	printf("Imin_max: %f %f\n",Imin,Imax);
+//	printf("Imin Imax: %f %f\n",Imin,Imax);
 }
 void resTorus::getDelta(double t1p,double *Delta){//returns J1p-Jb[0]
 	double cos2t1p=cos(2*t1p),cos4t1p=cos(4*t1p);
@@ -156,7 +126,7 @@ double resTorus::librationAction(){//returns libration J
 		J1p+=.5*(A+B)*dt;
 		A=B;
 	}
-	J1p*=1/PI; return J1p;
+	J1p/=PI; return J1p;
 }
 double resTorus::theta_dot(double t1p,double D){//with D given
 	return omp*D+2*(hres[1]+hres[2]*D)*cos(2*t1p)+2*(hres[4]+hres[5]*D)*cos(4*t1p);
@@ -180,48 +150,6 @@ double resTorus::rk_step(double &t1p,double h,double &dtheta,int i){
 	getDelta(t1p,Delta);
 	return Delta[i];
 }	
-/*void resTorus::store_theta(){//Store what's needed by FullMap
-	double s,Delta[3],t1p=t1c+.5*Dt1,dtheta;
-	getDelta(t1p,Delta);
-	double tdot=theta_dot(t1p,Delta[0]);
-	double h=PI/fabs(tdot*nangle);//suitable step length
-	t1p=t1c+Dt1; s=0; getDelta(t1p,Delta);
-	double t1s[10*nangle],trs[10*nangle],Dels[10*nangle];
-	int j=5*nangle;
-	t1s[j]=t1p; trs[j]=s; Dels[j]=Delta[0]; j--;
-	while(t1p>t1c){
-		Dels[j]=rk_step(t1p,-h,dtheta,0); s-=h;
-		t1s[j]=t1p; trs[j]=s; j--;
-		if(j<0){ printf("1 store_theta: nangle too small\n");
-		printf("%g %g %g %g %g\n", t1p-t1c,Dt1,Dels[0],s,dtheta);
-		exit(0);}
-	}
-	double t0=trs[j+2]+(t1c-t1s[j+2])/(t1s[j+1]-t1s[j+2])*(trs[j+1]-trs[j+2]);
-	int j1=j+1;
-	t1p=t1c+.5*Dt1;
-	getDelta(t1p,Delta);
-	tdot=theta_dot(t1p,Delta[1]);
-	h=PI/fabs(tdot*nangle);//suitable step length
-	t1p=t1c+Dt1; s=0;
-	j=5*nangle+1;
-	while(t1p>t1c){
-		Dels[j]=rk_step(t1p,h,dtheta,1); s+=h;
-		t1s[j]=t1p; trs[j]=s; j++;
-		if(j==10*nangle){ printf("2 store_theta: nangle too small\n");
-		printf("%g %g %g %g %g\n", t1p-t1c,Dt1,Dels[j-1],s,dtheta);
-		exit(0);}
-	}
-	double t1=trs[j-2]+(t1c-t1s[j-2])/(t1s[j-1]-t1s[j-2])*(trs[j-1]-trs[j-2]);
-	int J=j-j1;
-	for(int i=0;i<nangle;i++){
-		double t=t0+(t1-t0)*i/(double)(nangle-1);
-		t1grd[i]=lntp(trs+j1,t1s+j1,J,t);
-		trgrd[i]=lntp(trs+j1,trs+j1,J,t)-t0;
-		Dgrd[i]=lntp(trs+j1,Dels+j1,J,t);
-	}
-	lOmega=PI/(t1-t0);
-	for(int i=0;i<nangle;i++) trgrd[i]*=lOmega;
-}*/
 void resTorus::store_theta(){//Store what's needed by FullMap
 	double D,Delta[3],t1p; 
 	double s=0,x=0,dx=PI/(double)(nangle-1);
@@ -243,7 +171,7 @@ void resTorus::store_theta(){//Store what's needed by FullMap
 	}
 	lOmega=PI/trgrd[nangle-1];
 	for(int i=0;i<nangle;i++) trgrd[i]*=lOmega;
-	lOmega/=dx;
+	lOmega/=(Dt1*dx);
 }
 double resTorus::librationAngle(double t1p,double Delta){//returns libration theta
 	double psi,td=theta_dot(t1p,Delta);
@@ -318,7 +246,7 @@ void resTorus::SOSr(ostream& sfile,int np){//work round with true angle
 	}
 }
 bool resTorus::search_eval(Position &Rzphi,double tp,int iD,double &diff1, double &diff2,
-			  Angles &theta1,Angles &theta2){
+			   Angles &theta1,Angles &theta2){
 	/* Computes differences diff1 and diff2 between tp and t_r-t_z when
 	 * unperturbed torus specified by tp passes through Rzphi. There are 4
 	 * possible values of tr-tz but TORUS::containsPoint returns only 2.

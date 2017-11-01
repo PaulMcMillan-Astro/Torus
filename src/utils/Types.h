@@ -29,6 +29,12 @@ typedef Vector<double,2> vec2;
 typedef Vector<double,3> vec3;
 typedef Vector<double,4> vec4;
 typedef Vector<double,6> vec6;
+typedef Vector<double,8> vec8;
+typedef Vector<double,10> vec10;
+
+typedef Vector<int,3> int3;
+typedef Vector<int,8> int8;
+typedef Vector<int,10> int10;
 
 /** \brief Phase Space Point Doublet -- phase space point in 2D space
 
