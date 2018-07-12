@@ -15,7 +15,7 @@
 #include <fstream>
 #include <math.h>
 #include "Torus.h"
-#include "potential.h"
+#include "Potential.h"
 #include "Numerics.templates"
 #include "jjb_utils.h"
 

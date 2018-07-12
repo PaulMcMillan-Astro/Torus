@@ -86,5 +86,5 @@ double get_closed(double x0,double E1,double &Jz,double &Om){
 	}
 	double R0=zbrent(&E1,&goround,x0,x1,dx0,dx1,1.e-6,25);
 	goround(&E1,R0,Jz,Om);
-	return R0;	
+	return R0;
 }

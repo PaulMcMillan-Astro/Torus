@@ -1,6 +1,6 @@
 #ifndef _jjb_utils_
 #define _jjb_utils_
-#include "Torus.h"
+#include "../Torus.h"
 #define MIN(A,B) ((A)<(B)?(A):(B))
 #define MAX(A,B) ((A)>(B)?(A):(B))
 #define SGN(A)  ((A)>0? 1:-1)

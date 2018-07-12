@@ -95,17 +95,27 @@ int main(int argc,char *argv[])
   rank = new double[NT];
 
   for(int i=0;i!=NT;i++) {
-    if(ebf::ContainsKey(Tlist,"/"+tori[i]+"/Rmin") && // assume if one -> all
-       ebf::ContainsKey(Tlist,"/"+tori[i]+"/auxil/nMCMC")) {
-      double TRmin, TRmax, Tzmax;
-      int nMCMC;
-      ebf::Read(Tlist,"/"+tori[i]+"/Rmin",&TRmin,1);
-      ebf::Read(Tlist,"/"+tori[i]+"/Rmax",&TRmax,1);
-      ebf::Read(Tlist,"/"+tori[i]+"/zmax",&Tzmax,1);
-      ebf::Read(Tlist,"/"+tori[i]+"/auxil/nMCMC",&nMCMC,1);
-      if(!(TRmax<Rmin || TRmin>Rmax || Tzmax<zmin || -Tzmax>zmax))
-	running_tot += nMCMC; 
-      rank[i] = running_tot;
+    if(ebf::ContainsKey(Tlist,"/"+tori[i]+"/Rmin")) {// assume if one -> all
+
+      if( ebf::ContainsKey(Tlist,"/"+tori[i]+"/auxil/nMCMC")) {
+	double TRmin, TRmax, Tzmax;
+	int nMCMC;
+	ebf::Read(Tlist,"/"+tori[i]+"/Rmin",&TRmin,1);
+	ebf::Read(Tlist,"/"+tori[i]+"/Rmax",&TRmax,1);
+	ebf::Read(Tlist,"/"+tori[i]+"/zmax",&Tzmax,1);
+	ebf::Read(Tlist,"/"+tori[i]+"/auxil/nMCMC",&nMCMC,1);
+	if(!(TRmax<Rmin || TRmin>Rmax || Tzmax<zmin || -Tzmax>zmax))
+	  running_tot += nMCMC; 
+	rank[i] = running_tot;
+      } else {
+	double TRmin, TRmax, Tzmax;
+	ebf::Read(Tlist,"/"+tori[i]+"/Rmin",&TRmin,1);
+	ebf::Read(Tlist,"/"+tori[i]+"/Rmax",&TRmax,1);
+	ebf::Read(Tlist,"/"+tori[i]+"/zmax",&Tzmax,1);
+	if(!(TRmax<Rmin || TRmin>Rmax || Tzmax<zmin || -Tzmax>zmax))
+	  running_tot += 1; 
+	rank[i] = running_tot;
+      }
     } else {
       cerr << "Torus " + tori[i] + " doesn't have all the info I need\n";
       exit(0);
@@ -128,10 +138,10 @@ int main(int argc,char *argv[])
       for(int j=0;j!=6;j++) sGCY[j] = QP(j); // change to appropriate container
       OC.take_GCY(sGCY);                     // put into converter
       if(to_cout)
-	cout << OC.give_GCA_units() <<' '  // get Cartesian coords, kpc & km/s
+	cout << OC.give_GCA() <<' '  // get Cartesian coords, kpc & km/s
 	     <<T->actions()<< ' ' << A << '\n' << std::flush;
       else
-	to   << OC.give_GCA_units() <<' ' // get Cartesian coords, kpc & km/s
+	to   << OC.give_GCA() <<' ' // get Cartesian coords, kpc & km/s
 	     << T->actions()<< ' ' << A << '\n' << std::flush;
       i++;
     }

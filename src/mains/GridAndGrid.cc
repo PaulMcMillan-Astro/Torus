@@ -29,7 +29,7 @@ using std::cerr;
 
 
 
-
+//int GridAndGrid(Potential *Phi, double ***inact, double *****outact 
 
 int main(int argc,char *argv[])
 {

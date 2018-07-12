@@ -5,6 +5,8 @@
 * github: https://github.com/PaulMcMillan-Astro/Torus                          *
 */
 
+#include <cstdio>
+
 #include "Point_ClosedOrbitCheby.h"
 #include "PJMNum.h"
 #include "Orb.h"
@@ -12,7 +14,7 @@
 // Routine needed for external integration routines ----------------------------
 
 double PoiClosedOrbit::actint(double theta) const {
-  double psi = asin(theta/thmaxforactint); 
+  double psi = asin(theta/thmaxforactint);
   double tmp = vr2.unfit1(psi) * drdth2.unfit1(psi) + pth2.unfit1(psi*psi);
   return tmp;
 }
@@ -38,7 +40,7 @@ double PoiClosedOrbit::get_z(double th,double &dz,double &d2z) const{
 		d2z= 2*az;
 	}
 	d2z = th*(6.*dz + 4*th2*d2z); // because given is d(z/th)/dth2
-	dz  = zpp + 2.*th2*dz; 
+	dz  = zpp + 2.*th2*dz;
 	zpp  = zpp*th;
 	return zpp;
 }
@@ -47,7 +49,7 @@ double PoiClosedOrbit::get_z(double th,double &dz,double &d2z) const{
 //                      Tabulates coordinates in between.
 void PoiClosedOrbit::do_orbit(PSPD clo,   double delt, Potential* Phi,
 	      double* time, double* tbR,  double* tbz,  double* tbr,
-	      double* tbvr, double* tbpth,double* tbdrdth, int &np, int Nt) 
+	      double* tbvr, double* tbpth,double* tbdrdth, int &np, int Nt)
 {
   double dt, ot,t=0.;
   Record X(clo,Phi,1.e-12);
@@ -74,12 +76,12 @@ void PoiClosedOrbit::do_orbit(PSPD clo,   double delt, Potential* Phi,
 ////////////////////////////////////////////////////////////////////////////////
 // function: set_Rstart - iterates towards correct Rstart for given energy (E)
 void PoiClosedOrbit::set_Rstart(double& Rstart,double Rstop, double& odiff,double& dr,
-			  bool& done, bool& either_side, bool& first) 
+			  bool& done, bool& either_side, bool& first)
 {
   double diff, small =1.e-4;
   if(fabs(diff=Rstart-Rstop) < small*Rstart) done = true;
   else done = false;
-      
+
   if(either_side && !done) {
     if(diff*odiff>0.) dr *= 0.5;
     else              dr *=-0.5;
@@ -99,7 +101,7 @@ void PoiClosedOrbit::set_Rstart(double& Rstart,double Rstop, double& odiff,doubl
 }
 ////////////////////////////////////////////////////////////////////////////////
 // function: set_E - iterates towards correct energy (E) for given J_l
-void PoiClosedOrbit::set_E(const double tJl,double& odiffJ,double& E, 
+void PoiClosedOrbit::set_E(const double tJl,double& odiffJ,double& E,
 		     double& dE, bool& done,bool& es_Jl,bool& firstE)
 {
   double diffJ;
@@ -125,7 +127,7 @@ void PoiClosedOrbit::set_E(const double tJl,double& odiffJ,double& E,
 ////////////////////////////////////////////////////////////////////////////////
 // RewriteTables - organise so we have only the upwards movement, to thmax
 void PoiClosedOrbit::RewriteTables(const int n, double *time, double *tbR,double *tbz,
-			    double *tbr, double *tbvr, double *tbpth, 
+			    double *tbr, double *tbvr, double *tbpth,
 			    double *tbir, double *tbth, int &imax)
 {
   int klo,khi;
@@ -140,7 +142,7 @@ void PoiClosedOrbit::RewriteTables(const int n, double *time, double *tbR,double
 
   klo = (tbpth[imax] > 0.)? imax : imax-1;
   khi = klo + 1;
-  // Estimate maximum th, and r at that point, assuming ~const acceleration 
+  // Estimate maximum th, and r at that point, assuming ~const acceleration
   tmax=(time[klo]*tbpth[khi]-time[khi]*tbpth[klo])/(tbpth[khi]-tbpth[klo]);
   thmax=tbth[klo]+(tbpth[klo] + .5*(tbpth[khi]-tbpth[klo])*(tmax-time[klo])
 	/(time[khi]-time[klo]))*(tmax-time[klo])/pow(.5*(tbr[khi]+tbr[klo]),2);
@@ -174,23 +176,23 @@ vec2 PoiClosedOrbit::chebderivs(const double psi, const vec2 yz) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // stepper - take a Runge-Kutta step in y and z, return uncertainty
-double PoiClosedOrbit::stepper(vec2 &tyz,vec2 &dyzdt,const double psi,const double h) 
+double PoiClosedOrbit::stepper(vec2 &tyz,vec2 &dyzdt,const double psi,const double h)
 {
   double hh=h*0.5,  psihh=psi+hh;
   vec2 tmpyz, k2, tmpyz2, k2b, tmpyz3;
-  tmpyz = tyz + hh*dyzdt; 
+  tmpyz = tyz + hh*dyzdt;
   k2 = chebderivs(psihh, tmpyz);
   tmpyz = tyz + h*k2;
  // Try doing that twice:
-  tmpyz2 = tyz + 0.25*h*dyzdt; 
+  tmpyz2 = tyz + 0.25*h*dyzdt;
   k2b  = chebderivs(psi+0.25*h, tmpyz2);
   tmpyz2 = tyz+ 0.5*h*k2b;
   k2b = chebderivs(psi+0.5*h, tmpyz2);
   tmpyz3 = tmpyz2 + 0.25*h*k2b;
   k2b = chebderivs(psi+0.75*h, tmpyz3);
   tyz = tmpyz2+ 0.5*h*k2b;
-  
-  double err0 = fabs(tyz[0]-tmpyz[0])*0.15,    
+
+  double err0 = fabs(tyz[0]-tmpyz[0])*0.15,
     err1 = fabs(tyz[1]-tmpyz[1])*0.15; // error estimates (as O(h^3))
   tyz = tmpyz;
   return (err0>err1)? err0 : err1;
@@ -199,13 +201,13 @@ double PoiClosedOrbit::stepper(vec2 &tyz,vec2 &dyzdt,const double psi,const doub
 ////////////////////////////////////////////////////////////////////////////////
 // yzrkstep - take a RK step in y & z, step size determined by uncertainty.
 void PoiClosedOrbit::yzrkstep(vec2 &yz, vec2 &dyzdt, const double tol, double& psi,
-	       const double h0, double& hnext, const double hmin, 
+	       const double h0, double& hnext, const double hmin,
 	       const double hmax) {
   bool done=false;
   double err,fac =1.4, fac3=pow(fac,3), h=h0;
   vec2 tmpyz;
-  do {  
-    tmpyz = yz;    
+  do {
+    tmpyz = yz;
     err = stepper(tmpyz,dyzdt,psi,h);
     if(err*fac3<tol && h*fac<hmax) h*=fac;
     else done = true;
@@ -214,7 +216,7 @@ void PoiClosedOrbit::yzrkstep(vec2 &yz, vec2 &dyzdt, const double tol, double& p
   while(err>tol && h>hmin) {
     h /=fac;
     if(h<hmin) h=hmin;
-    tmpyz = yz;  
+    tmpyz = yz;
     err = stepper(tmpyz,dyzdt,psi,h);
   }
   psi += h;
@@ -223,7 +225,7 @@ void PoiClosedOrbit::yzrkstep(vec2 &yz, vec2 &dyzdt, const double tol, double& p
 }
 ////////////////////////////////////////////////////////////////////////////////
 // yfn - Interpolate to return y(th) or z(th) for given th=t
-double PoiClosedOrbit::yfn(double t, vec2 * ys,const int which,double * thet, int n) 
+double PoiClosedOrbit::yfn(double t, vec2 * ys,const int which,double * thet, int n)
 {
   int klo=0,khi=n-1,k;
   while(khi-klo > 1) {
@@ -234,7 +236,7 @@ double PoiClosedOrbit::yfn(double t, vec2 * ys,const int which,double * thet, in
   double h = thet[khi] - thet[klo];
   if(h==0.) cerr << "bad theta input to yfn: klo= "<<klo<<"  khi= "<< khi<<"\n";
   double a = (thet[khi] - t), b = (t - thet[klo]);
-  return (a*ys[klo][which] + b*ys[khi][which])/h; 
+  return (a*ys[klo][which] + b*ys[khi][which])/h;
 }
 
 
@@ -243,7 +245,7 @@ double PoiClosedOrbit::yfn(double t, vec2 * ys,const int which,double * thet, in
 ////////////////////////////////////////////////////////////////////////////////
 
 void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM) {
-	Jl = J(1);  if(Jl<=0.) { 
+	Jl = J(1);  if(Jl<=0.) {
 		cerr << "PoiClosedOrbit called for Jl <= 0. Not possible.\n";
 		return;
 	}
@@ -259,31 +261,31 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 
 	double Rstart0 = Phi->RfromLc(fabs(J(2))), Rstart = Rstart0, dr=0.1*Rstart, Rstop,
 	E = Phi->eff(Rstart,0.), dE, tiny=1.e-9, small=1.e-5, odiff,odiffJ,
-	delt=0.002*Rstart*Rstart/fabs(J(2)), dt,ot,pot, tJl, *psi, *psisq, *tbth2, 
+	delt=0.002*Rstart*Rstart/fabs(J(2)), dt,ot,pot, tJl, *psi, *psisq, *tbth2,
 	Escale = Phi->eff(2.*Rstart,0.)-E; // positive number
 	PSPD  clo;
 	Cheby rr2;
 	E += tiny*Escale;
 	dE = 0.08*Escale;
 
-  // For any given Jl, we do not know the corresponding closed orbit, and 
+  // For any given Jl, we do not know the corresponding closed orbit, and
   // don't even know any point on it. Therefore we have to start by guessing
-  // an energy (E) and iterate to the correct value. Furthermore, for any 
-  // given E, we don't actually know the closed orbit, so we have to guess a 
-  // starting point, then integrate the orbit and use that to improve our 
+  // an energy (E) and iterate to the correct value. Furthermore, for any
+  // given E, we don't actually know the closed orbit, so we have to guess a
+  // starting point, then integrate the orbit and use that to improve our
   // guess
-	for(nE=0;!done && nE!=nEmax;nE++) {           // iterate energy 
+	for(nE=0;!done && nE!=nEmax;nE++) {           // iterate energy
 		for(norb=0;norb!=200 && !done;norb++) {  // for each energy, iterate start R
       //cerr << " Rstart ini " << Rstart << " E = "<<E<<"\n";
 			while((pot=Phi->eff(Rstart,tiny))>=E) {// avoid unphysical starting points
-				if(first) Rstart += 0.5*(Rstart0-Rstart);  
+				if(first) Rstart += 0.5*(Rstart0-Rstart);
 				else Rstart = 0.01*clo[0] + 0.99*Rstart; // if use mean -> closed loop
 	//cerr << Rstart << ' ' << pot << ' ' << E<< "\n";
 			}
 			clo[0] = Rstart; clo[1] = tiny;        // clo = starting point
-			clo[2] = 0.;  clo[3] = sqrt(2.*(E-pot)); 
+			clo[2] = 0.;  clo[3] = sqrt(2.*(E-pot));
       //cerr << " Rstart " << Rstart << "\n";
-			do {               // integrate orbit (with enough datapoints) 
+			do {               // integrate orbit (with enough datapoints)
 				delt= (np==Nt)? delt*2 : (np<0.25*Nt &&np)? delt*.9*np/double(Nt):delt;
 				do_orbit(clo,delt,Phi,time,tbR,tbz,tbr,tbvr,tbpth,tbdrdth,np,Nt);
 			} while(np==Nt || np < Nt/4);
@@ -315,7 +317,7 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 		either_side = false;
 	} // end iterative loop
 	printf("True shell computed: %f\n",tbr[0]);
-	
+
 //Now find radius of toy shell
 //	ToyMap *TM = new ToyIsochrone(IP);
 	PSPD JT(0,J(1),0,0),qp=TM->Forward(JT);
@@ -345,7 +347,7 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 	double tol=2.e-10, h0=5.e-4,hnext=h0,tmp=0.;
 
 	for(np2=0;tmp<0.99*thmax && yz[0]*yz[1]<0.99*thmax2&& np2!=many;np2++) {
-		h0 = (hnext<0.002)? hnext : 0.002; 
+		h0 = (hnext<0.002)? hnext : 0.002;
 		yzrkstep(yz,dyzdt,tol,tpsi,h0,hnext,1.e-8,2.e-3);
 		tmp =  thmax*sin(tpsi);
 		thet[np2] = tmp;//this is the true rather than the toy angle
@@ -364,12 +366,12 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 
 	int NCheb2 = 2*NCheb;
 	ya.chebyfit(rr,yy,nr,NCheb2);
-  // extend zz to all theta<pi/2 and fit to theta*(apoly in theta**2) 
+  // extend zz to all theta<pi/2 and fit to theta*(apoly in theta**2)
 	double tmpth2[nr], zz[nr];
 	for(int i=0; i<nr; i++) {
 		tmpth2[i] = (i+1)/double(nr)*thmax*thmax;
 		tmp = sqrt(tmpth2[i]);
-		zz[i] = yfn(tmp,yzfull,1,thet,np2)/tmp; 
+		zz[i] = yfn(tmp,yzfull,1,thet,np2)/tmp;
 	}
 
 	za.chebyfit(tmpth2,zz,nr,NCheb); // note that this is in fact z/theta.
@@ -380,8 +382,8 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 	xa.unfitderiv(x1,y1x,dy1x);
 	za.unfitderiv(x1,y1z,dy1z);
   // define coefficients such that quadratic goes through final point
-  // with the correct gradient at that point and has the same values of xa and za 
-  // at th = pi/2 
+  // with the correct gradient at that point and has the same values of xa and za
+  // at th = pi/2
 	ax = -dy1x/delx;
 	bx = dy1x-2*ax*x1;
 	cx = y1x - x1*(ax*x1 + bx);
@@ -395,20 +397,20 @@ void PoiClosedOrbit::set_parameters(Potential *Phi, const Actions J, ToyMap *TM)
 //	plot_grid(20,0.1,6,a_toy,thmax2,tbr,tbth,imax);
 //	plot_SoS(tbth,tbpth,imax,thmax2,TM);
 
-	delete[] psi;   
-	delete[] psisq; 
-	delete[] tbth2; 
+	delete[] psi;
+	delete[] psisq;
+	delete[] tbth2;
 	delete[] thet;
 	delete[] yzfull;
 }
-	
-// various numbers needed for Derivatives() 
+
+// various numbers needed for Derivatives()
 double R,z,r,th,th2,ir,costh,sinth,pr,pth,xpp,ypp,zpp,dx,dy,dz,d2x,d2y,d2z,
   rt,tht,prt,ptht;
 double drtdr, drtdth, dthtdr, dthtdth;
 double dthdtht, dthdrt, drdtht, drdrt;
 
-void PoiClosedOrbit::set_parameters(Cheby Ch1, Cheby Ch2, 
+void PoiClosedOrbit::set_parameters(Cheby Ch1, Cheby Ch2,
 				    Cheby Ch3, double thmx)
 {
 	//Jl = J(1);
@@ -422,8 +424,8 @@ void PoiClosedOrbit::set_parameters(Cheby Ch1, Cheby Ch2,
 	thmax = thmx;
 
   // define coefficients such that quadratic goes through final point and
-  // has correct gradient at that point. Then take same values of xa and za 
-  // at th = pi/2 
+  // has correct gradient at that point. Then take same values of xa and za
+  // at th = pi/2
 	double x1 = thmax*thmax, x2=Pih*Pih, y1x, dy1x, y1z, dy1z, delx = x2-x1;
 
 	xa.unfitderiv(x1,y1x,dy1x);
@@ -460,8 +462,8 @@ void PoiClosedOrbit::set_parameters(const double* param) {
   xa.unfitderiv(x1,y1x,dy1x);
   za.unfitderiv(x1,y1z,dy1z);
   // define coeeficients such that quadratic goes through final point
-  // with the correct gradient at that point and has the same values of xa and za 
-  // at th = pi/2 
+  // with the correct gradient at that point and has the same values of xa and za
+  // at th = pi/2
   ax = -dy1x/delx;
   bx = dy1x-2*ax*x1;
   cx = y1x - x1*(ax*x1 + bx);
@@ -484,7 +486,7 @@ void PoiClosedOrbit::parameters(double *tmp) const {
 
 }
 
-PoiClosedOrbit::PoiClosedOrbit(Cheby ch1, Cheby ch2, Cheby ch3, 
+PoiClosedOrbit::PoiClosedOrbit(Cheby ch1, Cheby ch2, Cheby ch3,
 		   double tmx) {
   set_parameters(ch1,ch2,ch3,tmx);
 }
@@ -510,9 +512,9 @@ PoiClosedOrbit::PoiClosedOrbit(Potential *Phi, const Actions J, ToyMap *TM) {
 *                                                                             *
 /////////////////////////////////////////////////////////////////////////////*/
 
-PSPD PoiClosedOrbit::Forward(const PSPD &qp) const 
+PSPD PoiClosedOrbit::Forward(const PSPD &qp) const
 {//from toy to real coordinates
-  //first convert from toy coords to real  
+  //first convert from toy coords to real
   // first guess, th = th^T
   th = qp(1);
   // then use r^T = x(th)*r
@@ -557,44 +559,44 @@ PSPD PoiClosedOrbit::Forward(const PSPD &qp) const
   return QP;
 }
 
-PSPD PoiClosedOrbit::Backward(const PSPD &QP) const 
+PSPD PoiClosedOrbit::Backward(const PSPD &QP) const
 {//from real to toy coordinates
   PSPD qp;
-  R=QP(0); z=QP(1); r=hypot(QP(0),QP(1)); th=atan2(QP(1),QP(0)); 
-  double th2=th*th; 
-  ir=1./r; costh=QP(0)*ir; sinth=QP(1)*ir; 
+  R=QP(0); z=QP(1); r=hypot(QP(0),QP(1)); th=atan2(QP(1),QP(0));
+  double th2=th*th;
+  ir=1./r; costh=QP(0)*ir; sinth=QP(1)*ir;
   pr=QP(2)*costh+QP(3)*sinth; pth=-QP(2)*QP(1)+QP(3)*QP(0);
 
   xpp=get_x(th,dx,d2x);
   ya.unfitderiv(r,ypp,dy,d2y);
   zpp=get_z(th,dz,d2z);
-  
+
   rt  = r  * xpp;
   tht = ypp * zpp;
   qp[0] = rt;
   qp[1] = tht;
-  // unfortunately getting p(r,th)^T is harder. Need to know 
+  // unfortunately getting p(r,th)^T is harder. Need to know
   // d(r,th)/d(r,th)^t, but can only find inverses directly.
-  
+
   drtdr = xpp; drtdth = r*dx; dthtdr = dy*zpp; dthtdth = ypp*dz;
 
   double idet = 1./(dthtdth*drtdr-drtdth*dthtdr);
   dthdtht = drtdr*idet; dthdrt = -dthtdr*idet; drdtht=-drtdth*idet;
   drdrt = dthtdth*idet;
-  prt  = pr*drdrt+pth*dthdrt; 
-  ptht = pr*drdtht+pth*dthdtht; 
+  prt  = pr*drdrt+pth*dthdrt;
+  ptht = pr*drdtht+pth*dthdtht;
   qp[2] = prt;
   qp[3] = ptht;
   return qp;
 }
-			
+
 ////////////////////////////////////////////////////////////////////////////////
 PSPT PoiClosedOrbit::Forward3D(const PSPT& w3) const
 {
   PSPT W3 = w3;
   PSPD w2 = w3.Give_PSPD();
   W3.Take_PSPD(Forward(w2));
-  W3[5] /= W3(0);  // p_phi^T -> v_phi 
+  W3[5] /= W3(0);  // p_phi^T -> v_phi
   return W3;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -603,53 +605,53 @@ PSPT PoiClosedOrbit::Backward3D(const PSPT& W3) const
   PSPT w3 = W3;
   PSPD W2 = W3.Give_PSPD();
   w3.Take_PSPD(Backward(W2));
-  w3[5] *= W3(0); // correct because this is v_phi, not p_phi 
+  w3[5] *= W3(0); // correct because this is v_phi, not p_phi
   return w3;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
 void    PoiClosedOrbit::Derivatives(double dQPdqp[4][4]) const {
 
-  double dpRdr = pth*sinth*ir*ir, dpRdth = -pr*sinth-pth*costh*ir, 
+  double dpRdr = pth*sinth*ir*ir, dpRdth = -pr*sinth-pth*costh*ir,
     dpRdpr = costh, dpRdpth = -sinth*ir,
-    dpzdr = -costh*ir*ir*pth, dpzdth = costh*pr+-sinth*ir*pth, 
+    dpzdr = -costh*ir*ir*pth, dpzdth = costh*pr+-sinth*ir*pth,
     dpzdpr = sinth, dpzdpth = costh*ir;//, dQPdqp[4][4];
-  
+
   double d2rtdr2 = 0., d2rtdrdth = dx, d2rtdth2 = r*d2x,
     d2thtdr2 = d2y*zpp, d2thtdrdth = dy*dz, d2thtdth2 = ypp*d2z;
 
   double dprdrt = (d2rtdr2*drdrt + d2rtdrdth*dthdrt)*prt +
     (d2thtdr2*drdrt + d2thtdrdth*dthdrt)*ptht,
     dprdtht = (d2rtdr2*drdtht + d2rtdrdth*dthdtht)*prt +
-    (d2thtdr2*drdtht + d2thtdrdth*dthdtht)*ptht, 
+    (d2thtdr2*drdtht + d2thtdrdth*dthdtht)*ptht,
     dprdprt = drtdr, dprdptht = dthtdr;
-  
+
   double dpthdrt = (d2rtdrdth*drdrt + d2rtdth2*dthdrt)*prt +
     (d2thtdrdth*drdrt + d2thtdth2*dthdrt)*ptht,
     dpthdtht = (d2rtdrdth*drdtht + d2rtdth2*dthdtht)*prt +
-    (d2thtdrdth*drdtht + d2thtdth2*dthdtht)*ptht, 
+    (d2thtdrdth*drdtht + d2thtdth2*dthdtht)*ptht,
     dpthdprt = drtdth, dpthdptht = dthtdth;
 
   dQPdqp[0][0] = costh*drdrt - z*dthdrt;    //dR/dr*dr/drt + dR/dth*dth/drt
   dQPdqp[0][1] = costh*drdtht - z*dthdtht;  //dR/dr*dr/dtht + dR/dth*dth/dtht
   dQPdqp[0][2] = 0.;
   dQPdqp[0][3] = 0.;
-  
+
   dQPdqp[1][0] = sinth*drdrt  + R*dthdrt;  //dz/dr*dr/drt + dz/dth*dth/drt
   dQPdqp[1][1] = sinth*drdtht + R*dthdtht; //dz/dr*dr/dtht + dz/dth*dth/dtht
   dQPdqp[1][2] = 0.;
   dQPdqp[1][3] = 0.;
-  
+
   dQPdqp[2][0] = dpRdr*drdrt + dpRdth*dthdrt + dpRdpr*dprdrt + dpRdpth*dpthdrt;
   dQPdqp[2][1] = dpRdr*drdtht+ dpRdth*dthdtht+ dpRdpr*dprdtht+ dpRdpth*dpthdtht;
   dQPdqp[2][2] = dpRdpr*dprdprt+ dpRdpth*dpthdprt;
   dQPdqp[2][3] = dpRdpr*dprdptht+dpRdpth*dpthdptht;
- 
+
   dQPdqp[3][0] = dpzdr*drdrt + dpzdth*dthdrt + dpzdpr*dprdrt + dpzdpth*dpthdrt;
   dQPdqp[3][1] = dpzdr*drdtht+ dpzdth*dthdtht+ dpzdpr*dprdtht+ dpzdpth*dpthdtht;
   dQPdqp[3][2] = dpzdpr*dprdprt+ dpzdpth*dpthdprt;
   dQPdqp[3][3] = dpzdpr*dprdptht+dpzdpth*dpthdptht;
- 
+
 }
 /*void PoiClosedOrbit::plot_grid(int np,double rmin,double rmax,double a_toy,double thmax2,
 			       double *tbr,double *tbth,int imax){
@@ -658,7 +660,7 @@ void    PoiClosedOrbit::Derivatives(double dQPdqp[4][4]) const {
 		R[i]=tbr[i]*cos(tbth[i]); z[i]=tbr[i]*sin(tbth[i]);
 	}
 	plots(imax,R,z,rmin,rmax,-.5*rmax,.5*rmax,"R",1,"z",1,-.9,10);
-	setltype(2);	
+	setltype(2);
 	for(int i=0;i<np;i++){
 		double r=rmin+i*(rmax-rmin)/(double)(np-1);
 		for(int j=0;j<np;j++){
@@ -695,7 +697,7 @@ void PoiClosedOrbit::plot_SoS(double *th,double *pth,int imax,double thmax2,ToyM
 		A[1]=i*Pi/(double)(np-1);
 		PSPD JT(0,Jl,A[0],A[1]),qp=TM->Forward(JT);
 		//double x=sqrt(alt2-pow(Lz/cos(qp(1)),2)); qp[3]=x;
-		PSPD QP=Forward(qp); 
+		PSPD QP=Forward(qp);
 		double r=sqrt(pow(QP(0),2)+pow(QP(1),2)), theta=atan2(QP(1),QP(0));
 		thp[i]=theta; pthp[i]=r*(cos(theta)*QP(3)-sin(theta)*QP(2));
 	}

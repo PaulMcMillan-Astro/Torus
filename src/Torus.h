@@ -33,7 +33,7 @@
 #include "Potential.h"
 #include "PJMCoords.h"
 #include "Fit.h"
-#include "types.h"
+#include "Types.h"
 #include "Toy_Isochrone.h"
 /**
 \brief Class combining everything. Can fit a Torus with Actions J in a
@@ -167,7 +167,7 @@ public:
    bool write_ebf(const string,
 		  const string,             // write torus details to ebf file
       const string mode = "a"); // default mode: append);
-      
+
    bool read_ebf (const string,
 		  const string); // read torus details from ebf file
 

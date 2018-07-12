@@ -9,8 +9,8 @@
 #include <math.h>
 #include "Torus.h"
 #include "Numerics.templates"
-#include "numerics.h"
-#include "random.h"
+#include "Numerics.h"
+#include "Random.h"
 #include "jjb_utils.h"
 #include "PJMebf.h"
 #include "PJMCoords.h"

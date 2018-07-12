@@ -38,7 +38,10 @@ int main(int argc,char *argv[])
     file.open(argv[1]);
     GalaxyPotential Phi(file);
     file.close();
- 
+
+    Potential* PhiPointer;
+    PhiPointer = &Phi;
+    
     cout<<" Object Phi, of type `GalaxyPotential' constructed. Now testing.\n";
     cout<<"\n We work at an (approximate) solar position, R=8.0, z=0.007\n";
     cout<<" GalaxyPotential can return just the potential at that point\n";
@@ -55,7 +58,7 @@ int main(int argc,char *argv[])
     cout<<" have their usual meanings in this context\n";
     cout<<" R = Phi.RfromLc(Lz), ";
     cout<<"the radius of a circular orbit with Ang Mom Lz\n";
-    cout<<" Lz = Phi.LfromRc(R), the inverse\n";
+    cout<<" Lz = Phi.LfromRc(R), " << PhiPointer->LfromRc(R) << ", the inverse\n";
     cout<<" Lap = Phi.Laplace(R,z), gives Laplace(Phi), tends towards 4 Pi G\n";
     cout<<" KNO = Phi.KapNuOm(R), epicycle frequencies, radial, vertical & azimuthal\n"; 
 }

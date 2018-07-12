@@ -32,7 +32,7 @@ double fix_Jbar(double *Jrs,int nJr,eTorus **Tgrid,int np,int nr,Actions Jgrid,
 	double Jbar=.5*(Jtop+Jbot),Japo,Jperi;
 	Actions J;
 	int dj=nJr/4,j=nJr-1-2*dj;
-	for(int i=0;i<3;i++){//work down from the most eccentric torus finding Jperi & Japo 
+	for(int i=0;i<3;i++){//work down from the most eccentric torus finding Jperi & Japo
 		J[0]=Jrs[j]; J[1]=.0025; J[2]=Jbar;
 		iTorus T(J,Tgrid,np,nr,Jgrid,dJ);
 		T.get_crit_Jp(Rzphi,Japo,Jperi,Jbot,Jtop);
@@ -70,13 +70,13 @@ void tabulate_Jr_Jp(GalaxyPotential *Phi,const double R,double *Jrs,double *Jps,
 }
 int main(int narg,char **argv){
 	if(narg==1){
-		printf("You must specify Omega_p\n"); return 0;
+		printf("You must specify Omega_p\nAlso: ensure that a subdirectory with that value as a name exists\n"); return 0;
 	}
 	int omp; sscanf(argv[1],"%d",&omp);
 	char fname[40],dirname[5]; sprintf(dirname,"%d/",omp);
 	double Omp=0.001*omp;
 	int resN[3]={0,0,2}; double PI=acos(-1),TPI=2*PI,torad=PI/180;
-	ifstream Pfile; Pfile.open("/u/tex/papers/mcmillan/torus/code/torus-master/pot/pjm11_best.tpot");
+	ifstream Pfile; Pfile.open("../pot/PJM11_best.Tpot");
 	if(!Pfile.is_open()) printf("can't open Tpot file\n");
 	GalaxyPotential *Phi = new GalaxyPotential(Pfile);
 	Pfile.close();
@@ -98,7 +98,7 @@ int main(int narg,char **argv){
 	Jgrid[0]=sqrt(Jrmin)+.5*dJ[0];  Jgrid[1]=J[1]; Jgrid[2]=Jpmin+.5*dJ[2];
 	eTorus **Tgrid=PJM::matrix<eTorus>(np,nr);
 	strcpy(fname,dirname); strcat(fname,"nores.ebf");
-	bool writeit=false;
+	bool writeit=true;
 	if(writeit){
 		ebf::Write(fname,"/dJ",&dJ[0],"w","",1);
 		printf("Computing eTorus grid:\n");
@@ -171,7 +171,7 @@ int main(int narg,char **argv){
 	double J1,J2,Jperi=0,Japo=0;
 	double Jbar=fix_Jbar(Jrs,nJr,Tgrid,np,nr,Jgrid,dJ,Rzphi,JCoutp[ni/2],JOinp[npO/2]);
 	printf("Jbar = %f\n",Jbar);
-	J[1]=.0025; 
+	J[1]=.0025;
 	for(int i=0;i<nJr;i++){
 		J[0]=Jrs[i]; J[2]=Jbar;
 		double dJr=2*sqrt(Jrs[i]*Jrmax)/(double)(nJr-1);

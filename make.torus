@@ -14,9 +14,13 @@
 
 
 ARTOR     = $(AR) $(LIB)libTorus.a $@; $(RL) $(LIB)libTorus.a
-ARPOT     = $(AR) $(LIB)libPot.a $@;	$(RL) $(LIB)libPot.a
-AROTHER   = $(AR) $(LIB)libOther.a $@; $(RL) $(LIB)libOther.a
-ARLIB	  = $(AR) $(LIB)libWD.a $@; $(RL) $(LIB)libWD.a
+ARPOT     = $(AR) $(LIB)libTorus.a $@; $(RL) $(LIB)libTorus.a
+AROTHER   = $(AR) $(LIB)libTorus.a $@; $(RL) $(LIB)libTorus.a
+ARLIB	  = $(AR) $(LIB)libTorus.a $@; $(RL) $(LIB)libTorus.a
+
+#ARPOT     = $(AR) $(LIB)libPot.a $@;	$(RL) $(LIB)libPot.a
+#AROTHER   = $(AR) $(LIB)libOther.a $@; $(RL) $(LIB)libOther.a
+#ARLIB	  = $(AR) $(LIB)libWD.a $@; $(RL) $(LIB)libWD.a
 
 ################################################################################
 #
@@ -205,11 +209,11 @@ MAIN_LIBS:	Library TorFit GalPot Other
 # executables: standard version
 #
 testfalPot:	$(EXE)testfalPot.cc MAIN_LIBS
-		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 testMultiPot:	$(EXE)testMultiPot.cc MAIN_LIBS
-		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 testIsochronePot:	$(EXE)testIsochronePot.cc MAIN_LIBS
-		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LPOT)
+		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 GiveListProps:	$(EXE)GiveListProps.cc MAIN_LIBS
 		$(CPP) $(MFLAGS) $(EXE)$@.cc $(LDFLAGS)
 AUTOTORUS:	$(EXE)AUTOTORUS.cc MAIN_LIBS

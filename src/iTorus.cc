@@ -1,8 +1,8 @@
 /* Code written by J Binney 2017 as an upgrade to the TorusModeller
  * MNRAS 456 1982 (2016).  Described in Binney (2017) */
 #include "iTorus.h"
-#include "numerics.h"
-#include "random.h"
+#include "Numerics.h"
+#include "Random.h"
 
 iTorus::iTorus(Actions Jin,eTorus **Tgridin,int npin,int nrin,Actions Jbarin,Actions dJin){
 	Tgrid=Tgridin; np=npin; nr=nrin; Jbar=Jbarin; dJ=dJin;
@@ -87,7 +87,7 @@ int iTorus::containsPoint(const Position &Q,Velocity *Vout,Angles *Aout,double *
 	const    int    maxit1=50, maxtry=100;
 	const    double tiny=1.e-10;
 
-	double rq = Q[0]*Q[0]+Q[1]*Q[1],rtin = sqrt(rq)*tiny; // tolerance in position 
+	double rq = Q[0]*Q[0]+Q[1]*Q[1],rtin = sqrt(rq)*tiny; // tolerance in position
 	double chisqo,stat;
 	Matrix<double,3,3> A,dQdt,Atry,dQdtry;;
 	Vector<double,3> B,Btry;
@@ -167,7 +167,7 @@ void iTorus::get_crit_Jp(const Position &Rzphi,double &Japo,double &Jperi,
 	else Japo=Jbot;
 	Jin[2]=Jmid; setJ(Jin); nv=1; k=0; //restore state
 	while(nv && k<10){//go after Jperi
-		Jlast=Jin[2]; Jin[2]=.5*(Jin[2]+Jtop); setJ(Jin); 
+		Jlast=Jin[2]; Jin[2]=.5*(Jin[2]+Jtop); setJ(Jin);
 		nv=InOrbit(Rzphi); k++;
 	}//Jlast<Jperi<J[2]
 	if(!nv) Jperi=refine(Rzphi,Jin[2],Jlast);
@@ -177,7 +177,7 @@ void iTorus::get_crit_Jp(const Position &Rzphi,double &Japo,double &Jperi,
 eTorus iTorus::fixJ(const Angles& A) const{
 	//These methods return the eTorus trough the given angles using
 	//the Fourier coefficients of eT. They don't change J or eT
-	Actions Jfix=J; 
+	Actions Jfix=J;
 	Frequencies Om=omega();
 	int10 iN=i1(),jN=i2(),kN=i3();
 	vec10 hN=hn();

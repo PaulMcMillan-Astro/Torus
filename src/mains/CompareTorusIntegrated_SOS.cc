@@ -64,7 +64,9 @@ int main(int argc,char *argv[])
   flag = T->AutoFit(J,Phi,dJ);
   Phi->set_Lz(J(2));
 
+  cerr << T->omega() << '\n';
 
+  
   const char* cfile1 ="/tmp/tmp.sos";
   sosout.open(cfile1);
   T->SOS(sosout,NT);
@@ -86,13 +88,16 @@ int main(int argc,char *argv[])
 // The orbit integration part --------------------------------------------------
   const char* cfile2  ="/tmp/tmp.oss";  
   const char* cfile2a ="/tmp/tmp.ossb";
-  for(double tr=Pi/6.;tr<Pi-0.01;tr+=Pi/6.) {
+  //  for(double tr=Pi/60.;tr<Pi-0.01;tr+=Pi/60.) {
+  for(double tr=Pi/30.;tr<Pi-0.0001;tr+=Pi/30.) {
 
-    cerr << tr << '\n';
+    // cerr << tr << '\n';
     {
       //double d1=r3.RandomDouble(), d2=r3.RandomDouble();
       Angles Atmp=0.; Atmp[0] = tr;
-      double d1=tr , d2=0.;
+      Atmp[0] = r3.RandomDouble()*TPi;
+      Atmp[1] = r3.RandomDouble()*TPi;
+      //double d1=tr , d2=0.;
       StPo = T->Map(Atmp); //T->StartPoint(d1,d2);
     }
     F = orbit(Phi,StPo,1.e-12,NO,1.e-3*StPo(0),cfile2a,cfile2,Oz);
@@ -128,17 +133,17 @@ int main(int argc,char *argv[])
   }
   to.close();
 
-
-  for(int j=0;j!=5;j++) {
+  my_open(to,OrbOut); 
+  for(int j=0;j!=29;j++) {
     std::stringstream tmp;
     tmp << OrbOut << '.' << j;
     string OUT;
     tmp >> OUT;
-    my_open(to,OUT);
+    //my_open(to,OUT);
     
     for(int i=0;i!=NO;i++) {
       to << xO[j*NO+i] << ' '<< yO[j*NO+i] << '\n';
     }
-    to.close();
+    //to.close();
   }
 }

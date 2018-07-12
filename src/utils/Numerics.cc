@@ -13,9 +13,14 @@
 #include <algorithm>
 #include "Numerics.h"
 #include "FreeMemory.h"
-#include "matrix.h"
+#include "Matrix.h"
+#include "jjb_utils.h"
 
 /*
+double *dmatrix(int);
+double **dmatrix(int,int);
+void delmatrix(double**,int);
+
 double *dmatrix(int n){
 	double *m1 = new double[n];
 	for(int i=0;i<n;i++) m1[i]=0;
@@ -31,9 +36,6 @@ void delmatrix(double **m1,int n){
 	delete [] m1;
 }
 */
-double *dmatrix(int);
-double **dmatrix(int,int);
-void delmatrix(double**,int);
 
 ////////////////////////////////////////////////////////////////////////////////
 typedef int*     Pint;
@@ -91,9 +93,9 @@ and icol. */
 	    return Numerics_message("GaussJordan: Singular Matrix 2");
 	pivinv = 1./a[icol][icol];
 	a[icol][icol] = 1.;
-	for(l=0; l<n; l++) 
+	for(l=0; l<n; l++)
 	    a[icol][l] *= pivinv;
-	for(l=0; l<m; l++) 
+	for(l=0; l<m; l++)
 	    b[icol][l] *= pivinv;
         for(ll=0; ll<n; ll++)
 /* Next we reduce the rows except for the pivot one */
@@ -169,7 +171,7 @@ and icol. */
 	pivinv = 1./a[icol][icol];
 	a[icol][icol] = 1.;
 	b[icol] *= pivinv;
-	for(l=0; l<n; l++) 
+	for(l=0; l<n; l++)
 	    a[icol][l] *= pivinv;
         for(ll=0; ll<n; ll++)
 /* Next we reduce the rows except for the pivot one */
@@ -291,9 +293,9 @@ and icol. */
 	    return Numerics_message("GaussJordan: Singular Matrix 2");
 	pivinv = 1./a[icol][icol];
 	a[icol][icol] = 1.;
-	for(l=0; l<n; l++) 
+	for(l=0; l<n; l++)
 	    a[icol][l] *= pivinv;
-	for(l=0; l<m; l++) 
+	for(l=0; l<m; l++)
 	    b[icol][l] *= pivinv;
         for(ll=0; ll<n; ll++)
 /* Next we reduce the rows except for the pivot one */
@@ -369,7 +371,7 @@ and icol. */
 	pivinv = 1./a[icol][icol];
 	a[icol][icol] = 1.;
 	b[icol] *= pivinv;
-	for(l=0; l<n; l++) 
+	for(l=0; l<n; l++)
 	    a[icol][l] *= pivinv;
         for(ll=0; ll<n; ll++)
 /* Next we reduce the rows except for the pivot one */
@@ -440,14 +442,14 @@ int GaussBack(PPflt a, const int n, Pflt b)
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////
-double qbulir(double(*func)(double), const double a, const double b, 
+double qbulir(double(*func)(double), const double a, const double b,
 	      const double eps_, double& err)
 /*------------------------------------------------------------------------------
 Quadrature program using the Bulirsch sequence and rational extrapolation. The
 algorithm is puplished in Bulirsch & Stoer, Num. Math. 9, 271-278 (1967), where
 a routine in ALGOL is given. This routine is a straightforward translation into
 C++.
-CAUTION: 
+CAUTION:
 Do not use this routine for integrating low order polynomials (up to fourth
 order) or periodic functions with period equal to the interval of integration
 or linear combinations of both.
@@ -642,7 +644,7 @@ double zbrent(double(*func)(double), const double x1, const double x2,
 
     fa=func(a=x1);
     fb=func(b=x2);
-    if((fa>0. && fb>0.) || (fa<0. && fb<0.)) 
+    if((fa>0. && fb>0.) || (fa<0. && fb<0.))
 	Numerics_error("zbrent: root must be bracketed");
     fc=fb;
     while(iter++<itmax) {
@@ -650,7 +652,7 @@ double zbrent(double(*func)(double), const double x1, const double x2,
 	    c = a;
 	    fc= fa;
 	    e = (d=b-a);
-	} 
+	}
         if(fabs(fc)<fabs(fb)) {
 	    a=b;   b=c;   c=a;
 	    fa=fb; fb=fc; fc=fa;
@@ -700,7 +702,7 @@ float zbrent(float(*func)(float), const float x1, const float x2,
 
     fa=func(a=x1);
     fb=func(b=x2);
-    if((fa>0.f && fb>0.f) || (fa<0.f && fb<0.f)) 
+    if((fa>0.f && fb>0.f) || (fa<0.f && fb<0.f))
 	Numerics_error("zbrent: root must be bracketed");
     fc=fb;
     while(iter++<itmax) {
@@ -708,7 +710,7 @@ float zbrent(float(*func)(float), const float x1, const float x2,
 	    c = a;
 	    fc= fa;
 	    e = (d=b-a);
-	} 
+	}
         if(fabs(fc)<fabs(fb)) {
 	    a=b;   b=c;   c=a;
 	    fa=fb; fb=fc; fc=fa;
@@ -1039,7 +1041,7 @@ void CholeskyInvertF(PPdbl a, const int n)
         }
 // 2nd use symmetry to fill in lower left triangle
     for(i=0; i<n; i++)
-    for(j=i+1; j<n; j++) a[j][i] = a[i][j];  
+    for(j=i+1; j<n; j++) a[j][i] = a[i][j];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1205,7 +1207,7 @@ void CholeskyInvertF(PPflt a, const int n)
         }
 // 2nd use symmetry to fill in lower left triangle
     for(i=0; i<n; i++)
-    for(j=i+1; j<n; j++) a[j][i] = a[i][j];  
+    for(j=i+1; j<n; j++) a[j][i] = a[i][j];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1358,7 +1360,7 @@ void tred2(PPdbl a, const int n, Pdbl d, Pdbl e, const char EV)
     } else
 	for(i=0; i<n; i++)
 	    d[i] = a[i][i];
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1691,7 +1693,7 @@ double LevMar(
                 for(j=0; j<mf; j++) A[i][j] = Ay[i][j];
 	    }
             dc = sqrt(dc)/double(N);
-	} else 
+	} else
 	    lam *= 8;
     }
     Free1D(ay); Free1D(By); Free1D(B); Free2D(A); Free2D(Ay);

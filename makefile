@@ -25,8 +25,8 @@ OBJ		= obj/
 BIN		= bin/
 INCL		= src/utils/
 LIB		= obj/
-EBFINC		= ../libebf_c_cpp-0.0.3/include/ 
-EBFLIB		= ../libebf_c_cpp-0.0.3/lib/ 
+EBFINC		= ../libebf_c_cpp-0.0.3/include/
+EBFLIB		= ../libebf_c_cpp-0.0.3/lib/
 
 # Compiler
 CPP	= g++
@@ -40,13 +40,13 @@ MFLAGS	= -O3 -ffast-math -I$(INC) -I$(SRCPOT) -I$(INCL) -I$(EBFINC)
 # With thanks to Cecilia Mateu.
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-    MFLAGS += -Wl,-rpath=$(EBFLIB) 
+    MFLAGS += -Wl,-rpath=$(EBFLIB)
 endif
 
 # flags for linker for optimized & debug code
-LOTH        = -o $(BIN)$@ -L$(LIB)              -lOther -lWD -lm 
-LPOT       = -o $(BIN)$@ -L$(LIB)        -lPot -lOther -lWD -lm
-LFULL	    = -o $(BIN)$@ -L$(LIB) -L$(EBFLIB) -lTorus -lPot -lOther -lWD -lm -lebf_cpp
+#LOTH        = -o $(BIN)$@ -L$(LIB)              -lOther -lWD -lm
+#LPOT       = -o $(BIN)$@ -L$(LIB)        -lPot -lOther -lWD -lm
+LFULL	    = -o $(BIN)$@ -L$(LIB) -L$(EBFLIB) -lTorus -lebf_cpp #-lPot -lOther -lWD -lm -lebf_cpp
 LDFLAGS     = $(LFULL)
 
 
@@ -66,6 +66,6 @@ clean:
 	src/pot/*~ src/utils/*~
 
 halfclean:
-	- rm -rf obj/* lib/* bin/* 
+	- rm -rf obj/* lib/* bin/*
 
 ################################################################################

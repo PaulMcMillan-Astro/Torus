@@ -1,8 +1,8 @@
 /***************************************************************************//**
 *                                                                              *
-\file Point_ClosedOrbitCheby.h 
+\file Point_ClosedOrbitCheby.h
 \brief Contains class PoiClosedOrbit.
-Code for the point transform used when Tori have very low J_R -- i.e. are 
+Code for the point transform used when Tori have very low J_R -- i.e. are
 nearly closed orbits in R-z plane.
 
 *                                                                              *
@@ -12,7 +12,7 @@ nearly closed orbits in R-z plane.
 *                                                                              *
 *******************************************************************************/
 //
-// Header file for a point transformation. 
+// Header file for a point transformation.
 // Input (r,TH,{phi},pr,pTH,{pphi}), Output (R,z,{phi},vR,vz,{v_phi})
 //
 
@@ -24,7 +24,7 @@ nearly closed orbits in R-z plane.
 #include "Maps.h"
 #include "Types.h"
 #include "CHB.h"
-#include "toy_isochrone.h"
+#include "Toy_Isochrone.h"
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -34,8 +34,8 @@ cannot be fitted otherwise. The transform is defined by:
 
  r^T  = x(th)*r
  th^T = y(r)*z(th)
- 
- This is done so that r^T = a is constant for a J_R = 0 orbit (as required), and 
+
+ This is done so that r^T = a is constant for a J_R = 0 orbit (as required), and
  then fixes th^T so that pth^T has the correct dependence on th^T
 
 ------------------------------------------------------------------------------
@@ -73,19 +73,19 @@ class PoiClosedOrbit : public PoiTra {
   double get_z(double,double&,double&) const;
 // ROUTINES USED TO FIND THE TRANSFORM -----------------------------------------
   // Integrate orbit over Pi in th_z & store output
-  void do_orbit       (PSPD, double, Potential*, double*, double*, double*, 
-		       double*, double*, double*, double*, int&, int); 
+  void do_orbit       (PSPD, double, Potential*, double*, double*, double*,
+		       double*, double*, double*, double*, int&, int);
   // Shift starting radius towards that of closed orbit (or note we're there)
   void set_Rstart     (double&,double,double&,double&,bool&,bool&,bool&);
   // Shift orbit energy so that closed orbit of that energy has J_l = target
   void set_E          (const double,double&,double&,double&,bool&,bool&,bool&);
   // Rewrite tables so I can fit to chebyshev (also find thmax)
-  void RewriteTables  (const int, double *, double *, double *, double *, 
+  void RewriteTables  (const int, double *, double *, double *, double *,
 		       double *, double *, double *, double *, int &);
   // Routines needed to find y and z
   vec2 chebderivs     (const double, const vec2);
   double stepper      (vec2&, vec2&, const double, const double );
-  void yzrkstep       (vec2&, vec2&, const double, double&, const double, 
+  void yzrkstep       (vec2&, vec2&, const double, double&, const double,
 		       double&, const double, const double) ;
   double yfn          (double, vec2 *, const int, double * , int);
   void plot_grid      (int,double,double,double,double,double*,double*,int);
@@ -93,10 +93,10 @@ class PoiClosedOrbit : public PoiTra {
 //------------------------------------------------------------------------------
  public:
   // various constructors
-  PoiClosedOrbit();                                          
+  PoiClosedOrbit();
   PoiClosedOrbit(Cheby, Cheby, Cheby, double);
-  PoiClosedOrbit(const double*);                              
-  PoiClosedOrbit(Potential *, const Actions, ToyMap *);                 
+  PoiClosedOrbit(const double*);
+  PoiClosedOrbit(Potential *, const Actions, ToyMap *);
   ~PoiClosedOrbit() {}
   void    set_parameters    (Cheby, Cheby, Cheby, double);
   void    set_parameters    (Potential *, const Actions, ToyMap *);

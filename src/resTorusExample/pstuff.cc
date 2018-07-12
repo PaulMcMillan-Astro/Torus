@@ -159,71 +159,7 @@ void fourn(float *data, unsigned long *nn, int ndim, int isign)
 		nprev *= n;
 	}
 }
-void fourn(double *data, unsigned long *nn, int ndim, int isign)
-{
-	int idim;
-	unsigned long i1,i2,i3,i2rev,i3rev,ip1,ip2,ip3,ifp1,ifp2;
-	unsigned long ibit,k1,k2,n,nprev,nrem,ntot;
-	double tempi,tempr;
-	double theta,wi,wpi,wpr,wr,wtemp;
 
-	for (ntot=1,idim=1;idim<=ndim;idim++)
-		ntot *= nn[idim];
-	nprev=1;
-	for (idim=ndim;idim>=1;idim--) {
-		n=nn[idim];
-		nrem=ntot/(n*nprev);
-		ip1=nprev << 1;
-		ip2=ip1*n;
-		ip3=ip2*nrem;
-		i2rev=1;
-		for (i2=1;i2<=ip2;i2+=ip1) {
-			if (i2 < i2rev) {
-				for (i1=i2;i1<=i2+ip1-2;i1+=2) {
-					for (i3=i1;i3<=ip3;i3+=ip2) {
-						i3rev=i2rev+i3-i2;
-						SWAP(data[i3],data[i3rev]);
-						SWAP(data[i3+1],data[i3rev+1]);
-					}
-				}
-			}
-			ibit=ip2 >> 1;
-			while (ibit >= ip1 && i2rev > ibit) {
-				i2rev -= ibit;
-				ibit >>= 1;
-			}
-			i2rev += ibit;
-		}
-		ifp1=ip1;
-		while (ifp1 < ip2) {
-			ifp2=ifp1 << 1;
-			theta=isign*6.28318530717959/(ifp2/ip1);
-			wtemp=sin(0.5*theta);
-			wpr = -2.0*wtemp*wtemp;
-			wpi=sin(theta);
-			wr=1.0;
-			wi=0.0;
-			for (i3=1;i3<=ifp1;i3+=ip1) {
-				for (i1=i3;i1<=i3+ip1-2;i1+=2) {
-					for (i2=i1;i2<=ip3;i2+=ifp2) {
-						k1=i2;
-						k2=k1+ifp1;
-						tempr=(double)wr*data[k2]-(double)wi*data[k2+1];
-						tempi=(double)wr*data[k2+1]+(double)wi*data[k2];
-						data[k2]=data[k1]-tempr;
-						data[k2+1]=data[k1+1]-tempi;
-						data[k1] += tempr;
-						data[k1+1] += tempi;
-					}
-				}
-				wr=(wtemp=wr)*wpr-wi*wpi+wr;
-				wi=wi*wpr+wtemp*wpi+wi;
-			}
-			ifp1=ifp2;
-		}
-		nprev *= n;
-	}
-}
 #undef SWAP
 void spline(double x[], double y[], int n, double yp1, double ypn, double y2[])
 {
@@ -312,38 +248,7 @@ double splintp2(double *xa, double *ya, double *y2a, int np, double x)
 	double b=(x-xa[klo])/h;
 	return y2a[klo]*a + y2a[khi]*b;
 }
-double *dmatrix(int n){
-	double *m1 = new double[n];
-	for(int i=0;i<n;i++) m1[i]=0;
-	return m1;
-}
-double **dmatrix(int n,int m){
-	double **m1 = new double*[n];
-	for(int i=0; i<n; i++) m1[i] = dmatrix(m);
-	return m1;
-}
-double ***dmatrix(int n,int m,int l){
-	double ***m1 = new double**[n];
-	for(int i=0; i<n; i++) m1[i] = dmatrix(m,l);
-	return m1;
-}
-double ****dmatrix(int n,int m,int l,int k){
-	double ****m1 = new double***[n];
-	for(int i=0; i<n; i++) m1[i] = dmatrix(m,l,k);
-	return m1;
-}
-void delmatrix(double **m1,int n){
-	for(int i=0;i<n;i++) delete[] m1[i];
-	delete [] m1;
-}
-void delmatrix(double ***m1,int n,int m){
-	for(int i=0;i<n;i++) delmatrix(m1[i],m);
-	delete [] m1;
-}
-void delmatrix(double ****m1,int n,int m,int l){
-	for(int i=0;i<n;i++) delmatrix(m1[i],m,l);
-	delete [] m1;
-}
+
 //To use these RK routines you call rkqs
 
 void rk4(double y[], double dydx[],int n, double x, double h,
@@ -424,7 +329,7 @@ void rkqs(double *y,double *dydx,int N,double *x,double htry,double eps,
 		htemp=SAFETY*h*pow(errmax,PSHRNK);
 		h=(h >= 0.0 ? MAX(htemp,0.1*h) : MIN(htemp,0.1*h));
 		xnew=(*x)+h;
-		if (xnew == *x) 
+		if (xnew == *x)
 			printf("At x= %g stepsize underflow in rkqs\n",xnew);
 
 	}

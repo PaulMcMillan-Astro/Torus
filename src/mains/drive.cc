@@ -17,7 +17,7 @@ using namespace Units;
 #define NV 40
 #define NP 140
 #define NT 40
-#define SGN(A) ((A)>=0 ? 1:-1)
+//#define SGN(A) ((A)>=0 ? 1:-1)
 const int kpl=1,kres=1;
 Potential *Phi;
 static double PI=acos(-1);
@@ -37,7 +37,7 @@ void fitquad(double *Jm,double *hm,double J,double *h){//Interpolates & gets der
 	     (d0m1*dp10)*(hm[0]-(hm[-1]*dp10+hm[1]*d0m1)/dp1m1);
 	h[0]=(hm[-1]*(Jm[1]-J)+hm[1]*(J-Jm[-1]))/dp1m1
 	     +(J-Jm[-1])*(Jm[1]-J)/(d0m1*dp10)*(hm[0]-(hm[-1]*dp10+hm[1]*d0m1)/dp1m1);
-}	
+}
 void extract(double *data,double **sr,double **st,int nf){
 	//pull FFTs of Jr and Jt from data
 	int i,j,k,l,n2=nf*nf;
@@ -160,7 +160,7 @@ void BoxMass(Torus *T,Position Bottom,Position Top,float *vd,int &nvisit){//Bott
 	}//now both Top and Bottom in box
 	double dbs=db1*db1, dts=dt1*dt1;//squared Jacobians
 	double zts=pow(Top[1],2),zbs=pow(Bottom[1],2);
-	double fac=(zts-zbs)/(dbs-dts); 
+	double fac=(zts-zbs)/(dbs-dts);
 	double m1,m2,z0,z0s=((dts*zbs-dbs*zts)/(dts-dbs));
 	if(fac<0 || z0s<0){
 		printf("In BoxMass z0s, fac: %f %f\n",z0s,fac);
@@ -174,7 +174,7 @@ void BoxMass(Torus *T,Position Bottom,Position Top,float *vd,int &nvisit){//Bott
 		m1=sqrt(fac)*(asin(zt/z0)-asin(Bottom[1]/z0));
 	}
 	dbs=db2*db2; dts=dt2*dt2;//squared Jacobians
-	z0s=((dts*zbs-dbs*zts)/(dts-dbs)); fac=(zbs-zts)/(dts-dbs); 
+	z0s=((dts*zbs-dbs*zts)/(dts-dbs)); fac=(zbs-zts)/(dts-dbs);
 	if(fac<0 || z0s<0){
 		printf("In BoxMass z0s, fac: %f %f\n",z0s,fac);
 		m2=2*(Top[1]-Bottom[1])/(fabs(dt2)+fabs(db2));
@@ -259,7 +259,7 @@ double plsos(Torus *T){
 		Om=Tgrid[i].omega(); Omgrd[i]=Om(0); dOmgrd[i]=Om(0)-Om(1);
 		int ifp=1;// if(i==ng/2) ifp=1; else ifp=0;
 		find_hres(&Tgrid[i],Phi,nf,hresgrd[i],ifp);
-	}		
+	}
 	double x[ng],y[ng],z[ng];
 	for(int i=0;i<ng;i++){
 		x[i]=Jrgrid[i]/Units::kms; y[i]=hresgrd[i][1]/pow(Units::kms,2);
@@ -520,7 +520,7 @@ bool setResTor(double E0,double Lz,Potential *Phi,double &Jzmax,double tolJ,
  * These #s are first determined from tori TM fits in the trapping
  * region with tolJ and then a second time from tori interpolated from tori TM fits
  * with tolJ/2 eithere side of trapping region. These tori are returned
- * in Tgrid. Returns false if no resonance at this (E,Lz), true otherwise */ 
+ * in Tgrid. Returns false if no resonance at this (E,Lz), true otherwise */
 	//1. Find J at  given E
 	//printf("computing Jzmax..");
 	double Omz,R=get_closed(6,E0,Jzmax,Omz);
@@ -592,7 +592,7 @@ int setResTor1(double E0,double Lz,Potential *Phi,double tolJ,
  * These #s are first determined from tori TM fits in the trapping
  * region with tolJ and then a second time from tori interpolated from tori TM fits
  * with tolJ/2 eithere side of trapping region. These tori are returned
- * in Tgrid. Returns -1 if no resonance at this (E,Lz), 0 otherwise */ 
+ * in Tgrid. Returns -1 if no resonance at this (E,Lz), 0 otherwise */
 	//1. Find J at  given E
 	Actions J; J[0]=.05; J[1]=.05; J[2]=Lz;
 	Torus T; T.AutoFit(J,Phi,tolJ);
@@ -649,7 +649,7 @@ int setResTor1(double E0,double Lz,Potential *Phi,double tolJ,
 	omp=.5*(dOm-(Om(0)-Om(1)))/dJr;
 	double Delta=2*sqrt(2*h[1]/fabs(omp));
 	double Jrb=(Jres[0]-Delta)/Units::kms,Jrt=(Jres[0]+Delta)/Units::kms;
-	printf("First estimate of trapped zone (%f %f) kpc km/s\n",Jrb,Jrt); 
+	printf("First estimate of trapped zone (%f %f) kpc km/s\n",Jrb,Jrt);
 //Now we have estimate of width of trapped region get good tori on each
 //side and from interpolated tori get dependence of h etc on Jr
 //	plots(1,Jrgrid,Jrgrid,30,42,0,2.5,"Jr/kpc km s\\u-\\u1",17,
@@ -672,7 +672,7 @@ void plresSoS(ostream& sfile,Torus *Tgrid,double *Jgrid,int ng,Actions Jb,double
 	Actions J,Jp; Jp[0]=Jb[0]; Jp[1]=Jb[1]+Jb[0]; Jp[2]=Jb[2];
 	sfile << "201" << '\n'; Tgrid[0].SOS(sfile,200);
 	sfile << "201" << '\n'; Tgrid[ng-1].SOS(sfile,200);
-	sfile << "201" << '\n'; 
+	sfile << "201" << '\n';
 	Torus T; T=InterpTorus(Tgrid,Jgrid,ng,Jb[0]); T.SOS(sfile,200);
 	resTorus rT(Tgrid,Jgrid,ng,Jb,omp,hres);
 	FILE *ofile; ofile=fopen("res_it.dat","w");
@@ -715,7 +715,7 @@ void plresSoS(ostream& sfile,Torus *Tgrid,double *Jgrid,int ng,Actions Jb,double
 			for(int iR=0;iR<3;iR++){
 				Rzphi[0]=4+(7-4)*iR/2.;
 				for(int iz=0;iz<3;iz++){
-					Rzphi[1]=iz/2.*1.8; 
+					Rzphi[1]=iz/2.*1.8;
 					Angles *Am=new Angles[5]; double tm[5];
 					Velocity *Vm=new Velocity[5];
 					//int n=rT.containsPoint_Ang(Rzphi,Am,tm);
