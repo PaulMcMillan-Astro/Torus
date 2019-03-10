@@ -47,8 +47,8 @@ typedef double** PPdbl;
 ////////////////////////////////////////////////////////////////////////////////
 int GaussJordan(PPdbl a, const int n, PPdbl b, const int m)
 {
-    register int    i, icol=0, irow=0, j, k, l, ll;
-    register double big, dum, pivinv;
+    int    i, icol=0, irow=0, j, k, l, ll;
+    double big, dum, pivinv;
     Pint ipiv  = new int[n];
     Pint indxr = new int[n];
     Pint indxc = new int[n];
@@ -125,8 +125,8 @@ was built up. */
 ////////////////////////////////////////////////////////////////////////////////
 int GaussJordan(PPdbl a, const int n, Pdbl b)
 {
-    register int    i, icol=0, irow=0, j, k, l, ll;
-    register double big, dum, pivinv;
+    int    i, icol=0, irow=0, j, k, l, ll;
+    double big, dum, pivinv;
     Pint ipiv  = new int[n];
     Pint indxr = new int[n];
     Pint indxc = new int[n];
@@ -202,8 +202,8 @@ int GaussBack(PPdbl a, const int n, Pdbl b)
 /* Gaussian elemination with backsubstitution (cf. Numerical Recipes sect. 2.2).
    The inverse of matrix a is NOT computed. */
 {
-    register int     i,irow,j,l;
-    register double  pivinv, temp;
+    int     i,irow,j,l;
+    double  pivinv, temp;
 /* This is the main loop over the columns to be reduced. */
     for(i=0; i<n; i++) {
 /* Partial pivoting: the biggest element in the column i, in and below row i */
@@ -247,8 +247,8 @@ int GaussBack(PPdbl a, const int n, Pdbl b)
 ////////////////////////////////////////////////////////////////////////////////
 int GaussJordan(PPflt a, const int n, PPflt b, const int m)
 {
-    register int   i, icol=0, irow=0, j, k, l, ll;
-    register float big, dum, pivinv;
+    int   i, icol=0, irow=0, j, k, l, ll;
+    float big, dum, pivinv;
     Pint ipiv  = new int[n];
     Pint indxr = new int[n];
     Pint indxc = new int[n];
@@ -325,8 +325,8 @@ was built up. */
 ////////////////////////////////////////////////////////////////////////////////
 int GaussJordan(PPflt a, const int n, Pflt b)
 {
-    register int   i, icol=0, irow=0, j, k, l, ll;
-    register float big, dum, pivinv;
+    int   i, icol=0, irow=0, j, k, l, ll;
+    float big, dum, pivinv;
     Pint ipiv  = new int[n];
     Pint indxr = new int[n];
     Pint indxc = new int[n];
@@ -402,8 +402,8 @@ int GaussBack(PPflt a, const int n, Pflt b)
 /* Gaussian elemination with backsubstitution (cf. Numerical Recipes sect. 2.2).
    The inverse of matrix a is NOT computed. */
 {
-    register int    i,irow,j,l;
-    register float  pivinv, temp;
+    int    i,irow,j,l;
+    float  pivinv, temp;
 /* This is the main loop over the columns to be reduced. */
     for(i=0; i<n; i++) {
 /* Partial pivoting: the biggest element in the column i, in and below row i */
@@ -460,11 +460,11 @@ OUTPUT: return approximated value for the integral;
         err    actual relative error of the return value.
 ------------------------------------------------------------------------------*/
 {
-    register double ba=b-a;
+    double ba=b-a;
     if(ba==0.) return 0.;
 
-    register int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
-    register double c,d1,ddt,den,e,eps,eta=1.e-7,gr,hm,nt,
+    int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
+    double c,d1,ddt,den,e,eps,eta=1.e-7,gr,hm,nt,
 		    sm,t,t1,t2,t2a,ta,tab=0.,tb,v=0.,w;
     double          d[7],dt[7];
 
@@ -566,12 +566,12 @@ OUTPUT: return approximated value for the integral;
 ////////////////////////////////////////////////////////////////////////////////
 void GaussLegendre(Pdbl x, Pdbl w, const int n)
 {
-    register double eps;
+    double eps;
     for(eps=1.e-10; (eps+1.)!=1.; eps*=0.5);
     eps  =1.e-10;                       // eps != actual computing accuracy
                                      // because that was crashing the f'ing thing
-    register int j,i,m=(n+1)/2;
-    register double z1,z,pp,p3,p2,p1;
+    int j,i,m=(n+1)/2;
+    double z1,z,pp,p3,p2,p1;
     for (i=0;i<m;i++) {
 	z=cos(Pi*(i+0.75)/(n+0.5));
 	do {
@@ -597,8 +597,8 @@ void LegendrePeven(double* p, const double x, const int np)
 // based on a routine from J.J. Binney
 // evaluates even Legendre Polys up to l=2*(np-1) at x
 {
-    register int    n,l,l2;
-    register double x2=x*x;
+    int    n,l,l2;
+    double x2=x*x;
     p[0] = 1.;
     p[1] = 1.5*x2-0.5;
     for(n=2; n<np; n++) {
@@ -614,8 +614,8 @@ void dLegendrePeven(double* p, double* d, const double x, const int np)
 // based on a routine from J.J. Binney
 // evaluates even Legendre Polys and its derivs up to l=2*(np-1) at x
 {
-    register int    n,l,l2;
-    register double x2=x*x;
+    int    n,l,l2;
+    double x2=x*x;
     p[0] = 1.;
     d[0] = 0.;
     p[1] = 1.5*x2-0.5;
@@ -756,8 +756,8 @@ float zbrent(float(*func)(float), const float x1, const float x2,
 void heap_index(Pint A, const int n, Pint indx)
 // the numbers 0 to n-1 are ordered in ascending order of A[i]
 {
-    register int l,j,ir,indxt,i;
-    register int q;
+    int l,j,ir,indxt,i;
+    int q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -790,8 +790,8 @@ void heap_index(Pint A, const int n, Pint indx)
 void heap_index(int(*func)(const int), const int n, Pint indx)
 // the numbers 0 to n-1 are ordered in ascending order of func(int)
 {
-    register int l,j,ir,indxt,i;
-    register int q;
+    int l,j,ir,indxt,i;
+    int q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -824,8 +824,8 @@ void heap_index(int(*func)(const int), const int n, Pint indx)
 void heap_index(float(*func)(const int), const int n, Pint indx)
 // the numbers 0 to n-1 are ordered in ascending order of func(int)
 {
-    register int l,j,ir,indxt,i;
-    register float q;
+    int l,j,ir,indxt,i;
+    float q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -858,8 +858,8 @@ void heap_index(float(*func)(const int), const int n, Pint indx)
 void heap_index(double(*func)(const int), const int n, Pint indx)
 // the numbers 0 to n-1 are ordered in ascending order of func(int)
 {
-    register int l,j,ir,indxt,i;
-    register double q;
+    int l,j,ir,indxt,i;
+    double q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -899,8 +899,8 @@ float qsplin(Pflt x, Pflt y, Pflt y2, const int n, const float al,
     if(x1 > x2) Numerics_error("qsplin: x1 > x2");
     if(x1 < 0.f && al < 0.f) Numerics_error("qsplin: integral complex");
     if(x1 == 0.f && al <=-1.f) Numerics_error("qsplin: integral diverging");
-    register int   i,k;
-    register float q=0.f, ali, ali1, h, h2, t, xl, xh;
+    int   i,k;
+    float q=0.f, ali, ali1, h, h2, t, xl, xh;
     float          a[4];
 // find k with x[k] <= x1 <= x[k+1]
     k = hunt(x,n,x1,int((x1-x[0])/(x[n-1]-x[0])*(n-1)));
@@ -941,8 +941,8 @@ double qsplin(Pdbl x, Pdbl y, Pdbl y2, const int n, const double al,
     if(x1 > x2) Numerics_error("qsplin: x1 > x2");
     if(x1 < 0. && al < 0.) Numerics_error("qsplin: integral complex");
     if(x1 == 0. && al <=-1.) Numerics_error("qsplin: integral diverging");
-    register int    i,k;
-    register double q=0., ali, ali1, h, h2, t, xl, xh;
+    int    i,k;
+    double q=0., ali, ali1, h, h2, t, xl, xh;
     double          a[4];
 // find k with x[k] <= x1 <= x[k+1]
     k = hunt(x,n,x1,int((x1-x[0])/(x[n-1]-x[0])*(n-1)));
@@ -979,8 +979,8 @@ int CholeskyDecomposition(PPdbl a, const int n)
 // the lower triangle. (only the upper one has been used, however, the diagonal
 // elements will be overwritten).
 {
-    register int    i,j,k;
-    register double sum;
+    int    i,j,k;
+    double sum;
     for(i=0; i<n; i++)
 	for(j=i; j<n; j++) {
 	    for(sum=a[i][j],k=i-1; k>=0; k--)
@@ -998,8 +998,8 @@ int CholeskyDecomposition(PPdbl a, const int n)
 ////////////////////////////////////////////////////////////////////////////////
 void CholeskySolution(const double** a, const int n, Pdbl b)
 {
-    register int    i,k;
-    register double sum;
+    int    i,k;
+    double sum;
     for(i=0; i<n; i++) {
 	for(sum=b[i],k=i-1; k>=0; k--) sum -= a[i][k]*b[k];
 	b[i] = sum / a[i][i];
@@ -1015,8 +1015,8 @@ void CholeskyInvertL(PPdbl a, const int n)
 // given a, the output of CholeskyDecomposition(), we compute in place the
 // inverse of the lower triangular matrix L
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
     for(i=0; i<n; i++) {
         a[i][i] = 1./a[i][i];
         for(j=i+1; j<n; j++) {
@@ -1031,8 +1031,8 @@ void CholeskyInvertF(PPdbl a, const int n)
 // given a, the output of CholeskyInvertL(), we compute in place the
 // inverse fo the original input matrix to CholeskyDecomposition().
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
 // 1st compute L^-1^T * L^-1 in upper right triangle
     for(i=0; i<n; i++)
         for(j=n-1; j>=i; j--) {
@@ -1048,14 +1048,14 @@ void CholeskyInvertF(PPdbl a, const int n)
 int LUDecomposition(PPdbl a, const int n, Pint indx, int& d)
 {
     const double    tiny = 1.e-20;
-    register int    i,imax,j,k;
-    register double big, dum, sum;
+    int    i,imax,j,k;
+    double big, dum, sum;
     Pdbl            vv = new double[n];
 
     d = 1;
     for(i=0; i<n; i++) {
         big = 0.;
-	for(j=0; j<n; j++) big = std::max(big, fabs(a[i][j]));
+	for(j=0; j<n; j++) big = std::max(big, std::abs(a[i][j]));
         if(big==0.) return Numerics_message("LUDecomposition: singular matrix");
 	vv[i] = 1./big;
     }
@@ -1108,8 +1108,8 @@ double LUDet3(Matrix<double,3,3> &A){//det of 3x3 matrix
 ////////////////////////////////////////////////////////////////////////////////
 void LUSolution(double **a, const int n, const int *indx, Pdbl b)
 {
-    register int    i, ii=-1, ip, j;
-    register double sum;
+    int    i, ii=-1, ip, j;
+    double sum;
     for(i=0; i<n; i++) {
         ip    = indx[i];
 	sum   = b[ip];
@@ -1128,7 +1128,7 @@ void LUSolution(double **a, const int n, const int *indx, Pdbl b)
 ////////////////////////////////////////////////////////////////////////////////
 void LUInvert(double **a, double **y, const int n, const int *indx)
 {
-    register int   i,j;
+    int   i,j;
     double   col[n];
     for(j=0; j<n; j++) {
  	for(i=0; i<n; i++) col[i] = 0.;
@@ -1145,8 +1145,8 @@ int CholeskyDecomposition(PPflt a, const int n)
 // the lower triangle. (only the upper one has been used, however, the diagonal
 // elements will be overwritten).
 {
-    register int   i,j,k;
-    register float sum;
+    int   i,j,k;
+    float sum;
     for(i=0; i<n; i++)
 	for(j=i; j<n; j++) {
 	    for(sum=a[i][j],k=i-1; k>=0; k--)
@@ -1164,8 +1164,8 @@ int CholeskyDecomposition(PPflt a, const int n)
 ////////////////////////////////////////////////////////////////////////////////
 void CholeskySolution(const float** a, const int n, Pflt b)
 {
-    register int   i,k;
-    register float sum;
+    int   i,k;
+    float sum;
     for(i=0; i<n; i++) {
 	for(sum=b[i],k=i-1; k>=0; k--) sum -= a[i][k]*b[k];
 	b[i] = sum / a[i][i];
@@ -1181,8 +1181,8 @@ void CholeskyInvertL(PPflt a, const int n)
 // given a, the output of CholeskyDecomposition(), we compute in place the
 // inverse of the lower triangular matrix L
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
     for(i=0; i<n; i++) {
         a[i][i] = 1./a[i][i];
         for(j=i+1; j<n; j++) {
@@ -1197,8 +1197,8 @@ void CholeskyInvertF(PPflt a, const int n)
 // given a, the output of CholeskyInvertL(), we compute in place the
 // inverse fo the original input matrix to CholeskyDecomposition().
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
 // 1st compute L^-1^T * L^-1 in upper right triangle
     for(i=0; i<n; i++)
         for(j=n-1; j>=i; j--) {
@@ -1214,14 +1214,14 @@ void CholeskyInvertF(PPflt a, const int n)
 int LUDecomposition(PPflt a, const int n, Pint indx, int& d)
 {
     const float    tiny = 1.e-20;
-    register int   i,imax,j,k;
-    register float big, dum, sum;
+    int   i,imax,j,k;
+    float big, dum, sum;
     Pflt           vv = new float[n];
 
     d = 1;
     for(i=0; i<n; i++) {
         big = 0.;
-	for(j=0; j<n; j++) big = std::max(double(big), fabs(a[i][j]));
+	for(j=0; j<n; j++) big = std::max(big, std::abs(a[i][j]));
         if(big==0.) return Numerics_message("LUDecomposition: singular matrix");
 	vv[i] = 1./big;
     }
@@ -1265,8 +1265,8 @@ int LUDecomposition(PPflt a, const int n, Pint indx, int& d)
 ////////////////////////////////////////////////////////////////////////////////
 void LUSolution(const float **a, const int n, const int *indx, Pflt b)
 {
-    register int   i, ii=-1, ip, j;
-    register float sum;
+    int   i, ii=-1, ip, j;
+    float sum;
     for(i=0; i<n; i++) {
         ip    = indx[i];
 	sum   = b[ip];
@@ -1285,7 +1285,7 @@ void LUSolution(const float **a, const int n, const int *indx, Pflt b)
 ////////////////////////////////////////////////////////////////////////////////
 void LUInvert(const float **a, float **y, const int n, const int *indx)
 {
-    register int   i,j;
+    int   i,j;
     float    col[n];
     for(j=0; j<n; j++) {
  	for(i=0; i<n; i++) col[i] = 0.f;
@@ -1298,8 +1298,8 @@ void LUInvert(const float **a, float **y, const int n, const int *indx)
 ////////////////////////////////////////////////////////////////////////////////
 void tred2(PPdbl a, const int n, Pdbl d, Pdbl e, const char EV)
 {
-    register int     l,k,j,i;
-    register double  scale,hh,h,g,f;
+    int     l,k,j,i;
+    double  scale,hh,h,g,f;
     for(i=n-1; i>0; i--) {
         l = i - 1;
 	h = scale = 0.;
@@ -1366,8 +1366,8 @@ void tred2(PPdbl a, const int n, Pdbl d, Pdbl e, const char EV)
 ////////////////////////////////////////////////////////////////////////////////
 void tqli(Pdbl d, Pdbl e, const int n, PPdbl z, const char EV)
 {
-    register int    m,l,iter,i,k;
-    register double s,r,p,g,f,dd,c,b;
+    int    m,l,iter,i,k;
+    double s,r,p,g,f,dd,c,b;
     for(i=1; i<n; i++)
 	e[i-1] = e[i];
     e[n-1] = 0.;
@@ -1421,8 +1421,8 @@ void tqli(Pdbl d, Pdbl e, const int n, PPdbl z, const char EV)
 void balanc(double **a, const int n)
 {
     const    double radix=2., sqrdx=radix*radix;
-    register int    last=0,j,i;
-    register double s,r,g,f,c;
+    int    last=0,j,i;
+    double s,r,g,f,c;
 
     while(last==0) {
 	last=1;
@@ -1460,8 +1460,8 @@ void balanc(double **a, const int n)
 ////////////////////////////////////////////////////////////////////////////////
 void elmhes(double** a, const int n)
 {
-    register int    m,j,i;
-    register double y,x;
+    int    m,j,i;
+    double y,x;
     for(m=1; m<n-1; m++) {
 	x = 0.0;
 	i = m;
@@ -1489,8 +1489,8 @@ void elmhes(double** a, const int n)
 ////////////////////////////////////////////////////////////////////////////////
 void hqr(double** a, const int n, double* wr, double* wi)
 {
-    register int    nn,m,l,k,j,its,i,mmin;
-    register double z=0.,y=0.,x=0.,w=0.,v=0.,u=0.,t=0.,s=0.,r=0.,q=0.,p=0.,anrm;
+    int    nn,m,l,k,j,its,i,mmin;
+    double z=0.,y=0.,x=0.,w=0.,v=0.,u=0.,t=0.,s=0.,r=0.,q=0.,p=0.,anrm;
 
     anrm = fabs(a[0][0]);
     for(i=1; i<n; i++)
@@ -1619,8 +1619,8 @@ static double LevCof(const double *x,
 		  double *B,
 	    double (*f)(const double,const double*,double*,const int))
 {
-    register int    i,j,k,l,mf,n;
-    register double si,dy,wt,cq=0.;
+    int    i,j,k,l,mf,n;
+    double si,dy,wt,cq=0.;
 	     double *dyda=new double[M];
 
     for(i=mf=0; i<M; i++) if(fit[i]) mf++;
@@ -1657,9 +1657,9 @@ double LevMar(
 	      const double dcmax,
 	      const int    itmax)
 {
-    register int    it=0,i,j,mf;
+    int    it=0,i,j,mf;
 	     int    mm[2];
-    register double dc,lam=0.125,tm, cq, cqo;
+    double dc,lam=0.125,tm, cq, cqo;
 	     double **A, *B, **Ay, *By, *ay;
 
     Alloc1D(ay,M);
@@ -1703,7 +1703,7 @@ double LevMar(
 inline double gauss_fit(const double x,const double *p, double *df, const int D)
 {
     if(D != 3)Numerics_error("FitGauss: D != 3");
-    register double fg,tm;
+    double fg,tm;
     tm   =(x-p[1])/p[2];
     df[0]=exp(-0.5*pow(tm,2));
     fg   =p[0]*df[0];

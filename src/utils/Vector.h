@@ -72,7 +72,7 @@ public:
 template<class T>
 Vector<T,3> operator^ (const Vector<T,3>& A, const Vector<T,3>& B)
 {
-    register Vector<T,3> X;
+    Vector<T,3> X;
     X[0] = A(1)*B(2) - A(2)*B(1);
     X[1] = A(2)*B(0) - A(0)*B(2);
     X[2] = A(0)*B(1) - A(1)*B(0);
@@ -90,7 +90,7 @@ inline T norm(const Vector<T,N>& V)
 
 template<class T, class S, int N>
 inline Vector<T,N>& operator= (Vector<T,N>& Vt, const Vector<S,N>& Vs)
-    { for(register i=0; i<N; i++) Vt[i] = T(Vs(i));
+    { for(i=0; i<N; i++) Vt[i] = T(Vs(i));
       return Vt; }
 */
 
@@ -119,8 +119,8 @@ inline void put(const Vector<double,N>& V, ostream& to)
 template<int N>
 inline void put(const Vector<float,N>* V, const int M, ostream& to)
     { float* A = new float[M*N];
-      register float *Ai=A;
-      register int   m,n;
+      float *Ai=A;
+      int   m,n;
       for(m=0; m<M; m++) for(n=0; n<N; n++,Ai++) *Ai = V[m](n);
       ::put(A, M*N, to);
       delete[] A; }
@@ -128,8 +128,8 @@ inline void put(const Vector<float,N>* V, const int M, ostream& to)
 template<int N>
 inline void put(const Vector<double,N>* V, const int M, ostream& to)
     { double* A = new double[M*N];
-      register double *Ai=A;
-      register int    m,n;
+      double *Ai=A;
+      int    m,n;
       for(m=0; m<M; m++) for(n=0; n<N; n++,Ai++) *Ai = V[m](n);
       ::put(A, M*N, to);
       delete[] A; }
@@ -144,17 +144,17 @@ inline void get(Vector<double,N>& V, istream& from)
 
 template<int N>
 inline void get(Vector<float,N>* V, const int M, istream& from)
-    { register Vector<float,N> *Vm=V, *VM=V+M;
+    { Vector<float,N> *Vm=V, *VM=V+M;
       for(; Vm<VM; Vm++) get(*Vm,N,from); }
 
 template<int N>
 inline void get(Vector<double,N>* V, const int M, istream& from)
-    { register Vector<double,N> *Vm=V, *VM=V+M;
+    { Vector<double,N> *Vm=V, *VM=V+M;
       for(; Vm<VM; Vm++) get(*Vm,N,from); }
 
 template<class T, int N>
 inline Vector<T,N> read_compressed(istream& from)
-    { register Vector<T,N> x;
+    { Vector<T,N> x;
       x.get(from);
       return x; }
 
@@ -176,74 +176,74 @@ void Vector<T,N>::division_by_zero_error()
 
 template<class T, int N>
 Vector<T,N>::Vector(const T fill_value)
-    { for(register int i=0; i<N; i++) a[i] = fill_value; }
+    { for(int i=0; i<N; i++) a[i] = fill_value; }
 
 template<class T, int N>
 Vector<T,N>::Vector(const T *array)
-    { for(register int i=0; i<N; i++) a[i] = array[i]; }
+    { for(int i=0; i<N; i++) a[i] = array[i]; }
 
 template<class T, int N>
 Vector<T,N>::Vector(const Vector<T,N>& V)
-    { for(register int i=0; i<N; i++) a[i] = V.a[i]; }
+    { for(int i=0; i<N; i++) a[i] = V.a[i]; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator= (const Vector<T,N>& V)
-    { for(register int i=0; i<N; i++) a[i] = V.a[i];
+    { for(int i=0; i<N; i++) a[i] = V.a[i];
       return *this; }
 
 // (B) arithmetic operators with assign: =, +=, -=, *=, /=
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator= (const T fill_value)
-    { for(register int i=0; i<N; i++) a[i] = fill_value;
+    { for(int i=0; i<N; i++) a[i] = fill_value;
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator= (const T* array)
-    { for(register int i=0; i<N; i++) a[i] = array[i];
+    { for(int i=0; i<N; i++) a[i] = array[i];
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator+= (const Vector<T,N>& V)
-    { for(register int i=0; i<N; i++) a[i] += V.a[i];
+    { for(int i=0; i<N; i++) a[i] += V.a[i];
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator-= (const Vector<T,N>& V)
-    { for(register int i=0; i<N; i++) a[i] -= V.a[i];
+    { for(int i=0; i<N; i++) a[i] -= V.a[i];
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator+= (const T m)
-    { for(register int i=0; i<N; i++) a[i] += m;
+    { for(int i=0; i<N; i++) a[i] += m;
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator-= (const T m)
-    { for(register int i=0; i<N; i++) a[i] -= m;
+    { for(int i=0; i<N; i++) a[i] -= m;
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator*= (const T m)
-    { for(register int i=0; i<N; i++) a[i] *= m;
+    { for(int i=0; i<N; i++) a[i] *= m;
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::operator/= (const T m)
     { if(m==T(0.)) division_by_zero_error();
-      for(register int i=0; i<N; i++) a[i] /= m;
+      for(int i=0; i<N; i++) a[i] /= m;
       return *this; }
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::multiply_elements (const Vector& V)
-    { for(register int i=0; i<N; i++) a[i] *= V.a[i];
+    { for(int i=0; i<N; i++) a[i] *= V.a[i];
       return *this; }
 
 // (C) application of functions T->T onto individual elements
 
 template<class T, int N>
 Vector<T,N>& Vector<T,N>::apply	( T(*f)(T) )
-    { for(register int i=0; i<N; i++) a[i] = f(a[i]);
+    { for(int i=0; i<N; i++) a[i] = f(a[i]);
       return *this; }
 
 // (D) further arithmetic operators, all constant member functions
@@ -278,18 +278,18 @@ Vector<T,N> Vector<T,N>::operator/ (const T x) const
 
 template<class T, int N>
 T Vector<T,N>::operator* (const Vector<T,N>& V) const
-    { register T x=a[0] * V.a[0];
-      for(register int i=1; i<N; i++) x += a[i] * V.a[i];
+    { T x=a[0] * V.a[0];
+      for(int i=1; i<N; i++) x += a[i] * V.a[i];
       return x; }
 
 template<class T, int N>
 int Vector<T,N>::operator== (const Vector<T,N>& V) const
-    { for(register int i=0; i<N; i++) if(a[i] != V.a[i]) return 0;
+    { for(int i=0; i<N; i++) if(a[i] != V.a[i]) return 0;
       return 1; }
 
 template<class T, int N>
 int Vector<T,N>::operator!= (const Vector<T,N>& V) const
-    { for(register int i=0; i<N; i++) if(a[i] != V.a[i]) return 1;
+    { for(int i=0; i<N; i++) if(a[i] != V.a[i]) return 1;
       return 0; }
 
 
@@ -300,8 +300,8 @@ int Vector<T,N>::operator!= (const Vector<T,N>& V) const
 
 template<class T, int N>
 T Vector<T,N>::norm() const 
-    { register T x = a[0]*a[0];
-      for(register int i=1; i<N; i++) x += a[i]*a[i];
+    { T x = a[0]*a[0];
+      for(int i=1; i<N; i++) x += a[i]*a[i];
       return x; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,11 +310,11 @@ T Vector<T,N>::norm() const
 template<class T, int N>
 ostream& operator<< (ostream& s, const Vector<T,N>& V)
     { s << V(0);
-      for(register int i=1; i<N; i++) s << ' ' << V(i);
+      for(int i=1; i<N; i++) s << ' ' << V(i);
       return s; }
 /* version that writes `(a,b,c)'
     { s << '(' << V(0);
-      for(register int i=1; i<N; i++) s << ',' << V(i);
+      for(int i=1; i<N; i++) s << ',' << V(i);
       s << ')';
       return s; }
 */
@@ -323,7 +323,7 @@ template<class T, int N>
 istream& operator>> (istream& s, Vector<T,N>& V)
     { T x[N];
       char c=0;
-      register int i;
+      int i;
       s >> c;
       if(c == '(') {
           for(i=0; i<N; i++) s >> x[i];
@@ -345,22 +345,22 @@ istream& operator>> (istream& s, Vector<T,N>& V)
 template<class T, int N>
 inline Vector<T,N> real(const Vector<complex<T>,N>& V)
     { Vector<T,N> R;
-      for(register int i=0; i<N; i++) R[i] = real(V(i)); 
+      for(int i=0; i<N; i++) R[i] = real(V(i)); 
       return R; }
 template<class T, int N>
 inline Vector<T,N> imag(const Vector<complex<T>,N>& V)
     { Vector<T,N> R;
-      for(register int i=0; i<N; i++) R[i] = imag(V(i)); 
+      for(int i=0; i<N; i++) R[i] = imag(V(i)); 
       return R; }
 template<class T, int N>
 inline 	Vector<T,N> arg(const Vector<complex<T>,N>& V)
     { Vector<T,N> R;
-      for(register int i=0; i<N; i++) R[i] = arg(V(i)); 
+      for(int i=0; i<N; i++) R[i] = arg(V(i)); 
       return R; }
 template<class T, int N>
 inline 	Vector<complex<T>,N> conj(const Vector<complex<T>,N>& V)
     { Vector<complex<T>,N> R;
-      for(register int i=0; i<N; i++) R[i] = conj(V(i)); 
+      for(int i=0; i<N; i++) R[i] = conj(V(i)); 
       return R; }
 
 #endif

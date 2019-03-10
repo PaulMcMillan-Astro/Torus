@@ -25,15 +25,15 @@ float uncompress(const char s[5])
 {
     const int      i1=90;
     const float    at=8388608.f;
-    register int   m4=s[4];
+    int   m4=s[4];
     if(m4>=124) m4--; if(m4>=95) m4--; m4-=33;
     if(m4==80) return 0.f;
-    register int   j, nex, m0=s[0], m1=s[1], m2=s[2], m3=s[3];
+    int   j, nex, m0=s[0], m1=s[1], m2=s[2], m3=s[3];
     if(m0>=124) m0--; if(m0>=95) m0--; m0-=33;
     if(m1>=124) m1--; if(m1>=95) m1--; m1-=33;
     if(m2>=124) m2--; if(m2>=95) m2--; m2-=33;
     if(m3>=124) m3--; if(m3>=95) m3--; m3-=33;
-    register float x=1.f;
+    float x=1.f;
     if(m4>=40) {
         m4-= 40;
         x =-1.f;
@@ -50,12 +50,12 @@ void compress(const float x, char s[5])
 {
     const int    i1=90, i2=8100, i3=729000;
     const float  at=8388608., small=1.e-28, big=1.e28;
-    register int m0,m1,m2,m3,m4;
+    int m0,m1,m2,m3,m4;
     if(x==0.f) {
 	m4=80; m3=m2=m1=m0=0;
     } else {
-        register int   j,lx,rem;
-        register float xk=x, ax=fabs(xk), xa;
+        int   j,lx,rem;
+        float xk=x, ax=fabs(xk), xa;
 	if(ax>big) {
 	    xk = sign(big,xk);
 	    ax = big;
@@ -90,12 +90,12 @@ void put(const float x, ostream& to)
 {
     const int    i1=90, i2=8100, i3=729000;
     const float  at=8388608., small=1.e-28, big=1.e28;
-    register int m0,m1,m2,m3,m4;
+    int m0,m1,m2,m3,m4;
     if(x==0.f) {
 	m4=80; m3=m2=m1=m0=0;
     } else {
-        register int   j,lx,rem;
-        register float xk=x, ax=fabs(xk), xa;
+        int   j,lx,rem;
+        float xk=x, ax=fabs(xk), xa;
 	if(ax>big) {
 	    xk = sign(big,xk);
 	    ax = big;
@@ -128,7 +128,7 @@ void put(const float x, ostream& to)
 void put(const float* x, const int n, ostream& to)
 // put 1D array (rows of 80)
 {
-    register int   k,C=0;
+    int   k,C=0;
     for(k=0; k<n; C++,k++) {
         put(x[k],to);
         if(C>=15) {
@@ -141,7 +141,7 @@ void put(const float* x, const int n, ostream& to)
 void put(const float** x, int const n[2], ostream& to)
 // put 2D array (rows of 80)
 {
-    register int   i,j,C=0;
+    int   i,j,C=0;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; C++,j++) {
 	    put(x[i][j],to);
@@ -155,7 +155,7 @@ void put(const float** x, int const n[2], ostream& to)
 void put(const float*** x, int const n[3], ostream& to)
 // put 3D array (rows of 80)
 {
-    register int   i,j,k,C=0;
+    int   i,j,k,C=0;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
             for(k=0; k<n[2]; C++,k++) {
@@ -170,7 +170,7 @@ void put(const float*** x, int const n[3], ostream& to)
 void putFORTRAN(const float** x, int const n[2], ostream& to)
 // put 2D array (rows of 75), order of indices as in FORTRAN
 {
-    register int   i,j,C=0;
+    int   i,j,C=0;
     for(j=0; j<n[1]; j++)
         for(i=0; i<n[0]; C++,i++) {
 	    put(x[i][j],to);
@@ -184,7 +184,7 @@ void putFORTRAN(const float** x, int const n[2], ostream& to)
 void putFORTRAN(const float*** x, int const n[3], ostream& to)
 // put 3D array (rows of 75), order of indices as in FORTRAN
 {
-    register int   i,j,k,C=0;
+    int   i,j,k,C=0;
     for(k=0; k<n[2]; k++)
     	for(j=0; j<n[1]; j++)
     	    for(i=0; i<n[0]; C++,i++) {
@@ -204,7 +204,7 @@ void getFORTRAN(float**x, int const n[2], istream& in)
     float **y;
     Alloc2D(y,m);
     get(y,m,in);
-    register int i,j;
+    int i,j;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
 	    x[i][j] = y[j][i];
@@ -219,7 +219,7 @@ void getFORTRAN(float***x, const int n[3], istream& in)
     float ***y;
     Alloc3D(y,m);
     get(y,m,in);
-    register int i,j,k;
+    int i,j,k;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
             for(k=0; k<n[2]; k++)
@@ -230,7 +230,7 @@ void getFORTRAN(float***x, const int n[3], istream& in)
 void put(const double* x, const int n, ostream& to)
 // put 1D array (rows of 80)
 {
-    register int    k,C=0;
+    int    k,C=0;
     for(k=0; k<n; C++,k++) {
         put(float(x[k]),to);
         if(C>=15) {
@@ -243,7 +243,7 @@ void put(const double* x, const int n, ostream& to)
 void put(const double** x, int const n[2], ostream& to)
 // put 2D array (rows of 75)
 {
-    register int   i,j,C=0;
+    int   i,j,C=0;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; C++,j++) {
 	    put(float(x[i][j]),to);
@@ -257,7 +257,7 @@ void put(const double** x, int const n[2], ostream& to)
 void put(const double*** x, int const n[3], ostream& to)
 // put 3D array (rows of 75)
 {
-    register int   i,j,k,C=0;
+    int   i,j,k,C=0;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
             for(k=0; k<n[2]; C++,k++) {
@@ -277,7 +277,7 @@ void getFORTRAN(double**x, int const n[2], istream& in)
     double **y;
     Alloc2D(y,m);
     get(y,m,in);
-    register int i,j;
+    int i,j;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
 	    x[i][j] = y[j][i];
@@ -292,7 +292,7 @@ void getFORTRAN(double***x, int const n[3], istream& in)
     double ***y;
     Alloc3D(y,m);
     get(y,m,in);
-    register int i,j,k;
+    int i,j,k;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
             for(k=0; k<n[2]; k++)
@@ -307,8 +307,8 @@ void getFORTRAN(double***x, int const n[3], istream& in)
 void Put(const float* x, const int n, ostream& to)
 // put 1D array (rows of <= 80)
 {
-    register int   k,C;
-    register float xk;
+    int   k,C;
+    float xk;
     for(C=k=0; k<n; k++) {
 	xk = x[k];
 	if(xk==0.f) {				// if x == 0
@@ -326,8 +326,8 @@ void Put(const float* x, const int n, ostream& to)
 void Put(const float** x, int const n[2], ostream& to)
 // put 2D array (rows of 75)
 {
-    register int   i,j,C=0;
-    register float xk;
+    int   i,j,C=0;
+    float xk;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++) {
 	    xk = x[i][j];
@@ -346,8 +346,8 @@ void Put(const float** x, int const n[2], ostream& to)
 void Put(const float*** x, int const n[3], ostream& to)
 // put 3D array (rows of 75)
 {
-    register int   i,j,k,C=0;
-    register float xk;
+    int   i,j,k,C=0;
+    float xk;
     for(i=0; i<n[0]; i++)
         for(j=0; j<n[1]; j++)
             for(k=0; k<n[2]; k++) {
@@ -372,8 +372,8 @@ void compress(float* x, char* s, const int npt)
     const int      i1=90, i2=8100, i3=729000;
     const float    at=8388608., small=1.e-28, big=1.e28;
     int            m[5];
-    register int   j,k,lx,rem;
-    register float xk,ax,xa;
+    int   j,k,lx,rem;
+    float xk,ax,xa;
     for(k=0;k<npt;k++) {
 	if(x[k]==0.) {
 	    m[4]=80; m[3]=0; m[2]=0; m[1]=0; m[0]=0;
@@ -411,7 +411,7 @@ void uncompress(char* s, float* x, const int npt)
     const int    i1=90;
     const float  at=8388608.;
     int          m[5];
-    register int j,k,nex;
+    int j,k,nex;
     for(k=0; k<npt; k++) {
 	for(j=0;j<5;j++) {
 	    m[j] = s[5*k+j];

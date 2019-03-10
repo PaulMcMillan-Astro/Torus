@@ -358,7 +358,7 @@ inline void find(int& klo, const int n, S const *x, const S xi)
 template<class S>
 inline int find_for_polev(int& j, const int n, const int m, const S *x, const S xi)
 {
-    register int M=m;
+    int M=m;
     j = int( (xi-x[0]) / (x[n-1]-x[0]) * (n-1) );
     j = hunt(x,n,xi,j) - (m+1)/2 + 1;
     if(j>=0 && j<n && x[j]==xi)	 M = 1; 	// no interpolation required
@@ -372,8 +372,8 @@ template<class S, class T>
 T polint(const S *xa, const T *ya, const int n, const S x)
 // polynom interpolation using n values
 {
-    register int i,m;
-    register T   y, *P=new T[n];
+    int i,m;
+    T   y, *P=new T[n];
 
     for(i=0;i<n;i++) P[i]=ya[i];
     for(m=1;m<n;m++)
@@ -409,7 +409,7 @@ T polev_2d(const S xi[2], S* const xarr[2], T**yarr, const int n[2], const int m
         M[1] = find_for_polev(j[1],n[1],4,xarr[1],xi[1]);
     }
 
-    register int l;
+    int l;
     T *y0 = new T[M[0]];
     for(l=0;l<M[0];l++)
 	y0[l] = polint(xarr[1]+j[1], yarr[j[0]+l]+j[1], M[1], xi[1]);
@@ -437,7 +437,7 @@ T polev_3d(S    const xi[3],
       M[1] = find_for_polev(j[1],n[1],4,xarr[1],xi[1]);
       M[2] = find_for_polev(j[2],n[2],4,xarr[2],xi[2]);
     }
-    register int k0,k1;
+    int k0,k1;
     T *y0 = new T[M[0]];
     T *y1 = new T[M[1]];
     for(k0=0; k0<M[0]; k0++) {
@@ -465,8 +465,8 @@ void Spline(S*  const x,	// input:   table of points
 // - y can be of more general type than scalar, e.g., Vector, Matrix.
 {
     const S  zero=0., half=0.5, one=1., two=2., three=3., six=6.;
-    register int i;
-    register S   qn,p,sig,dx,dx1,dx2;
+    int i;
+    S   qn,p,sig,dx,dx1,dx2;
              T   un,dy,dy1;
     T *u = new T[n-1];
     S *v = new S[n-1];
@@ -511,9 +511,9 @@ void SplinedY(S*  const x,	// input:   table of points
 // computes dy/dx of a cubic spline that passes through the given points
 {
     const S  zero=0., half=0.5, one=1., two=2., three=3., six=6.;
-    register int i;
-    register S   qn,p,sig,dx,dx1,dx2;
-    register T   un,dy,dy1;
+    int i;
+    S   qn,p,sig,dx,dx1,dx2;
+    T   un,dy,dy1;
     T *u = new T[n-1];
     T *y2= new T[n-1];
     S *v = new S[n-1];
@@ -570,8 +570,8 @@ void spline(S*  const x,	// input:   table of points
 // - y can be of more general type than scalar, e.g., Vector, Matrix.
 {
     const S  zero=0., half=0.5, one=1., two=2., three=3., six=6.;
-    register int i;
-    register S   qn,p,sig,dx,dx1,dx2;
+    int i;
+    S   qn,p,sig,dx,dx1,dx2;
              T   un,dy,dy1;
     T *u = new T[n-1];
     S *v = new S[n-1];
@@ -626,8 +626,8 @@ T splout(			// return:  y(xi)
 // - y can be of more general type than scalar, e.g., Vector, Matrix.
 {
     const S  zero=0., half=0.5, one=1., two=2., three=3., six=6.;
-    register int i, k, klo=0, khi=n-1;
-    register S   a,b,h,qn,p,sig,dx,dx1,dx2;
+    int i, k, klo=0, khi=n-1;
+    S   a,b,h,qn,p,sig,dx,dx1,dx2;
     while(khi-klo > 1) {
 	k=(khi+klo)/2;
 	if(x[k]>xi) khi=k;
@@ -636,7 +636,7 @@ T splout(			// return:  y(xi)
     if((h=x[khi]-x[klo])==zero) Numerics_error("splout: bad X input");
     if(x[klo]==xi) return y[klo];
 
-    register T   Y,un,dy,dy1;
+    T   Y,un,dy,dy1;
     T *y2= new T[n-1];
     T *u = new T[n-1];
     S *v = new S[n-1];
@@ -689,13 +689,13 @@ T splint(			// return:  y(xi)
 	 T* d2y=0)		// output:  d^2y/d^2x(xi) if d2y != 0
 {
     const    S   zero=0., one=1., three=3., six=6.;
-    register S   h,h6,A,B;
+    S   h,h6,A,B;
     if((h=x[1]-x[0])==zero) Numerics_error("splint bad X input");
     h6 = h / six;
     A  = (x[1]-xi) / h;
     B  = one - A;
     if(dy) {
-        register S Aq=A*A, Bq=B*B;
+        S Aq=A*A, Bq=B*B;
         *dy = (y[1]-y[0])/h + h6*((three*Bq-one)*y2[1]-(three*Aq-one)*y2[0]);
         if(d2y) *d2y = A*y2[0] + B*y2[1];
         return A*y[0] +B*y[1] +((Aq-one)*A*y2[0]+(Bq-one)*B*y2[1])*(h*h6);
@@ -717,13 +717,13 @@ T splinT(			// return:  y(xi)
 	 T* d2y=0)		// output:  d^2y/d^2x(xi) if d2y != 0
 {
     const    S   zero=0., one=1., three=3., six=6.;
-    register S   h,h6,A,B;
+    S   h,h6,A,B;
     if((h=xhi-xlo)==zero) Numerics_error("splint bad X input");
     h6 = h / six;
     A  = (xhi-xi) / h;
     B  = one - A;
     if(dy) {
-        register S Aq=A*A, Bq=B*B;
+        S Aq=A*A, Bq=B*B;
         *dy = (yhi-ylo)/h + h6*((three*Bq-one)*y2hi-(three*Aq-one)*y2lo);
         if(d2y) *d2y = A*y2lo + B*y2hi;
         return A*ylo +B*yhi +((Aq-one)*A*y2lo+(Bq-one)*B*y2hi)*(h*h6);
@@ -748,24 +748,24 @@ void splinTarr(
 {
 // computes K splines simultaneously
     const    S   zero=0., one=1., three=3., six=6.;
-    register T   *Y=y, *Yl=yl, *Yh=yh, *Y2l=y2l, *Y2h=y2h, *YK=y+K;
-    register S   h,h6,hh,A,B,Aq,Bq,Ap,Bp;
+    T   *Y=y, *Yl=yl, *Yh=yh, *Y2l=y2l, *Y2h=y2h, *YK=y+K;
+    S   h,h6,hh,A,B,Aq,Bq,Ap,Bp;
     if((h=xh-xl)==zero) Numerics_error("splinTarr bad X input");
     h6=h/six;
     hh=h*h6;
     A =(xh-xi)/h;  Aq=A*A;  Ap=(Aq-one)*A*hh;
     B =one-A;      Bq=B*B;  Bp=(Bq-one)*B*hh;
     if(d2y) {
-	register T *dY=dy, *d2Y=d2y;
-	register S Au=h6*(three*Aq-one), Bu=h6*(three*Bq-one);
+	T *dY=dy, *d2Y=d2y;
+	S Au=h6*(three*Aq-one), Bu=h6*(three*Bq-one);
         for(; Y<YK; Y++,Yl++,Yh++,Y2l++,Y2h++,dY++,d2Y++) {
 	    *Y   = A**Yl+B**Yh+Ap**Y2l+Bp**Y2h;
             *dY  = (*Yh-*Yl)/h + Bu**Y2h-Au**Y2l;
             *d2Y = A**Y2l + B**Y2h;
 	}
     } else if(dy) {
-	register T *dY=dy;
-	register S Au=h6*(three*Aq-one), Bu=h6*(three*Bq-one);
+	T *dY=dy;
+	S Au=h6*(three*Aq-one), Bu=h6*(three*Bq-one);
         for(; Y<YK; Y++,Yl++,Yh++,Y2l++,Y2h++,dY++) {
 	    *Y   = A**Yl+B**Yh+Ap**Y2l+Bp**Y2h;
             *dY  = (*Yh-*Yl)/h + Bu**Y2h-Au**Y2l;
@@ -810,8 +810,8 @@ void spline_2d(
 	T*   const yp11=0,  // input:   dy/dx0(x0[i], x1[0])     nat if yp11 = 0
 	T*   const ypn1=0)  // input:   dy/dx0(x0[i], x1[n1-1])  nat if ypn1 = 0
 {
-    register int i,j;
-    register T   yp1,ypn;
+    int i,j;
+    T   yp1,ypn;
     T *t = new T[n[0]];
     T *t2= new T[n[0]];
 // 1. for each x1 do 1D spline for y in x0
@@ -847,7 +847,7 @@ T splev_2d(			// return:  y(x0i,x1i)
 	T**        d2y=0)	// output:  d^2y/dxi/dxj    if d2y!= 0
 {
     int l0=0, l1=0;
-    register T yl,yh,y2l,y2h;
+    T yl,yh,y2l,y2h;
     find(l0,n[0],x[0],xi[0]);
     find(l1,n[1],x[1],xi[1]);
     if(d2y) {
@@ -892,7 +892,7 @@ void spline_3d(
 	T**  ypn2=0)       // input:   dy/dx2(x0[i], x1[j], x2[n2-1]) nat if=0
 {
 // if the pointers yp?? = 0, a natural spline is used.
-    register int i,j,k,nn=fmax(n[0],n[1]);
+    int i,j,k,nn=fmax(n[0],n[1]);
     T *t = new T[nn];
     T *t2= new T[nn];
 // 1. for each x2 do 2D spline for y in x0-x1
@@ -959,7 +959,7 @@ T splev_3d(	          // return:   y(xi_0,xi_1,xi_2)
     find(l0,n[0],x[0],xi[0]);
     find(l1,n[1],x[1],xi[1]);
     find(l2,n[2],x[2],xi[2]);
-    register int k0=l0+1, k1=l1+1, k2=l2+1;
+    int k0=l0+1, k1=l1+1, k2=l2+1;
     T  Al[16]={   y[l0][l1][l2],   y[k0][l1][l2],a[0][l0][l1][l2],a[0][k0][l1][l2],
                   y[l0][k1][l2],   y[k0][k1][l2],a[0][l0][k1][l2],a[0][k0][k1][l2],
                a[1][l0][l1][l2],a[1][k0][l1][l2],a[2][l0][l1][l2],a[2][k0][l1][l2],
@@ -1029,11 +1029,11 @@ S qbulir(C* o, S(C::*func)(S), const S a, const S b, const S eps_, S& err)
 //      err    actual relative error of the return value.
 //------------------------------------------------------------------------------
 {
-    register S ba=b-a;
+    S ba=b-a;
     if(ba==0.) return 0.;
 
-    register int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
-    register S      c,d[7],d1,ddt,den,dt[7],e,eps,eta=S(1.e-7),
+    int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
+    S      c,d[7],d1,ddt,den,dt[7],e,eps,eta=S(1.e-7),
                     gr,hm,nt,sm,t,t1,t2,t2a,ta,tab,tb,v,w;
 
     while(eta+1. != 1.) eta *=S(0.5);
@@ -1141,12 +1141,12 @@ template<class C, class S>
 S qbulir(const C* const o, S(C::*func)(S) const, const S a, const S b, const S eps_)
 // as qbulir() above, but without return of an error estimate.
 {
-    register S ba=b-a;
+    S ba=b-a;
     if(ba==0.) return 0.;
 
-    register int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
+    int    i,n=2,nn=3,mx=25,m,mr, bo,bu=0,odd=1;
 	     S      d[7],dt[7];
-    register S      c,d1,ddt,den,e,eps,err,eta=S(1.e-7),
+    S      c,d1,ddt,den,e,eps,err,eta=S(1.e-7),
                     gr,hm,nt,sm,t,t1,t2,t2a,ta,tab=0.,tb,v=0.,w;
 
     while(eta+1. != 1.) eta *=S(0.5);
@@ -1256,8 +1256,8 @@ void HeapIndex(const S* A, const int n, int *indx)
 {
     if(n<=0) return;
     if(n==1) { indx[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -1294,8 +1294,8 @@ void HeapIndex(const Vector<S,N>& A, Vector<int,N>& INDX)
 {
     if(N<=0) return;
     if(N==1) { INDX[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<N; j++) INDX[j] = j;
     l = N>>1;
     ir= N-1;
@@ -1332,8 +1332,8 @@ void HeapIndexAbs(const Vector<S,N>& A, Vector<int,N>& INDX)
 {
     if(N<=0) return;
     if(N==1) { INDX[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<N; j++) INDX[j] = j;
     l = N>>1;
     ir= N-1;
@@ -1369,17 +1369,17 @@ void HeapSort(Vector<S,N>& A)
     Vector<int,N> INDX;
     Vector<S,N>   B=A;
     HeapIndex(B,INDX);
-    for(register int j=0; j<N; j++) A[j] = B(INDX(j));
+    for(int j=0; j<N; j++) A[j] = B(INDX(j));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class S, int N>
 void HeapSortAbs(Vector<S,N>& A)
 {
-    register Vector<int,N> INDX;
-    register Vector<S,N>   B=A;
+    Vector<int,N> INDX;
+    Vector<S,N>   B=A;
     HeapIndexAbs(B,INDX);
-    for(register int j=0; j<N; j++) A[j] = B(INDX(j));
+    for(int j=0; j<N; j++) A[j] = B(INDX(j));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1390,8 +1390,8 @@ void HeapIndexF(S(*A)(const int), const int n, int *indx)
 {
     if(n<=0) return;
     if(n==1) { indx[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -1428,8 +1428,8 @@ void HeapIndexAbs(S *A, const int n, int *indx)
 {
     if(n<=0) return;
     if(n==1) { indx[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -1466,8 +1466,8 @@ void HeapIndexAbsF(S(*A)(const int), const int n, int *indx)
 {
     if(n<=0) return;
     if(n==1) { indx[0]=0; return; }
-    register int l,j,ir,indxt,i;
-    register S   q;
+    int l,j,ir,indxt,i;
+    S   q;
     for(j=0; j<n; j++) indx[j] = j;
     l = n>>1;
     ir= n-1;
@@ -1502,8 +1502,8 @@ template<class FLOAT, int N>
 void Balance(Matrix<FLOAT,N,N>& A)
 {
     const    FLOAT  radix=2., sqrdx=radix*radix, zero=0., one=1.;
-    register int    last=0,j,i;
-    register FLOAT  s,r,g,f,c;
+    int    last=0,j,i;
+    FLOAT  s,r,g,f,c;
 
     while(last==0) {
 	last=1;
@@ -1543,8 +1543,8 @@ template<class FLOAT, int N>
 void Hessenberg(Matrix<FLOAT,N,N>& A)
 {
     const    FLOAT  zero=0.;
-    register int    m,j,i;
-    register FLOAT  y,x;
+    int    m,j,i;
+    FLOAT  y,x;
     for(m=1; m<N-1; m++) {
 	x = zero;
 	i = m;
@@ -1575,8 +1575,8 @@ template<class FLOAT, int N>
 void QRHessenberg(Matrix<FLOAT,N,N>& A, Vector<complex<FLOAT>,N>& LAM)
 {
     const    FLOAT  zero=0., half=0.5;
-    register int    nn,m,l,k,j,its,i,mmin;
-    register FLOAT  z,y,x,w,v,u,t,s,r,q,p,anrm;
+    int    nn,m,l,k,j,its,i,mmin;
+    FLOAT  z,y,x,w,v,u,t,s,r,q,p,anrm;
 
     z = y = x = w = v = u = t = s = r = q = p = zero;
     anrm = WDabs(A(0,0));
@@ -1696,9 +1696,9 @@ template<class FLOAT,int N>
 void Tred2(Matrix<FLOAT,N,N>& A, Vector<FLOAT,N>& D, Vector<FLOAT,N>& E,
 	   const char EV=1)
 {
-    register int     l,k,j,i;
+    int     l,k,j,i;
     const    FLOAT   zero=0, one=1;
-    register FLOAT   scale,hh,h,g,f;
+    FLOAT   scale,hh,h,g,f;
     for(i=N-1; i>0; i--) {
         l = i - 1;
         h = scale = zero;
@@ -1765,9 +1765,9 @@ template<class FLOAT,int N>
 void Tqli(Vector<FLOAT,N>& D, Vector<FLOAT,N>& E, Matrix<FLOAT,N,N>& Z,
 	  const char EV=1)
 {
-    register int    m,l,iter,i,k;
+    int    m,l,iter,i,k;
     const    FLOAT  zero=0;
-    register FLOAT  s,r,p,g,f,dd,c,b;
+    FLOAT  s,r,p,g,f,dd,c,b;
     for(i=1; i<N; i++)
         E[i-1] = E(i);
     E[N-1] = zero;
@@ -1824,10 +1824,10 @@ template<class FLOAT, int N>
 void Jacobi(Matrix<FLOAT,N,N>& A, Vector<FLOAT,N>& D,
 	    Matrix<FLOAT,N,N>& V, int& nrot)
 {
-    register int    iq,ip,i,j;
+    int    iq,ip,i,j;
     const    FLOAT  zero=0, half=0.5, one=1, fifth=0.2, hundred=100;
-    register FLOAT  tresh,theta,tau,t,sm,s,h,g,c;
-    register Vector<FLOAT,N> B,Z=zero;
+    FLOAT  tresh,theta,tau,t,sm,s,h,g,c;
+    Vector<FLOAT,N> B,Z=zero;
     for (ip=0; ip<N; ip++) {
 	for (iq=0; iq<N; iq++) V[ip][iq]=zero;
 	V[ip][ip] = one;
@@ -1884,8 +1884,8 @@ void Jacobi(Matrix<FLOAT,N,N>& A, Vector<FLOAT,N>& D,
 template<class FLOAT,int N>
 int GaussBack(Matrix<FLOAT,N,N>& a, Vector<FLOAT,N>& b)
 {
-    register int    i,irow,j,l;
-    register FLOAT  pivinv, temp;
+    int    i,irow,j,l;
+    FLOAT  pivinv, temp;
     for(i=0; i<N; i++) {
 	irow = i;
 	for(j=i+1; j<N; j++)
@@ -1924,9 +1924,9 @@ int RofQR(Matrix<FLOAT,N,N>& A)
 // replaces A by R of its QR decomposition
 {
     const    FLOAT zero=0., one=1.;
-    register int   i,j,k;
-    register FLOAT beta,s,sigma,sum;
-    register Vector<FLOAT,N> d;
+    int   i,j,k;
+    FLOAT beta,s,sigma,sum;
+    Vector<FLOAT,N> d;
     for(j=0; j<N; j++) {
 	for(i=j,sigma=zero; i<N; i++)
 	    sigma += pow(A(i,j),2);
@@ -1951,9 +1951,9 @@ int RofQR(Matrix<FLOAT,N,N>& A)
 
 /*
     const    FLOAT zero=0.;
-    register int   i,j,k;
-    register FLOAT scale,sigma,sum,tau;
-    register Vector<FLOAT,N> c(zero),d(zero);
+    int   i,j,k;
+    FLOAT scale,sigma,sum,tau;
+    Vector<FLOAT,N> c(zero),d(zero);
     for (k=0; k<N-1; k++) {
 	for(i=k,scale=zero; i<N; i++)
 	    scale = fmax(scale,WDabs(A(i,k)));
@@ -1987,8 +1987,8 @@ void LegendrePeven(Vector<S,N>& p, const double x)
 // based on a routine from J.J. Binney
 // evaluates even Legendre Polys up to l=2*(N-1) at x
 {
-    register int    n,l,l2;
-    register double x2=x*x;
+    int    n,l,l2;
+    double x2=x*x;
     p[0] = 1.;
     p[1] = 1.5*x2-0.5;
     for(n=2; n<N; n++) {
@@ -2004,8 +2004,8 @@ void dLegendrePeven(Vector<S,N>& p, Vector<S,N>& d, const double x)
 // based on a routine from J.J. Binney
 // evaluates even Legendre Polys and its derivs up to l=2*(N-1) at x
 {
-    register int    n,l,l2;
-    register double x2=x*x;
+    int    n,l,l2;
+    double x2=x*x;
     p[0] = 1.;
     d[0] = 0.;
     p[1] = 1.5*x2-0.5;
@@ -2034,8 +2034,8 @@ int CholeskyDecomposition(Matrix<T,N,N>& A)
 // the lower triangle. (only the upper one has been used, however, the diagonal
 // elements will be overwritten).
 {
-    register int    i,j,k;
-    register double sum;
+    int    i,j,k;
+    double sum;
     for(i=0; i<N; i++)
 	for(j=i; j<N; j++) {
 	    sum = A(i,j);
@@ -2055,8 +2055,8 @@ int CholeskyDecomposition(Matrix<T,N,N>& A)
 template<class T, int N>
 void CholeskySolution(const Matrix<T,N,N>& A, Vector<T,N>& B)
 {
-    register int    i,k;
-    register double sum;
+    int    i,k;
+    double sum;
     for(i=0; i<N; i++) {
 	sum  = B(i);
 	for(k=i-1; k>=0; k--) sum -= A(i,k)*B(k);
@@ -2075,8 +2075,8 @@ void CholeskyInvertL(Matrix<T,N,N>& A)
 // given a, the output of CholeskyDecomposition(), we compute in place the
 // inverse of the lower triangular matrix L
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
     for(i=0; i<N; i++) {
         A[i][i] = 1./A(i,i);
         for(j=i+1; j<N; j++) {
@@ -2092,8 +2092,8 @@ void CholeskyInvertF(Matrix<T,N,N>& A)
 // given a, the output of CholeskyInvertL(), we compute in place the
 // inverse fo the original input matrix to CholeskyDecomposition().
 {
-    register int i,j,k;
-    register double sum;
+    int i,j,k;
+    double sum;
 // 1st compute L^-1^T * L^-1 in upper right triangle
     for(i=0; i<N; i++)
         for(j=N-1; j>=i; j--) {
@@ -2118,7 +2118,7 @@ inline Y rk4(const Y y, const Y dy0, const X x, const X h,
 	     Y(*derivs)(const X, const Y))
 {
   const    X   hh=0.5*h, h6=h/6., xh=x+hh;
-  register Y   yt,dym,dyt;
+  Y   yt,dym,dyt;
   dyt = derivs(xh,y+hh*dy0);
   dym = derivs(xh,y+hh*dyt);
   yt  = y+h*dym;
@@ -2140,7 +2140,7 @@ inline Y RK4(C *const o,const Y y, const Y dy0, const X x, const X h,
 	     Y(C::*derivs)(const X, const Y))
 {
   const    X   hh=0.5*h, h6=h/6., xh=x+hh;
-  register Y   yt,dym,dyt;
+  Y   yt,dym,dyt;
   dyt = (o->*derivs)(xh,y+hh*dy0);
   dym = (o->*derivs)(xh,y+hh*dyt);
   yt  = y+h*dym;

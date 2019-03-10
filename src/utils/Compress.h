@@ -116,14 +116,14 @@ void  Get	(      float***,  const int[3], istream&);
 
 inline void  compress(const float* x, char* s, const int n)
 {
-    register int   k,k5;
+    int   k,k5;
     for(k=k5=0; k<n; k++,k5+=5) compress(x[k],s+k5);
 }
 
 inline void  uncompress(char* s, float* x, const int n)
 {
-    register int   k5;
-    register float *xk, *xn=x+n;
+    int   k5;
+    float *xk, *xn=x+n;
     for(xk=x,k5=0; xk<xn; xk++,k5+=5) *xk = uncompress(s+k5);
 }
 
@@ -134,19 +134,19 @@ inline void skip(istream& in)
 
 inline void skip1D(const int n, istream& in)
 {
-    register int n5 = 5*n;
+    int n5 = 5*n;
     in.seekg(n5+n5/80,ios::cur);
 }
 
 inline void skip2D(const int n[2], istream& in)
 {
-    register int n5 = 5*n[0]*n[1];
+    int n5 = 5*n[0]*n[1];
     in.seekg(n5+n5/80,ios::cur);
 }
 
 inline void skip3D(const int n[3], istream& in)
 {
-    register int n5 = 5*n[0]*n[1]*n[2];
+    int n5 = 5*n[0]*n[1]*n[2];
     in.seekg(n5+n5/80,ios::cur);
 }
 
@@ -159,19 +159,19 @@ inline float get(istream& in)
 
 inline void get(float* x, const int n, istream& in)
 {
-    register float *xk, *xn=x+n;
+    float *xk, *xn=x+n;
     for(xk=x; xk<xn; xk++) *xk = get(in);
 }
 
 inline void get(float** x, int const n[2], istream& in)
 {
-    register float **xk, **xn=x+n[0];
+    float **xk, **xn=x+n[0];
     for(xk=x; xk<xn; xk++) get(*xk,n[1],in);
 }
 
 inline void get(float*** x, int const n[3], istream& in)
 {
-    register float ***xk, ***xn=x+n[0];
+    float ***xk, ***xn=x+n[0];
     for(xk=x; xk<xn; xk++) get(*xk,n+1,in);
 }
 
@@ -179,32 +179,32 @@ inline void get(float*** x, int const n[3], istream& in)
 
 inline void  compress(const double* x, char* s, const int n)
 {
-    register int    k,k5;
+    int    k,k5;
     for(k=k5=0; k<n; k++,k5+=5) compress(float(x[k]),s+k5);
 }
 
 inline void  uncompress(char* s, double* x, const int n)
 {
-    register int    k5;
-    register double *xk, *xn=x+n;
+    int    k5;
+    double *xk, *xn=x+n;
     for(xk=x,k5=0; xk<xn; xk++,k5+=5) *xk = double(uncompress(s+k5));
 }
 
 inline void get(double* x, const int n, istream& in)
 {
-    register double *xk, *xn=x+n;
+    double *xk, *xn=x+n;
     for(xk=x; xk<xn; xk++) *xk = double(get(in));
 }
 
 inline void get(double** x, int const n[2], istream& in)
 {
-    register double **xk, **xn=x+n[0];
+    double **xk, **xn=x+n[0];
     for(xk=x; xk<xn; xk++) get(*xk,n[1],in);
 }
 
 inline void get(double*** x, int const n[3], istream& in)
 {
-    register double ***xk, ***xn=x+n[0];
+    double ***xk, ***xn=x+n[0];
     for(xk=x; xk<xn; xk++) get(*xk,n+1,in);
 }
 
@@ -231,19 +231,19 @@ inline float Get(istream& in)
 
 inline void Get(float* x, const int n, istream& in)
 {
-    register float *xk, *xn=x+n;
+    float *xk, *xn=x+n;
     for(xk=x; xk<xn; xk++) *xk = Get(in);
 }
 
 inline void Get(float** x, int const n[2], istream& in)
 {
-    register float **xk, **xn=x+n[0];
+    float **xk, **xn=x+n[0];
     for(xk=x; xk<xn; xk++) Get(*xk,n[1],in);
 }
 
 inline void Get(float*** x, int const n[3], istream& in)
 {
-    register float ***xk, ***xn=x+n[0];
+    float ***xk, ***xn=x+n[0];
     for(xk=x; xk<xn; xk++) Get(*xk,n+1,in);
 }
 
